@@ -1,0 +1,52 @@
+# dependencias
+node_modules/
+.npm/
+
+# builds
+dist/
+build/
+web-build/
+*.tsbuildinfo
+
+# Expo
+.expo/
+expo-env.d.ts
+
+# nativos gerados
+/apps/*/ios/
+/apps/*/android/
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+
+# ambiente — NUNCA versionar. Só .env.example entra no git.
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# plataformas
+.vercel/
+.supabase/
+supabase/.temp/
+
+# sistema
+.DS_Store
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+.metro-health-check*
+
+# testes
+coverage/
+
+# Gerado por `deno check` nas Edge Functions. Nada no repositorio o mantem, e a
+# versao ja esta presa no proprio import (`jsr:@supabase/supabase-js@2`) — um
+# lockfile orfao so envelheceria em silencio.
+deno.lock

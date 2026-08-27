@@ -1,0 +1,20 @@
+node_modules/
+dist/
+build/
+.expo/
+coverage/
+package-lock.json
+docs/design/canvas/
+docs/product/FLY_APP_MASTER_SPEC.md
+
+# Gerado por `npm run db:types`. Formatar aqui cria diff a cada regeneracao.
+packages/domain-types/src/database.types.ts
+
+# Skills de terceiro (`npx skills add`, `npx impeccable install`).
+.claude/skills/
+.agents/
+.codex/
+.github/skills/
+.github/hooks/
+.github/agents/
+skills-lock.json

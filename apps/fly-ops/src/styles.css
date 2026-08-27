@@ -1,0 +1,470 @@
+/*
+ * Fase 0. As cores vem de theme.ts, que le @fly/design-tokens — nao escreva
+ * hex aqui. O layout final chega na Fase 1, junto com o design system.
+ */
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--fly-bg);
+  color: var(--fly-text);
+  font-family: var(--fly-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 4.5rem 1.5rem;
+}
+
+.kicker {
+  margin: 0 0 1rem;
+  font-size: 0.594rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--fly-gold);
+}
+
+h1 {
+  margin: 0 0 0.75rem;
+  font-size: 2.063rem;
+  font-weight: 700;
+  letter-spacing: -0.038em;
+  line-height: 1;
+}
+
+.muted {
+  color: var(--fly-text-muted);
+  font-size: 0.938rem;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--fly-gold);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--fly-gold-hover);
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin: 1.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.028em;
+}
+
+.dot {
+  flex: none;
+  width: 0.563rem;
+  height: 0.563rem;
+  border-radius: 50%;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: 10rem 1fr;
+  gap: 0.5rem 1rem;
+  margin: 2rem 0;
+  padding: 1.25rem;
+  border: 1px solid var(--fly-stroke);
+  border-radius: 1.5rem;
+  background: var(--fly-graphite);
+  font-size: 0.875rem;
+}
+
+.facts dt {
+  color: var(--fly-text-muted);
+}
+
+.facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.checks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.checks li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--fly-stroke);
+  font-size: 0.875rem;
+}
+
+.checks li .muted {
+  margin-left: auto;
+  font-size: 0.813rem;
+}
+
+@media (max-width: 32rem) {
+  .facts {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Painel ---- */
+
+.app {
+  min-height: 100vh;
+}
+
+.topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--fly-stroke);
+  background: var(--fly-graphite);
+}
+
+.topo__marca {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.topo__conta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.abas {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.aba {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 1rem;
+  border-radius: 1.0625rem;
+  font-size: 0.875rem;
+  color: var(--fly-text-muted);
+}
+
+.aba:hover {
+  color: var(--fly-text);
+}
+
+.aba--ativa {
+  color: var(--fly-gold);
+  background: rgba(223, 201, 138, 0.12);
+}
+
+.page--narrow {
+  max-width: 26rem;
+}
+
+.cabecalho {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.cabecalho h1 {
+  margin: 0.5rem 0 0;
+}
+
+/* ---- Formulário ---- */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+.form--linha {
+  flex-direction: row;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1 1 14rem;
+  font-size: 0.875rem;
+}
+
+.field input,
+.field select {
+  min-height: 2.75rem;
+  padding: 0 0.875rem;
+  border-radius: 1.0625rem;
+  border: 1px solid var(--fly-stroke);
+  background: var(--fly-graphite);
+  color: var(--fly-text);
+  font-family: inherit;
+  font-size: 0.9375rem;
+}
+
+.field input:focus-visible,
+.field select:focus-visible {
+  outline: 2px solid var(--fly-gold);
+  outline-offset: 1px;
+}
+
+.botao {
+  min-height: 2.75rem;
+  padding: 0 1.5rem;
+  border: 0;
+  border-radius: 1.0625rem;
+  background: var(--fly-text);
+  color: var(--fly-bg);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.botao:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.botao--fantasma {
+  background: transparent;
+  color: var(--fly-text-muted);
+  border: 1px solid var(--fly-stroke);
+}
+
+.botao--fantasma:hover {
+  color: var(--fly-text);
+}
+
+/* ---- Tabela ---- */
+
+.tabela-envolvente {
+  overflow-x: auto;
+  border: 1px solid var(--fly-stroke);
+  border-radius: 1.5rem;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.tabela th,
+.tabela td {
+  padding: 0.875rem 1rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.tabela th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fly-text-muted);
+  background: var(--fly-graphite);
+}
+
+.tabela tbody tr {
+  border-top: 1px solid var(--fly-stroke);
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8125rem;
+}
+
+/* ---- Selos ---- */
+
+.selo {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1875rem 0.625rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid;
+}
+
+.selo--ok,
+.selo--aceito {
+  color: #35c76f;
+  border-color: rgba(53, 199, 111, 0.35);
+  background: rgba(53, 199, 111, 0.1);
+}
+
+.selo--pendente {
+  color: #e9a23b;
+  border-color: rgba(233, 162, 59, 0.35);
+  background: rgba(233, 162, 59, 0.1);
+}
+
+.selo--revogado,
+.selo--expirado {
+  color: var(--fly-text-muted);
+  border-color: var(--fly-stroke);
+}
+
+/* ---- Avisos ---- */
+
+.erro {
+  color: var(--fly-danger);
+  font-size: 0.9375rem;
+}
+
+.aviso {
+  color: var(--fly-warning);
+  font-size: 0.875rem;
+}
+
+/* Ênfase inline. `.destaque` é um bloco; isto é para uma palavra dentro de
+   uma célula de tabela — "Sem resposta", "Alterado". */
+.pendente {
+  color: var(--fly-warning);
+}
+
+.destaque {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+  border: 1px solid var(--fly-gold);
+  border-radius: 1.5rem;
+  background: rgba(223, 201, 138, 0.08);
+}
+
+.link-convite {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: var(--fly-bg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8125rem;
+  word-break: break-all;
+}
+
+.acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* -----------------------------------------------------------------------------
+   Fase 4 — viagens, presença e leitor
+   -------------------------------------------------------------------------- */
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.secao {
+  margin-top: 3rem;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.bloco {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid var(--fly-stroke);
+  border-radius: 14px;
+  background: var(--fly-graphite);
+}
+
+.bloco h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* Campos editáveis dentro da tabela de roteiro. Discretos até receberem foco:
+   uma tabela de trinta inputs com borda vira ruído, e o operador precisa ler
+   o roteiro antes de editá-lo. */
+.tabela input[type='text'],
+.tabela input[type='datetime-local'] {
+  width: 100%;
+  min-width: 9rem;
+  padding: 0.375rem 0.5rem;
+  color: var(--fly-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.tabela input[type='text']:hover,
+.tabela input[type='datetime-local']:hover {
+  border-color: var(--fly-stroke);
+}
+
+.tabela input[type='text']:focus-visible,
+.tabela input[type='datetime-local']:focus-visible {
+  outline: 2px solid var(--fly-gold);
+  outline-offset: 1px;
+  background: var(--fly-bg);
+}
+
+/* O resultado de uma leitura de QR.
+   Grande de propósito: quem lê está em pé, no portão, com o celular numa mão
+   e uma prancheta na outra. */
+.resultado {
+  margin-top: 1.5rem;
+  padding: 2rem;
+  border-radius: 14px;
+  border: 1px solid var(--fly-stroke);
+  border-left-width: 4px;
+  background: var(--fly-graphite);
+  display: grid;
+  gap: 0.75rem;
+}
+
+.resultado h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.resultado p {
+  margin: 0;
+}
+
+.resultado--ok {
+  border-left-color: var(--fly-success);
+}
+
+.resultado--erro {
+  border-left-color: var(--fly-danger);
+}

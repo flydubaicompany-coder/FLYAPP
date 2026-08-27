@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "fly-ops",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:ops"],
+      "port": 5180
+    },
+    {
+      "name": "fly-crew",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:crew"],
+      "port": 5181
+    },
+    {
+      "name": "fly-app",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:mobile", "--", "--web", "--port", "8081"],
+      "port": 8081
+    }
+  ]
+}

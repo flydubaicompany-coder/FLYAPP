@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node"],
+    // O teste de assinatura importa o proprio arquivo que as Edge Functions
+    // usam (`supabase/functions/_shared/assinatura.ts`), e imports do Deno
+    // carregam a extensao. Copiar a logica para ca daria um teste verde sobre
+    // uma copia — e divergencia entre copia e original, num HMAC, e webhook
+    // recusando pagamento de verdade.
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src/**/*.ts", "../../supabase/functions/_shared/**/*.ts"]
+}

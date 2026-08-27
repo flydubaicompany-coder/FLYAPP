@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas"><style>
+body{margin:0;background:#070709}
+a{color:#DFC98A;text-decoration:none}
+a:hover{color:#EBD9AC}
+</style></helmet>
+<div style="width:1976px;min-height:100%;background:#070709;padding:0 0 110px;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue','Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased">
+
+<div style="padding:92px 72px 0;max-width:1180px">
+<img src="assets/fly-wordmark.png" alt="Fly" style="height:22px;width:auto;display:block;opacity:.92">
+<h1 style="margin:36px 0 0;font-size:66px;line-height:1;font-weight:700;letter-spacing:-.042em;color:#F5F5F7">Fly App</h1>
+<p style="margin:20px 0 0;max-width:790px;font-size:22px;line-height:1.42;font-weight:400;letter-spacing:-.02em;color:rgba(245,245,247,.5);text-wrap:pretty">Prot&oacute;tipo mobile de alta fidelidade das telas In&iacute;cio e Passeios. Preto, grafite e um dourado usado com parcim&ocirc;nia.</p>
+<div style="margin-top:30px;display:flex;gap:9px;flex-wrap:wrap">
+<span style="height:31px;padding:0 14px;display:flex;align-items:center;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:12.5px;font-weight:500;letter-spacing:-.005em;color:rgba(245,245,247,.62)">iPhone 15 Pro &middot; 393 &times; 852</span>
+<span style="height:31px;padding:0 14px;display:flex;align-items:center;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:12.5px;font-weight:500;letter-spacing:-.005em;color:rgba(245,245,247,.62)">Portugu&ecirc;s do Brasil</span>
+<span style="height:31px;padding:0 14px;display:flex;align-items:center;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-size:12.5px;font-weight:500;letter-spacing:-.005em;color:rgba(245,245,247,.62)">3 telas + bottom sheet</span>
+<span style="height:31px;padding:0 14px;display:flex;align-items:center;border-radius:16px;background:rgba(223,201,138,.11);border:1px solid rgba(223,201,138,.3);font-size:12.5px;font-weight:600;letter-spacing:-.005em;color:#DFC98A">Clic&aacute;vel</span>
+</div>
+</div>
+
+<div style="display:{{ notesD }};margin:66px 72px 0;max-width:1180px">
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.09);border-radius:26px;overflow:hidden">
+<div style="background:#0B0B0E;padding:30px 28px 32px">
+<div style="font-size:10.5px;font-weight:700;letter-spacing:.16em;color:#DFC98A">DIRE&Ccedil;&Atilde;O</div>
+<div style="margin-top:16px;font-size:15.5px;line-height:1.62;letter-spacing:-.012em;color:rgba(245,245,247,.66);text-wrap:pretty">Hierarquia por escala e respiro, nunca por cor. Fundo grafite quase preto, superf&iacute;cies de vidro com blur e uma linha de luz de 1&nbsp;px no topo de cada material. Curvas cont&iacute;nuas de 16 a 34&nbsp;px, sempre concêntricas.</div>
+</div>
+<div style="background:#0B0B0E;padding:30px 28px 32px">
+<div style="font-size:10.5px;font-weight:700;letter-spacing:.16em;color:#DFC98A">O DOURADO</div>
+<div style="margin-top:16px;font-size:15.5px;line-height:1.62;letter-spacing:-.012em;color:rgba(245,245,247,.66);text-wrap:pretty">Aparece em cinco lugares e em nenhum outro: kicker do evento, selo Exclusivo Fly, chip selecionado, progresso para Billionaire e o anel do bot&atilde;o central. &Eacute; o que separa luxo de cassino.</div>
+</div>
+<div style="background:#0B0B0E;padding:30px 28px 32px">
+<div style="font-size:10.5px;font-weight:700;letter-spacing:.16em;color:#DFC98A">SUPOSI&Ccedil;&Otilde;ES</div>
+<div style="margin-top:16px;font-size:15.5px;line-height:1.62;letter-spacing:-.012em;color:rgba(245,245,247,.66);text-wrap:pretty">Passeios, eventos, pre&ccedil;os e datas s&atilde;o fict&iacute;cios e plaus&iacute;veis. O usu&aacute;rio est&aacute; no n&iacute;vel Black, subindo para Billionaire. As fotos s&atilde;o as cinco que voc&ecirc; enviou.</div>
+</div>
+</div>
+</div>
+
+<div style="margin-top:92px;padding:0 72px">
+<div style="display:flex;align-items:baseline;gap:16px;margin-bottom:38px;max-width:1180px;flex-wrap:wrap">
+<span style="font-size:10.5px;font-weight:700;letter-spacing:.17em;color:#DFC98A">TELAS</span>
+<span style="font-size:14.5px;letter-spacing:-.012em;color:rgba(245,245,247,.42)">Cada aparelho &eacute; interativo e independente. Toque na tab bar, arraste o banner, filtre os chips, some ao carrinho, abra o Fly Assist.</span>
+</div>
+<div style="display:flex;gap:58px;align-items:flex-start">
+
+<div style="flex:none;width:413px;display:flex;flex-direction:column;gap:24px">
+<dc-import name="Fly Phone" initial-screen="home" autoplay="{{ ap }}" hint-size="413px,872px" style="width:413px;height:872px"></dc-import>
+<div style="display:flex;align-items:baseline;gap:11px;padding-left:4px;flex-wrap:wrap">
+<span style="font-size:11px;font-weight:700;letter-spacing:.14em;color:rgba(245,245,247,.3)">01</span>
+<span style="font-size:15.5px;font-weight:600;letter-spacing:-.018em;color:#F5F5F7">In&iacute;cio</span>
+<span style="font-size:13.5px;letter-spacing:-.008em;color:rgba(245,245,247,.36)">banner 45% &middot; carrossel de eventos</span>
+</div>
+</div>
+
+<div style="flex:none;width:413px;display:flex;flex-direction:column;gap:24px">
+<dc-import name="Fly Phone" initial-screen="passeios" autoplay="{{ ap }}" hint-size="413px,872px" style="width:413px;height:872px"></dc-import>
+<div style="display:flex;align-items:baseline;gap:11px;padding-left:4px;flex-wrap:wrap">
+<span style="font-size:11px;font-weight:700;letter-spacing:.14em;color:rgba(245,245,247,.3)">02</span>
+<span style="font-size:15.5px;font-weight:600;letter-spacing:-.018em;color:#F5F5F7">Passeios</span>
+<span style="font-size:13.5px;letter-spacing:-.008em;color:rgba(245,245,247,.36)">busca, chips, Trend &middot; carrinho e SOS</span>
+</div>
+</div>
+
+<div style="flex:none;width:413px;display:flex;flex-direction:column;gap:24px">
+<dc-import name="Fly Phone" initial-screen="passeios" sheet-open="{{ yes }}" autoplay="{{ ap }}" hint-size="413px,872px" style="width:413px;height:872px"></dc-import>
+<div style="display:flex;align-items:baseline;gap:11px;padding-left:4px;flex-wrap:wrap">
+<span style="font-size:11px;font-weight:700;letter-spacing:.14em;color:rgba(245,245,247,.3)">03</span>
+<span style="font-size:15.5px;font-weight:600;letter-spacing:-.018em;color:#F5F5F7">Meus Passeios &mdash; sheet</span>
+<span style="font-size:13.5px;letter-spacing:-.008em;color:rgba(245,245,247,.36)">consulta r&aacute;pida sobre a lista</span>
+</div>
+</div>
+
+<div style="flex:none;width:413px;display:flex;flex-direction:column;gap:24px">
+<dc-import name="Fly Phone" initial-screen="meus" autoplay="{{ ap }}" hint-size="413px,872px" style="width:413px;height:872px"></dc-import>
+<div style="display:flex;align-items:baseline;gap:11px;padding-left:4px;flex-wrap:wrap">
+<span style="font-size:11px;font-weight:700;letter-spacing:.14em;color:rgba(245,245,247,.3)">04</span>
+<span style="font-size:15.5px;font-weight:600;letter-spacing:-.018em;color:#F5F5F7">Meus Passeios &mdash; p&aacute;gina</span>
+<span style="font-size:13.5px;letter-spacing:-.008em;color:rgba(245,245,247,.36)">Passeios segue selecionada na tab bar</span>
+</div>
+</div>
+
+</div>
+</div>
+
+<div style="display:{{ notesD }};margin:104px 72px 0;max-width:1180px;padding-top:46px;border-top:1px solid rgba(255,255,255,.09)">
+<div style="font-size:10.5px;font-weight:700;letter-spacing:.17em;color:#DFC98A">SISTEMA</div>
+<div style="margin-top:32px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:40px">
+
+<div>
+<div style="font-size:13px;font-weight:600;letter-spacing:-.012em;color:rgba(245,245,247,.85)">Cor</div>
+<div style="margin-top:16px;display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;gap:12px"><span style="flex:none;width:30px;height:30px;border-radius:10px;background:#08080A;border:1px solid rgba(255,255,255,.14)"></span><span style="font-size:12.5px;font-weight:500;letter-spacing:-.008em;color:rgba(245,245,247,.7)">Fundo</span><span style="margin-left:auto;font-size:11px;font-weight:600;letter-spacing:.04em;color:rgba(245,245,247,.32)">08080A</span></div>
+<div style="display:flex;align-items:center;gap:12px"><span style="flex:none;width:30px;height:30px;border-radius:10px;background:#16161A;border:1px solid rgba(255,255,255,.12)"></span><span style="font-size:12.5px;font-weight:500;letter-spacing:-.008em;color:rgba(245,245,247,.7)">Grafite</span><span style="margin-left:auto;font-size:11px;font-weight:600;letter-spacing:.04em;color:rgba(245,245,247,.32)">16161A</span></div>
+<div style="display:flex;align-items:center;gap:12px"><span style="flex:none;width:30px;height:30px;border-radius:10px;background:#F5F5F7"></span><span style="font-size:12.5px;font-weight:500;letter-spacing:-.008em;color:rgba(245,245,247,.7)">Texto</span><span style="margin-left:auto;font-size:11px;font-weight:600;letter-spacing:.04em;color:rgba(245,245,247,.32)">F5F5F7</span></div>
+<div style="display:flex;align-items:center;gap:12px"><span style="flex:none;width:30px;height:30px;border-radius:10px;background:#DFC98A;box-shadow:0 0 18px rgba(223,201,138,.3)"></span><span style="font-size:12.5px;font-weight:500;letter-spacing:-.008em;color:#DFC98A">Dourado Fly</span><span style="margin-left:auto;font-size:11px;font-weight:600;letter-spacing:.04em;color:rgba(223,201,138,.6)">DFC98A</span></div>
+</div>
+<div style="margin-top:22px;font-size:12.5px;line-height:1.5;letter-spacing:-.008em;color:rgba(245,245,247,.4)">&Acirc;mbar <span style="color:#E9A23B">E9A23B</span> apenas para alertas e pend&ecirc;ncias.</div>
+</div>
+
+<div>
+<div style="font-size:13px;font-weight:600;letter-spacing:-.012em;color:rgba(245,245,247,.85)">Fly Status</div>
+<div style="margin-top:16px;display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;gap:11px;height:36px;padding:0 14px;border-radius:14px;background:rgba(91,140,255,.09);border:1px solid rgba(91,140,255,.3)"><span style="width:9px;height:9px;border-radius:5px;background:#5B8CFF;box-shadow:0 0 10px rgba(91,140,255,.7)"></span><span style="font-size:13.5px;font-weight:600;letter-spacing:-.012em;color:#8FADFF">Standard</span></div>
+<div style="display:flex;align-items:center;gap:11px;height:36px;padding:0 14px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.2)"><span style="width:9px;height:9px;border-radius:5px;background:#F5F5F7"></span><span style="font-size:13.5px;font-weight:600;letter-spacing:-.012em;color:#F5F5F7">Black</span></div>
+<div style="display:flex;align-items:center;gap:11px;height:36px;padding:0 14px;border-radius:14px;background:rgba(223,201,138,.1);border:1px solid rgba(223,201,138,.38)"><span style="width:9px;height:9px;border-radius:5px;background:#DFC98A;box-shadow:0 0 10px rgba(223,201,138,.8)"></span><span style="font-size:13.5px;font-weight:600;letter-spacing:-.012em;color:#DFC98A">Billionaire</span></div>
+</div>
+</div>
+
+<div>
+<div style="font-size:13px;font-weight:600;letter-spacing:-.012em;color:rgba(245,245,247,.85)">Tipografia</div>
+<div style="margin-top:14px;font-size:44px;line-height:1;font-weight:700;letter-spacing:-.045em;color:#F5F5F7">Aa</div>
+<div style="margin-top:14px;font-size:12px;font-weight:500;letter-spacing:.02em;color:rgba(245,245,247,.45)">SF Pro Display / Text</div>
+<div style="margin-top:18px;display:flex;flex-direction:column;gap:7px;font-size:12.5px;letter-spacing:-.008em;color:rgba(245,245,247,.4)">
+<div>Large title &middot; 33 / 700 / &minus;.038em</div>
+<div>Se&ccedil;&atilde;o &middot; 20 / 600 / &minus;.028em</div>
+<div>Corpo &middot; 15 / 400</div>
+<div>Caption &middot; 9,5 / 700 / +.15em</div>
+</div>
+</div>
+
+<div>
+<div style="font-size:13px;font-weight:600;letter-spacing:-.012em;color:rgba(245,245,247,.85)">Material e geometria</div>
+<div style="margin-top:16px;position:relative;height:88px;border-radius:22px;overflow:hidden;border:1px solid rgba(255,255,255,.09)">
+<div style="position:absolute;inset:0;background-image:url(assets/opt-burj-al-arab-mar.jpg);background-size:cover;background-position:46% 44%"></div>
+<div style="position:absolute;left:12px;top:12px;right:12px;height:40px;display:flex;align-items:center;padding:0 14px;border-radius:14px;background:rgba(20,20,24,.5);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(20px) saturate(180%);box-shadow:inset 0 1px 0 rgba(255,255,255,.14)">
+<span style="font-size:12px;font-weight:600;letter-spacing:-.008em;color:#fff">blur 20 &middot; saturate 180% &middot; luz 1&nbsp;px</span>
+</div>
+</div>
+<div style="margin-top:18px;display:flex;flex-direction:column;gap:7px;font-size:12.5px;letter-spacing:-.008em;color:rgba(245,245,247,.4)">
+<div>Raios &middot; 34 sheet &middot; 30 cart&atilde;o &middot; 24 bloco &middot; 17 chip</div>
+<div>Alvos de toque &ge; 44&nbsp;px</div>
+<div>Safe areas 59 topo / 34 base respeitadas</div>
+</div>
+</div>
+
+</div>
+</div>
+
+<div style="display:{{ notesD }};margin:78px 72px 0;max-width:1180px;padding-top:40px;border-top:1px solid rgba(255,255,255,.09)">
+<div style="font-size:10.5px;font-weight:700;letter-spacing:.17em;color:#DFC98A">PR&Oacute;XIMOS PASSOS</div>
+<div style="margin-top:26px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 40px">
+<div style="display:flex;gap:14px;align-items:baseline"><span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:rgba(245,245,247,.28)">01</span><span style="font-size:15px;line-height:1.5;letter-spacing:-.012em;color:rgba(245,245,247,.62)">Detalhe do passeio, carrinho e checkout</span></div>
+<div style="display:flex;gap:14px;align-items:baseline"><span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:rgba(245,245,247,.28)">02</span><span style="font-size:15px;line-height:1.5;letter-spacing:-.012em;color:rgba(245,245,247,.62)">Minha Viagem &mdash; roteiro por dia, timeline e mapa</span></div>
+<div style="display:flex;gap:14px;align-items:baseline"><span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:rgba(245,245,247,.28)">03</span><span style="font-size:15px;line-height:1.5;letter-spacing:-.012em;color:rgba(245,245,247,.62)">Carteira &mdash; Fly Points, cupons e cart&atilde;o Fly</span></div>
+<div style="display:flex;gap:14px;align-items:baseline"><span style="font-size:11px;font-weight:700;letter-spacing:.1em;color:rgba(245,245,247,.28)">04</span><span style="font-size:15px;line-height:1.5;letter-spacing:-.012em;color:rgba(245,245,247,.62)">Conte&uacute;do real de eventos, pre&ccedil;os, datas e fotos</span></div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showNotes&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Apresentação&quot;},&quot;autoplay&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Apresentação&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      notesD: this.props.showNotes === false ? 'none' : 'block',
+      ap: this.props.autoplay !== false,
+      yes: true
+    };
+  }
+}
+</script>
+</body>
+</html>

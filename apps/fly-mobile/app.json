@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "Fly",
+    "slug": "fly-app",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "fly",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#08080A",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.flycompany.flyapp"
+    },
+    "android": {
+      "package": "com.flycompany.flyapp",
+      "adaptiveIcon": {
+        "backgroundColor": "#08080A",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#08080A",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 76
+        }
+      ],
+      "expo-secure-store"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}

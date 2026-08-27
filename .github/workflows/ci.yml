@@ -1,0 +1,144 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Lint, tipos, testes e build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Formatação
+        run: npm run format
+
+      - name: Tipos
+        run: npm run typecheck
+
+      - name: Testes
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      # As Edge Functions sao Deno, e nao entram no `npm run typecheck` — elas
+      # nao sao workspace do npm. Sem este passo, um erro de tipo ou um import
+      # errado no webhook de pagamento so apareceria em producao, na primeira
+      # vez que um provedor tentasse entregar um evento.
+      - name: Instalar Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      # Só os pontos de entrada, e de propósito. `_shared/` é checado
+      # transitivamente por quem o importa; passá-lo direto na linha de
+      # comando faz o Deno herdar o `@types/node` do node_modules do
+      # workspace, e aí `crypto` global vira erro de tipo que só existe aqui.
+      #
+      # Glob explícito em vez de `**`: sem `globstar`, o bash expande `**`
+      # como `*` e o passo checaria pastas de menos sem reclamar.
+      - name: Tipos das Edge Functions
+        run: deno check supabase/functions/*/index.ts
+
+      # A esteira falha se alguém versionar um .env. O .gitignore já cobre,
+      # mas o .gitignore é editável e este passo não.
+      - name: Nenhum .env versionado
+        run: |
+          set -euo pipefail
+          encontrados=$(git ls-files | grep -E '(^|/)\.env($|\.)' | grep -v '\.env\.example$' || true)
+          if [ -n "$encontrados" ]; then
+            echo "Arquivos de ambiente versionados:"
+            echo "$encontrados"
+            exit 1
+          fi
+          echo "Nenhum .env versionado."
+
+  database:
+    name: Migrations e RLS
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Subir o Supabase local
+        run: npx supabase start
+
+      # `db reset` aplica todas as migrations do zero e roda o seed. Se a
+      # migration não for reaplicável em banco limpo, falha aqui.
+      - name: Aplicar migrations e seed
+        run: npx supabase db reset --no-seed=false
+
+      - name: Lint do banco
+        run: npx supabase db lint --level warning
+
+      - name: Testes de RLS (positivos e negativos)
+        run: npx supabase test db
+
+      # Os tipos versionados precisam bater com o schema. Divergência aqui
+      # significa que alguém alterou migration sem rodar `npm run db:types`.
+      #
+      # Mostra o **diff** antes do conteúdo. Quem não tem Docker na máquina
+      # depende deste log para atualizar o arquivo, e despejar 2.400 linhas
+      # esconde a mudança de uma. O `--stat` e o `--numstat` ficam porque
+      # diferença invisível — fim de linha, espaço no fim, BOM — não aparece
+      # no diff colorido, e foi exatamente o que me custou uma rodada.
+      - name: Tipos gerados estão atualizados
+        run: |
+          set -euo pipefail
+          npm run db:types
+          if ! git diff --quiet -- packages/domain-types/src/database.types.ts; then
+            echo "database.types.ts está desatualizado. Rode: npm run db:types"
+            echo "----- RESUMO -----"
+            git diff --numstat -- packages/domain-types/src/database.types.ts
+            echo "----- DIFF -----"
+            # Para arquivo, e depois corta. `git diff | head` fecha o cano
+            # antes de o git terminar de escrever, e sob `pipefail` isso e
+            # SIGPIPE — o script morria com exit 141 e o conteudo gerado, que
+            # e a razao deste passo existir, nunca chegava a imprimir.
+            git diff --no-color -- packages/domain-types/src/database.types.ts > /tmp/tipos.diff
+            head -200 /tmp/tipos.diff
+            echo "----- BYTES NO FIM DO ARQUIVO -----"
+            tail -c 40 packages/domain-types/src/database.types.ts | od -c | tail -3
+            echo "----- CONTEUDO GERADO (copie para o repositorio) -----"
+            cat packages/domain-types/src/database.types.ts
+            echo "----- FIM -----"
+            exit 1
+          fi
+          echo "Tipos em dia."
+
+      - name: Derrubar o Supabase local
+        if: always()
+        run: npx supabase stop

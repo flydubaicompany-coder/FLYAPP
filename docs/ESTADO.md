@@ -1,0 +1,358 @@
+# Onde o trabalho parou
+
+Atualizado em 27/08/2026.
+
+Este arquivo existe para uma sessão nova saber exatamente onde pegar, sem
+reler a conversa anterior. **Mantenha-o ao fim de cada fase.**
+
+---
+
+## Fases
+
+| Fase  | O quê                                                 | Situação                       |
+| ----- | ----------------------------------------------------- | ------------------------------ |
+| 0     | Fundação, `/health`, esteira                          | ✅ concluída                   |
+| 1     | Design system, navegação de 5 abas                    | ✅ concluída                   |
+| 2     | Fly ID: convite, onboarding, perfil, consentimento    | ✅ concluída                   |
+| 3     | Home dinâmica, eventos, notificações, push, analytics | ✅ concluída                   |
+| 4     | Minha Viagem: roteiro, cofre, QR, presença            | ✅ concluída                   |
+| **5** | **Passeios, carrinho e pedidos**                      | 🟢 **entregue — uma ressalva** |
+| 6     | Carteira e fidelidade (§41)                           | não iniciada                   |
+
+Prova: `npm run verify` (**310 testes**) e a suíte pgTAP na esteira (**262
+asserções**, 10 arquivos). A esteira agora também roda `deno check` nas Edge
+Functions — elas não são workspace do npm e ficavam fora do `typecheck`.
+
+---
+
+## ⚠️ Leia isto antes de tudo — redesenho em curso
+
+Em 27/08/2026 o dono do produto disse, sobre o app que estava construído:
+**"tá horrível de feio, segue exatamente esse design que fiz no Claude
+Design"**. Isso reordena a prioridade: **fidelidade ao canvas vem antes de
+funcionalidade nova.** Não abra a Fase 6 antes de as telas estarem como o
+design.
+
+### De onde vem o design
+
+O projeto é **"Fly App mobile premium"**, `8687d656-962d-4c07-a041-d985666c3d1d`,
+arquivo `Fly App.dc.html`. O `docs/design/canvas/Fly App.dc.html` versionado
+aqui é de **24/08 e está velho** — não tem Perfil nem Carteira.
+
+O dono exportou o atual para `~/Downloads/Fly App (offline).html` (6 MB). Como
+ler, porque não é óbvio:
+
+```
+linha 381  -> JSON com 4 recursos gzip+base64
+             `e56397ec…` (5,7 MB) é o HTML das telas
+linha 393  -> a capa do canvas (título, notas, SISTEMA, próximos passos)
+```
+
+98% do peso são as fotos em base64. Descontadas, **o markup útil são 91 KB** —
+perfeitamente legível. Extraia com um script, troque cada `data:` por um
+marcador e leia o que sobra.
+
+### O que o design especifica, e que o código não cumpria
+
+|                     | Canvas                                                     | Estava                            |
+| ------------------- | ---------------------------------------------------------- | --------------------------------- |
+| Card de passeio     | foto sangrando, 244 px, raio 30, degradê no terço de baixo | bloco de texto com preço no canto |
+| Prateleira          | empilha na vertical, largura toda                          | trilho horizontal de 260 px       |
+| Barra Meus Passeios | três capas empilhadas + contador dourado                   | linha de texto                    |
+| Busca               | campo de 44 px com lupa                                    | `TextInput` solto                 |
+| Seção               | título + "Ver tudo" dourado                                | só título                         |
+
+**Já feito:** a tela Passeios (`(tabs)/passeios.tsx`), o `CardPasseio.tsx` e o
+`useMeusPasseios.ts`.
+
+**Falta:** Início, Meus Passeios, Carteira e Perfil.
+
+### O que trava a aparência agora
+
+`tour_media` está **vazio** — sem foto, o card cai no formato compacto, que é
+exatamente o que o dono achou feio. As cinco fotos do canvas estão extraídas em
+`docs/design/fotos/`:
+
+| Passeio                | Foto               |
+| ---------------------- | ------------------ |
+| Topo do Burj Khalifa   | `burj-khalifa.jpg` |
+| Barco pela Marina      | `marina-yacht.jpg` |
+| Voo de helicóptero     | `helicoptero.jpg`  |
+| Jantar no Souk Madinat | `burj-al-arab.jpg` |
+| Iate privativo         | `dubai-frame.jpg`  |
+
+**Subir exige o dono**: o Storage precisa de credencial que o agente não tem, e
+o painel exige senha, que o agente não digita. Caminho: `npm run dev:ops` →
+Catálogo → abrir o passeio → bloco Mídia.
+
+### Pacote ≠ nível — correção do dono, já aplicada
+
+- **Standard / Black / Billionaire** = o **pacote** que o cliente adquiriu
+- **basic / prime / elite** = o **nível de Fly Points**
+
+Estavam misturados: o canvas rotula as três cores como "FLY STATUS", a spec
+fala em nível na §851 e em pacote na §694, e o token chamava `flyStatus`. Já
+renomeado para `flyPackage`, com `FLY_POINTS_LEVELS` ao lado. Os níveis **não
+ganharam paleta** — o canvas não os desenhou e a §33 proíbe inventar. Ver D95 e
+D96.
+
+Falta propagar para o banco e para as telas de Carteira e Perfil.
+
+---
+
+---
+
+## Fase 5 — o que já está pronto
+
+**Motor comercial, com todos os critérios da §40 provados em pgTAP**
+(`supabase/tests/passeios.test.sql`, 42 asserções):
+
+- catálogo, variantes, horários, favoritos, pedido de proposta
+- carrinho persistente com reserva temporária
+- `select … for update` no slot: concorrência não fura estoque
+- preço recalculado no servidor em `criar_pedido()`
+- moeda única por pedido; carrinho com moedas misturadas é **recusado**
+- idempotência do pedido por chave e do webhook por `(provider, provider_event_id)`
+- política de cancelamento copiada para dentro do pedido, com versão
+- reembolso total e parcial, sem apagar histórico
+
+**Telas do cliente:** `(tabs)/passeios.tsx`, `passeios/[slug].tsx`,
+`carrinho.tsx`, `passeios/pedido/[id].tsx`, `passeios/meus.tsx`,
+`passeios/proposta.tsx`.
+
+**Telas do Fly Ops:** `Catalogo.tsx` (publicar, inventário) e `Pedidos.tsx`
+(pedido, reembolso).
+
+**Checkout em sandbox (§40.9 e §40.10)** — entregue em 27/08/2026:
+
+- `packages/payments`: interface `ProvedorDePagamento`, `ProvedorSandbox`,
+  `ProvedorDesligado` e `escolherProvedor` (timeout, log, fallback, flag).
+- `supabase/functions/pagamento-sandbox`: o PSP falso. Chama
+  `iniciar_pagamento()` com o JWT do usuário e entrega um evento assinado ao
+  webhook, pela rede — como um provedor real faria.
+- `supabase/functions/pagamento-webhook`: confere HMAC-SHA256 sobre o corpo
+  cru e chama `registrar_evento_pagamento()` com `service_role`.
+- `supabase/functions/_shared/assinatura.ts`: assinar, conferir, janela de
+  replay, comparação em tempo constante. Testado pelo vitest **importando o
+  próprio arquivo**, não uma cópia.
+- Migration `20260827000000`: flag `payments.checkout` (nasce **desligada**) e
+  `app_config['payments.provider']` (nasce `PENDENTE`).
+- Tela do pedido: botão "Pagar agora" quando há provedor, aviso de ambiente de
+  teste quando não é produção, e o antigo "a Fly entra em contato" como
+  fallback quando o adapter devolve `indisponivel`.
+
+**Participantes do pedido (§40.5, §6.5 passo 5)** — entregue em 27/08/2026:
+`definir_participantes()` grava a lista inteira de uma vez, recusando mais
+nomes do que vagas compradas, e a tela `passeios/participantes/[pedido]` abre
+um campo por vaga. Só nome: o passaporte fica no cofre, com consentimento e
+registro de quem leu, e copiá-lo para dentro do pedido criaria uma segunda
+cópia fora daquele controle.
+
+**Seções da vitrine (§40.1)** — entregue em 27/08/2026. Seis prateleiras, três
+fontes: `selo` (Trend e Fly Exclusives saem de `tours.badge`), `curada` (lista
+a dedo do painel) e `destino_da_viagem` (o slot "perto de você", pelo destino
+da viagem ativa — **sem GPS**). `vitrine_de_passeios()` resolve no servidor,
+`passeios/useVitrine.ts` agrupa, e a página **Vitrine** no Fly Ops publica e
+cura. Seção vazia não aparece, nem publicada.
+
+**Não existe algoritmo de recomendação, e não foi inventado um.** As
+preferências do onboarding são texto livre e nada liga "gosta de rock" a um
+passeio. Por isso a seção se chama "A Fly recomenda", e não "recomendados para
+você" — a diferença é entre uma promessa que o sistema cumpre e uma que não
+cumpre. Ver P40.
+
+**Inclusão na viagem (§40.11)** — entregue em 27/08/2026.
+`incluir_pedido_na_viagem()` liga e desliga (omitir a viagem desliga), o botão
+está em Meus Passeios, e o roteiro mostra a compra num bloco **"Você comprou"**,
+separado das atividades.
+
+A compra **não vira `activities`**: aquela tabela é território da operação — só
+`can_operate_trip` escreve — e uma cópia ficaria no roteiro dizendo que o
+passeio acontece depois de o pedido ser cancelado. O roteiro lê os pedidos
+ligados e mostra ao lado. A separação também é honesta na tela: atividade é o
+que a Fly organizou e responde por; compra é escolha da pessoa, e a diferença
+importa no dia em que algo atrasa.
+
+**Mídia e fornecedor no Fly Ops (§40.13)** — entregue em 27/08/2026. Bucket
+`passeios` **público**, ao contrário de `documentos`: foto de passeio é
+material de vitrine, e assinar URL por card custaria uma ida ao servidor por
+imagem para esconder o que a Fly quer que circule. Escrita restrita a operador.
+O componente `MidiaEFornecedor` envia, descreve e remove; o card do cliente
+finalmente **mostra a foto** — `imagem` existia no tipo e nunca era renderizada.
+
+O fornecedor tem identificação e contato, e **nada de comercial**: sem
+comissão, prazo, vigência ou SLA. Isso é regra comercial, e campo vazio para
+esses valores convida um palpite a virar acordo (§33). `on delete set null`:
+perder o fornecedor não apaga o passeio do catálogo.
+
+⚠️ **Construído e não demonstrado.** As duas funções passam no `deno check`,
+mas nunca rodaram: falta publicá-las e definir o segredo. Ver "O que fazer
+agora", abaixo.
+
+---
+
+## O que só o dono pode fazer
+
+Em ordem de impacto no que se vê:
+
+1. **Subir as cinco fotos** pelo Fly Ops → Catálogo → Mídia. Sem elas o card de
+   passeio cai no formato compacto, e o app continua com a cara que ele
+   reprovou. Arquivos e pareamento na seção do redesenho, acima.
+
+2. **Definir `FLY_PAYMENTS_WEBHOOK_SECRET`** no projeto Supabase. As duas Edge
+   Functions estão publicadas e no ar, mas o webhook responde `503` de
+   propósito — sem segredo não há como distinguir evento do provedor de evento
+   forjado. Dois comandos:
+
+   ```
+   npx supabase login
+   npx supabase secrets set FLY_PAYMENTS_WEBHOOK_SECRET="$(openssl rand -hex 32)" \
+     --project-ref ewgbseesocekvhiiscnb
+   ```
+
+   Depois disso, ligar `payments.checkout` e pôr `payments.provider` em
+   `"sandbox"` fecha o critério "pagamento sandbox gera um pedido". **A flag foi
+   deixada desligada de propósito** — o dono interrompeu quando o agente tentou
+   ligá-la sem perguntar.
+
+3. **Leaked Password Protection** no painel do Supabase (Authentication →
+   Policies).
+
+4. **P39** — o projeto Supabase não é mais dedicado ao Fly App. Ver abaixo.
+
+---
+
+## Auditoria de 27/08/2026 — o que foi conferido
+
+Varredura das Fases 0 a 5. **A esteira estava verde e continua**; o que segue é
+o que os testes não pegavam.
+
+**Corrigido:**
+
+| O quê                                                              | Onde                 |
+| ------------------------------------------------------------------ | -------------------- |
+| Falha de rede era anunciada como "este evento não está disponível" | `eventos/[slug].tsx` |
+| Falha de rede era anunciada como "este pedido não existe"          | `pedido/[id].tsx`    |
+| Falha de rede era anunciada como "sem passaporte cadastrado"       | `viagem/voos.tsx`    |
+| Exceção dentro do IIFE deixava a tela no esqueleto para sempre     | `eventos/[slug].tsx` |
+| Registro remoto da migration não batia com o nome do arquivo       | `schema_migrations`  |
+
+**Conferido e correto — não mexi:**
+
+- Zero `TODO`, `any`, `@ts-ignore`, `eslint-disable` ou `console.log` nas 211
+  fontes. Menções a `service_role` são comentários e a própria guarda.
+- Toda tela que busca dado trata carregando, erro e vazio. As em branco são
+  formulário estático ou `PhaseStub` honesto de fase futura.
+- Offline mora em camada compartilhada (`OfflineBanner`, `StateShell`), não
+  repetida por tela.
+- Fly Crew é só a casca com `/health` — e é o correto: o conteúdo dele é da
+  Fase 7 (§42).
+- Os quatro itens que faltam na Fase 5, abaixo, foram verificados um a um:
+  faltam mesmo.
+- Descartar o `error` continua em três lugares onde degrada para **menos** e
+  não para **diferente**: chips de filtro, dropdown de template e a flag de
+  biometria. Registrado como D82.
+- `registrar_evento_pagamento` **não** aparece na lista de funções executáveis
+  por `authenticated` do advisor — o grant revogado está valendo no ar.
+
+**Achado estrutural — vira P39:** o projeto Supabase não é mais dedicado ao Fly
+App. O site IMMORTALS FLY tem três tabelas e cinco migrations lá dentro, que é
+exatamente o que a [ADR 0004](architecture/adr/0004-backend-supabase.md)
+descartou. Medido: não é caminho para passaporte nem pagamento. Mas
+`supabase db reset` contra aquele projeto apagaria o site, e o advisor do Fly
+App passou a devolver alerta que não é do Fly App. **Nada foi movido.**
+
+---
+
+## Fase 5 — o que FALTA
+
+_(nada — todos os itens foram entregues; ver a ressalva do pagamento acima)_
+
+---
+
+## Decisões esperando o dono do produto
+
+Todas estão em [architecture/DECISION_LOG.md](architecture/DECISION_LOG.md).
+As que travam alguma coisa:
+
+| #   | O quê                              | Trava                                    |
+| --- | ---------------------------------- | ---------------------------------------- |
+| P30 | Base legal do analytics            | nada; hoje é consentimento opt-in        |
+| P31 | Fornecedor de analytics            | eventos são coletados e descartados      |
+| P32 | Credenciais APNs/FCM               | push remoto                              |
+| P34 | Retenção de documento              | produção com cliente real                |
+| P35 | Quando mostrar dados do motorista  | nada; hoje some até a operação preencher |
+| P36 | Aviso de privacidade do passaporte | nada                                     |
+| P37 | Validade mínima do passaporte      | alerta usa só aritmética                 |
+| P38 | **Provedor de pagamento**          | **checkout de verdade**                  |
+
+Configuração marcada `PENDENTE` em `app_config`, esperando valor:
+`meals.confirmation_deadline_hours`, `support.emergency_contacts`,
+`points.earn_formula`, `status.tiers`,
+`documents.passport_min_validity_months`, `cart.hold_minutes`.
+
+E uma que só o dono faz, no painel do Supabase:
+**Authentication → Policies → habilitar Leaked Password Protection.**
+
+---
+
+## Armadilhas já pagas — não repetir
+
+Estão detalhadas em [quality/TEST_MATRIX.md](quality/TEST_MATRIX.md) e no
+decision log. O resumo:
+
+- **RLS em `UPDATE`/`DELETE` filtra linhas, não lança.** Em `INSERT` lança.
+  GRANT ausente lança antes da RLS. Três comportamentos, três formas de testar.
+- **`grant select` não restringe nada no Supabase** — só `revoke` fecha.
+- **`raise exception` desfaz o `insert` na auditoria.** Negativa que precisa
+  ser registrada volta como dado (`permitido: false`), não como exceção.
+- **Nome dentro de política de RLS e de função plpgsql precisa ser
+  qualificado.** `sa.trip_id = trip_id` virou tautologia; `order_id` colidiu
+  com parâmetro de saída.
+- **UUID de teste escrito à mão:** `o` e `p` não são hexadecimais.
+  `npm run verify` checa.
+- **Subquery dentro de um teste pgTAP roda sob a RLS do papel atual.** Um
+  `(select id from order_items limit 1)` lido como o cliente errado devolve
+  `NULL`, a função recebe `NULL`, responde "não encontrado" e **nunca chega a
+  lançar** — o teste de acesso negado passa a testar outra coisa. Guarde o id
+  numa config da transação (`set_config`, num bloco `do`) enquanto ainda é
+  `postgres`, e leia com `current_setting`.
+- **`database.types.ts` vem da esteira**, não do MCP remoto — o gerador local
+  inclui `graphql_public`. E o arquivo termina com **linha em branco**.
+- Imports internos dos packages **sem** extensão `.js`.
+- **O `.dc.html` exportado do Claude Design não é o que parece.** 6 MB, 395
+  linhas: a linha 381 é um JSON com quatro recursos em gzip+base64 (as telas
+  estão no de 5,7 MB) e a linha 393 é só a capa do canvas. 98% do peso são
+  fotos; descontadas, o markup útil são 91 KB.
+- **`npx skills add` e `npx impeccable install` põem código de terceiro em
+  `.claude/skills`, `.agents`, `.codex` e `.github`.** O ESLint passou a acusar
+  8.052 problemas até esses caminhos entrarem no ignore.
+- **`erasableSyntaxOnly` recusa parameter property.** `constructor(private x)`
+  não compila; declare o campo e atribua no corpo.
+- **`deno check` num arquivo de `_shared/` direto na linha de comando herda o
+  `@types/node` do workspace** e transforma o `crypto` global em erro de tipo
+  que só existe ali. Cheque os `index.ts`; o `_shared` vai junto, transitivo.
+
+---
+
+## Como retomar
+
+```bash
+cd /Users/psg.vito/Downloads/FLY/fly-ecosystem
+npm install
+npm run verify          # lint, format, UUID em SQL, typecheck, testes
+```
+
+Sem Docker local. A suíte pgTAP roda na esteira; para verificar antes de
+subir, execute o arquivo de teste contra o projeto Supabase de
+desenvolvimento em transação revertida — o pgTAP está instalado lá.
+
+Ambientes: `npm run dev:ops` (5180), `npm run dev:mobile` (Expo).
+
+Para ver o app cliente no navegador, `npm run dev:mobile -- --web --port 8081`
+— há uma sessão persistida no ambiente de desenvolvimento, então ele abre
+logado.
+
+**Antes de mexer em tela, leia o canvas.** Não implemente de memória nem do
+print: as medidas estão no arquivo, e foi errando isso que a primeira tentativa
+saiu com trilho horizontal onde o design empilha na vertical.

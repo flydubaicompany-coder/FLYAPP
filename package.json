@@ -1,0 +1,48 @@
+{
+  "name": "fly-ecosystem",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Monorepo do ecossistema Fly \u2014 Fly App (cliente), Fly Ops (operacao) e Fly Crew (equipe).",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "dev:ops": "npm run dev --workspace @fly/ops",
+    "dev:crew": "npm run dev --workspace @fly/crew",
+    "dev:mobile": "npm run start --workspace @fly/mobile",
+    "db:types": "supabase gen types typescript --local > packages/domain-types/src/database.types.ts",
+    "verify": "npm run lint && npm run format && npm run check:sql && npm run typecheck && npm run test",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:test": "supabase test db",
+    "db:lint": "supabase db lint",
+    "check:sql": "node scripts/checar-uuids-sql.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.2.0",
+    "eslint": "10.9.0",
+    "eslint-config-prettier": "10.1.8",
+    "prettier": "3.9.6",
+    "supabase": "2.115.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.67.0",
+    "vitest": "4.1.11"
+  },
+  "overrides": {
+    "uuid": "^11.1.1"
+  }
+}
