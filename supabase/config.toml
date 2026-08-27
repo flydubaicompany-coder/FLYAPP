@@ -394,6 +394,19 @@ deno_version = 2
 # rodar. A escolha e diferente para cada uma, e por motivos opostos:
 # -----------------------------------------------------------------------------
 
+# A ativacao de convite acontece ANTES de existir conta: nao ha JWT para
+# exigir, e a autenticacao e o proprio token do convite, conferido dentro da
+# funcao (D30). Sem esta declaracao o deploy pela CLI sobe a funcao com JWT
+# obrigatorio e o convite quebra em silencio — foi assim que ela ficou fora do
+# arquivo ate a troca de projeto.
+[functions.aceitar-convite]
+verify_jwt = false
+
+# A exclusao de conta e o oposto: so o dono da conta pode pedir, e quem prova
+# isso e o JWT.
+[functions.excluir-conta]
+verify_jwt = true
+
 # O webhook e chamado pelo provedor de pagamento, que nao tem — e nao pode ter
 # — uma chave nossa. A autenticacao dele e a assinatura HMAC do corpo,
 # conferida dentro da funcao. Exigir JWT aqui tornaria o endpoint inalcancavel

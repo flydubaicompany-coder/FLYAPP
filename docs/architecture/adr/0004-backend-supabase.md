@@ -1,6 +1,6 @@
 # ADR 0004 — Supabase como backend, em projeto dedicado
 
-**Status:** aceito, **mas violado na prática** — ver "Situação real" abaixo · **Data:** 24/08/2026 · **Fase:** 0
+**Status:** aceito, e **restaurado em 27/08/2026** — ver [ADR 0010](0010-infraestrutura-dedicada.md) · **Data:** 24/08/2026 · **Fase:** 0
 
 ## Contexto
 
@@ -22,7 +22,12 @@ A migration de fundação cria apenas a espinha de sistema: `profiles`,
 `user_roles`, `app_config`, `feature_flags`, `audit_logs` e `idempotency_keys`.
 O modelo completo da §19 vem uma fase por vez.
 
-## Situação real em 27/08/2026 — a decisão não está mais valendo
+## Histórico: 24/08 a 27/08/2026 — o período em que a decisão não valeu
+
+> **Resolvido.** Em 27/08/2026 o Fly App passou para o projeto
+> `ptmifjnfskwipjjxauns`, em organização Supabase nativa e dedicada. O relato
+> abaixo fica como registro do que aconteceu e de como foi medido — não
+> descreve mais o estado atual. Ver [ADR 0010](0010-infraestrutura-dedicada.md).
 
 Auditoria do projeto `ewgbseesocekvhiiscnb` encontrou **três tabelas de outro
 produto** dentro dele: `immortals_content`, `immortals_admin` e
@@ -49,7 +54,9 @@ escreve **só** em `immortals_content`. Medido, não suposto.
   o que treina a equipe a ignorar o relatório.
 
 **Nada foi movido.** Mexer no schema de outro produto sem decisão do dono é
-como se derruba um site em produção. Virou a pendência **P39**.
+como se derruba um site em produção. Virou a pendência **P39** — fechada em
+27/08/2026 pela troca de projeto, e não por alteração no projeto antigo, que
+continua no ar servindo o IMMORTALS exatamente como estava.
 
 ## Alternativas consideradas
 

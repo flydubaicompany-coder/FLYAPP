@@ -25,6 +25,46 @@ Functions — elas não são workspace do npm e ficavam fora do `typecheck`.
 
 ---
 
+## Infraestrutura — trocada em 27/08/2026, e é a atual
+
+O Fly App saiu de uma infraestrutura compartilhada para uma dedicada. Nada de
+funcionalidade mudou; o código foi transplantado inteiro. Detalhe e motivo em
+[ADR 0010](architecture/adr/0010-infraestrutura-dedicada.md).
+
+|                      | Agora                                                     |
+| -------------------- | --------------------------------------------------------- |
+| Repositório          | `flydubaicompany-coder/FLYAPP` — **público**, `main`      |
+| Supabase             | `ptmifjnfskwipjjxauns`, ca-central-1, Postgres 17.6.1.166 |
+| Organização Supabase | `hwvwzmukubznorgbkkwn` — Supabase nativa, **não** Vercel  |
+| Conta                | `flydubaicompany@gmail.com`                               |
+| Vercel               | **não definida** — nenhum projeto existe                  |
+| Expo / EAS           | **não vinculado** — sem `owner`, sem `eas.json`           |
+| Cloudinary           | **não existe** — nenhuma referência no monorepo           |
+
+**O projeto antigo (`ewgbseesocekvhiiscnb`) não foi tocado** e continua no ar
+servindo o site IMMORTALS FLY. A P39 está fechada — não por alteração naquele
+projeto, mas por saída dele.
+
+**Não houve migração de dados, porque não havia dado:** 2 usuários de teste,
+1 viagem, e 0 pedidos, 0 pagamentos, 0 passaportes, 0 documentos. Tudo é
+reproduzível pelos seeds versionados.
+
+O que foi comprovado no ambiente novo, em 27/08/2026:
+
+| Verificação                               | Resultado                                    |
+| ----------------------------------------- | -------------------------------------------- |
+| 19 migrations aplicadas do zero           | todas, em ordem, sem erro                    |
+| Tabelas em `public`                       | 70, **zero `immortals_*`**                   |
+| Seeds                                     | os três, aplicados                           |
+| Buckets                                   | `documentos` (privado), `passeios`           |
+| Edge Functions                            | as 4, publicadas e ACTIVE                    |
+| Tipos do banco novo × versionados         | **zero diferença de schema**                 |
+| `npm run verify`                          | exit 0, **310 testes**                       |
+| Esteira no repositório novo               | verde, **262 asserções pgTAP** (10 arquivos) |
+| RLS de amostra (`app_config` para `anon`) | recusado com `42501`                         |
+
+---
+
 ## ⚠️ Leia isto antes de tudo — redesenho em curso
 
 Em 27/08/2026 o dono do produto disse, sobre o app que estava construído:
@@ -193,32 +233,69 @@ agora", abaixo.
 
 ## O que só o dono pode fazer
 
-Em ordem de impacto no que se vê:
+Atualizado em 27/08/2026, depois da troca de infraestrutura. Em ordem: o item 1
+**bloqueia todos os outros** — sem ele ninguém entra em lugar nenhum.
 
-1. **Subir as cinco fotos** pelo Fly Ops → Catálogo → Mídia. Sem elas o card de
-   passeio cai no formato compacto, e o app continua com a cara que ele
-   reprovou. Arquivos e pareamento na seção do redesenho, acima.
+### 1. Criar o primeiro operador — bloqueia tudo
 
-2. **Definir `FLY_PAYMENTS_WEBHOOK_SECRET`** no projeto Supabase. As duas Edge
-   Functions estão publicadas e no ar, mas o webhook responde `503` de
-   propósito — sem segredo não há como distinguir evento do provedor de evento
-   forjado. Dois comandos:
+O banco novo nasceu **sem usuário nenhum**. A Fly é por convite (§37.1) e não
+há cadastro aberto, então existe um ovo-e-galinha: convite só é emitido por
+quem já é operador. O primeiro é criado à mão, uma vez.
 
+No painel do projeto `ptmifjnfskwipjjxauns`:
+
+1. **Authentication → Users → Add user → Create new user.** E-mail e senha à
+   sua escolha, com **Auto Confirm User** ligado.
+2. **SQL Editor**, e rode — trocando o e-mail:
+
+   ```sql
+   insert into public.user_roles (user_id, role)
+   select id, 'admin'::public.fly_role from auth.users where email = 'SEU@EMAIL';
    ```
-   npx supabase login
-   npx supabase secrets set FLY_PAYMENTS_WEBHOOK_SECRET="$(openssl rand -hex 32)" \
-     --project-ref ewgbseesocekvhiiscnb
-   ```
 
-   Depois disso, ligar `payments.checkout` e pôr `payments.provider` em
-   `"sandbox"` fecha o critério "pagamento sandbox gera um pedido". **A flag foi
-   deixada desligada de propósito** — o dono interrompeu quando o agente tentou
-   ligá-la sem perguntar.
+Depois disso o Fly Ops abre, e dele saem os convites para todo o resto.
 
-3. **Leaked Password Protection** no painel do Supabase (Authentication →
-   Policies).
+### 2. Definir `FLY_PAYMENTS_WEBHOOK_SECRET`
 
-4. **P39** — o projeto Supabase não é mais dedicado ao Fly App. Ver abaixo.
+As quatro Edge Functions já estão publicadas e ACTIVE no projeto novo, mas o
+webhook responde `503` de propósito: sem segredo não há como distinguir evento
+do provedor de evento forjado. Um comando, na raiz do repositório:
+
+```
+./node_modules/.bin/supabase secrets set \
+  FLY_PAYMENTS_WEBHOOK_SECRET="$(openssl rand -hex 32)"
+```
+
+O projeto já está vinculado (`supabase link` feito), então não precisa de
+`--project-ref`. Depois disso, ligar `payments.checkout` e pôr
+`payments.provider` em `"sandbox"` fecha o critério "pagamento sandbox gera um
+pedido". **A flag nasce desligada de propósito.**
+
+### 3. Subir as cinco fotos
+
+Pelo Fly Ops → Catálogo → Mídia, **depois do item 1**. Sem elas o card de
+passeio cai no formato compacto, que é a cara que o dono reprovou. Arquivos e
+pareamento na seção do redesenho, acima.
+
+Antes disso é preciso recriar o catálogo de passeios: os 7 passeios e 40
+horários do projeto antigo eram dados de teste criados pelo painel, não vêm de
+seed nem de migration. Fly Ops → Catálogo.
+
+### 4. Decidir Vercel, Expo/EAS e Cloudinary
+
+Nenhum dos três tinha vínculo com o Fly App nem antes da troca — não são
+regressão, são lacunas antigas que ficaram visíveis.
+
+| O quê      | O que falta                                                                                                                                                     |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Vercel     | Qual conta. A antiga está ligada a **outra** conta GitHub e não enxerga o `FLYAPP`. Passo a passo em [operations/DEPLOY_VERCEL.md](operations/DEPLOY_VERCEL.md) |
+| Expo / EAS | Qual conta. Hoje não há `owner`, `projectId` nem `eas.json`. Sem isso não existe build nativo                                                                   |
+| Cloudinary | Qual conta e qual responsabilidade. Recomendação registrada: catálogo e vitrine no Cloudinary; **passaporte e cofre continuam no Storage privado**              |
+
+### 5. Leaked Password Protection
+
+No painel do projeto novo: Authentication → Policies. Não estava ligado no
+projeto antigo e o projeto novo nasce igual.
 
 ---
 
@@ -255,8 +332,9 @@ o que os testes não pegavam.
 - `registrar_evento_pagamento` **não** aparece na lista de funções executáveis
   por `authenticated` do advisor — o grant revogado está valendo no ar.
 
-**Achado estrutural — vira P39:** o projeto Supabase não é mais dedicado ao Fly
-App. O site IMMORTALS FLY tem três tabelas e cinco migrations lá dentro, que é
+**Achado estrutural — virou P39, e foi RESOLVIDO em 27/08/2026** pela troca de
+infraestrutura (ADR 0010). O relato abaixo é o diagnóstico de então: o projeto
+Supabase não era mais dedicado ao Fly App. O site IMMORTALS FLY tem três tabelas e cinco migrations lá dentro, que é
 exatamente o que a [ADR 0004](architecture/adr/0004-backend-supabase.md)
 descartou. Medido: não é caminho para passaporte nem pagamento. Mas
 `supabase db reset` contra aquele projeto apagaria o site, e o advisor do Fly
@@ -327,6 +405,11 @@ decision log. O resumo:
 - **`npx skills add` e `npx impeccable install` põem código de terceiro em
   `.claude/skills`, `.agents`, `.codex` e `.github`.** O ESLint passou a acusar
   8.052 problemas até esses caminhos entrarem no ignore.
+- **`config.toml` precisa declarar `verify_jwt` de TODA Edge Function.** O que
+  não está lá sobe com JWT obrigatório no deploy pela CLI. `aceitar-convite`
+  roda sem JWT por decisão (D30) e não estava declarada — a ativação de convite
+  teria quebrado em silêncio no projeto novo. Só apareceu porque houve troca de
+  projeto; num redeploy comum, ninguém notaria.
 - **`erasableSyntaxOnly` recusa parameter property.** `constructor(private x)`
   não compila; declare o campo e atribua no corpo.
 - **`deno check` num arquivo de `_shared/` direto na linha de comando herda o
@@ -343,9 +426,15 @@ npm install
 npm run verify          # lint, format, UUID em SQL, typecheck, testes
 ```
 
-Sem Docker local. A suíte pgTAP roda na esteira; para verificar antes de
-subir, execute o arquivo de teste contra o projeto Supabase de
-desenvolvimento em transação revertida — o pgTAP está instalado lá.
+O repositório é `flydubaicompany-coder/FLYAPP` e o Supabase é
+`ptmifjnfskwipjjxauns` — já vinculado por `supabase link`. A CLI vive em
+`./node_modules/.bin/supabase`; `npx supabase` tenta baixar outra versão e
+falha.
+
+Sem Docker local. A suíte pgTAP roda na esteira — e passou verde no
+repositório novo, 262 asserções em 10 arquivos. Para verificar antes de subir,
+execute o arquivo de teste contra o projeto de desenvolvimento em transação
+revertida.
 
 Ambientes: `npm run dev:ops` (5180), `npm run dev:mobile` (Expo).
 

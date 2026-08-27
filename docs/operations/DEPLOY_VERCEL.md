@@ -1,7 +1,12 @@
 # Publicar Fly Ops e Fly App na Vercel
 
-Dois projetos, um repositório. O monorepo é `adrianmatheusampc-code/fly-ecosystem`,
-e cada aplicação vira um projeto Vercel apontando para uma pasta diferente.
+Dois projetos, um repositório. O monorepo é `flydubaicompany-coder/FLYAPP`, e
+cada aplicação vira um projeto Vercel apontando para uma pasta diferente.
+
+> **Estado em 27/08/2026: nada disto existe ainda.** A conta Vercel do Fly App
+> não foi definida, e a conta antiga (`adrianmatheusampc-codes-projects`) está
+> ligada a **outra** conta GitHub — ela não enxerga o `FLYAPP`. Este documento
+> descreve o que fazer, não o que está no ar. Ver [ADR 0010](../architecture/adr/0010-infraestrutura-dedicada.md).
 
 O Claude não tem permissão para criar projeto nesta conta — o passo a passo
 abaixo é para você fazer uma vez. Depois disso, **todo push na `main` publica
@@ -15,7 +20,7 @@ Você vai precisar de dois valores, os mesmos para os dois projetos:
 
 | Valor            | Onde achar                                             |
 | ---------------- | ------------------------------------------------------ |
-| URL do Supabase  | `https://ewgbseesocekvhiiscnb.supabase.co`             |
+| URL do Supabase  | `https://ptmifjnfskwipjjxauns.supabase.co`             |
 | Chave publicável | Supabase → Project Settings → API Keys → `publishable` |
 
 A chave publicável **pode** ir para o cliente: é ela que a RLS espera. A
@@ -27,7 +32,7 @@ de existir para quem tiver a chave.
 ## Projeto 1 — Fly Ops (o painel)
 
 1. Abra <https://vercel.com/new> e escolha **Import Git Repository**.
-2. Selecione `adrianmatheusampc-code/fly-ecosystem`.
+2. Selecione `flydubaicompany-coder/FLYAPP`.
    Se ele não aparecer: **Adjust GitHub App Permissions** → marque o repositório.
 3. Em **Configure Project**:
 
@@ -49,7 +54,7 @@ de existir para quem tiver a chave.
 
    ```
    VITE_FLY_ENVIRONMENT=production
-   VITE_FLY_SUPABASE_URL=https://ewgbseesocekvhiiscnb.supabase.co
+   VITE_FLY_SUPABASE_URL=https://ptmifjnfskwipjjxauns.supabase.co
    VITE_FLY_SUPABASE_PUBLISHABLE_KEY=<a chave publicável>
    VITE_FLY_APP_VERSION=0.1.0
    ```
@@ -77,7 +82,7 @@ Variáveis (note o prefixo diferente — Expo usa `EXPO_PUBLIC_`):
 
 ```
 EXPO_PUBLIC_FLY_ENVIRONMENT=production
-EXPO_PUBLIC_FLY_SUPABASE_URL=https://ewgbseesocekvhiiscnb.supabase.co
+EXPO_PUBLIC_FLY_SUPABASE_URL=https://ptmifjnfskwipjjxauns.supabase.co
 EXPO_PUBLIC_FLY_SUPABASE_PUBLISHABLE_KEY=<a chave publicável>
 EXPO_PUBLIC_FLY_APP_VERSION=0.1.0
 ```
@@ -107,15 +112,11 @@ https://fly-app.vercel.app/**
 
 ## Quem entra, e com o quê
 
-Contas de teste que já existem no banco:
-
-| Quem     | E-mail           | Onde entra        |
-| -------- | ---------------- | ----------------- |
-| Cliente  | `demo@teste.fly` | Fly App           |
-| Operação | `ops@teste.fly`  | Fly Ops e Fly App |
-
-As senhas estão no seu gerenciador; se precisar recriar, é
-Authentication → Users → o usuário → **Reset password**.
+**O banco novo nasceu sem usuário nenhum.** As contas `demo@teste.fly` e
+`ops@teste.fly` existiam só no projeto antigo e não foram migradas — a §37.1
+diz que a Fly é por convite, e convite exige um operador já existente para
+emiti-lo. O primeiro operador é criado à mão, uma vez. Ver a seção "Primeiro
+operador" no [ESTADO](../ESTADO.md).
 
 Para criar um cliente novo de verdade, o caminho é o do produto: Fly Ops →
 Convites → **Convidar**, que gera o link de ativação. A Fly é por convite
@@ -125,9 +126,10 @@ Convites → **Convidar**, que gera o link de ativação. A Fly é por convite
 
 ## O que este deploy **não** é
 
-- **Não é produção.** O banco é o mesmo de desenvolvimento, com dados de
-  teste dentro. Antes de cliente real entrar, é preciso um projeto Supabase
-  separado e a decisão de retenção (P34).
+- **Não é produção.** O banco é o de desenvolvimento, com dados de seed
+  dentro. Ele já é dedicado ao Fly App (ADR 0010), mas continua sendo um só:
+  não há ambiente separado de staging e produção. Antes de cliente real entrar,
+  falta esse segundo ambiente e a decisão de retenção (P34).
 - **Não tem pagamento.** A Fase 5 entrega o motor comercial com adapter em
   sandbox. Sem PSP contratado, nada é cobrado de verdade.
 - **Não tem push.** Falta credencial de APNs e FCM (P32).
