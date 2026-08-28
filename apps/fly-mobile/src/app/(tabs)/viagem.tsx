@@ -4,7 +4,6 @@ import { palette, radius, space, touchTarget } from '@/theme';
 import {
   AlertBanner,
   AppHeader,
-  Card,
   EmptyState,
   ErrorState,
   Kicker,
@@ -13,133 +12,13 @@ import {
   Text,
 } from '@/ui';
 import { useViagem, type Viagem } from '@/viagem/useViagem';
-import { CartaoDaViagem } from '@/viagem/CartaoDaViagem';
-import { dataCurta, faltam, hora, saidaEminente } from '@/viagem/tempo';
+import { CartaoDaViagem, SeletorDeDias, type Dia } from '@/viagem/CartaoDaViagem';
+import { RoteiroDoDia, type ItemDoRoteiro } from '@/viagem/Roteiro';
+import { useDias, type DiaDaViagem } from '@/viagem/useDias';
+import { useState } from 'react';
+import { router } from 'expo-router';
+import { dataCurta, faltam, hora } from '@/viagem/tempo';
 import { itensAbertos, itensPendentes } from '@/viagem/hub';
-
-/**
- * Minha Viagem — a tela raiz (§7.1).
- *
- * Esta é a tela que alguém abre andando na rua, com pressa, às vezes sem
- * saber exatamente onde está. Ela responde uma pergunta antes de qualquer
- * outra: **o que eu faço agora?**
- *
- * Por isso a ordem dos blocos não é negociável: alteração pendente vem antes
- * de tudo, "agora/próximo" vem em seguida, e o hub — que é navegação, não
- * informação — vem por último.
- *
- * Todo horário é formatado no fuso do destino. O aparelho pode estar em
- * qualquer fuso; a viagem acontece em um só.
- */
-
-function ProximoPasso({ viagem }: { viagem: Viagem }) {
-  const { agora, proximo, timezone } = viagem;
-
-  if (agora) {
-    return (
-      <Card>
-        <View style={styles.bloco}>
-          <Kicker>Agora</Kicker>
-          <Text variant="largeTitle">{agora.titulo}</Text>
-          <Text variant="body" tone="muted">
-            Começou às {hora(agora.comeca, timezone)}
-          </Text>
-          {proximo ? (
-            <Text variant="body" tone="faint">
-              Depois: {proximo.titulo}, {hora(proximo.comeca, timezone)}
-            </Text>
-          ) : null}
-        </View>
-      </Card>
-    );
-  }
-
-  if (proximo) {
-    // Perto da saída, o horário de sair é o dado que muda o que a pessoa faz.
-    // Longe dela, é ruído — e o de começar é o que importa.
-    const saindo = saidaEminente(proximo.saida);
-
-    return (
-      <Card>
-        <View style={styles.bloco}>
-          <Kicker>Próximo</Kicker>
-          <Text variant="largeTitle">{proximo.titulo}</Text>
-
-          {saindo && proximo.saida ? (
-            <Text variant="section" tone="gold">
-              Sair às {hora(proximo.saida, timezone)} · {faltam(proximo.saida)}
-            </Text>
-          ) : (
-            <Text variant="body" tone="muted">
-              {hora(proximo.comeca, timezone)} · {faltam(proximo.comeca)}
-            </Text>
-          )}
-
-          {proximo.ponto ? (
-            <Text variant="body" tone="muted">
-              Ponto de encontro: {proximo.ponto}
-            </Text>
-          ) : null}
-
-          <Link href={`/viagem/atividade/${proximo.id}`} asChild>
-            <Pressable accessibilityRole="link" accessibilityLabel={`Abrir ${proximo.titulo}`}>
-              {() => (
-                <View style={styles.linkCard}>
-                  <Text variant="body" tone="gold">
-                    Ver detalhes
-                  </Text>
-                </View>
-              )}
-            </Pressable>
-          </Link>
-        </View>
-      </Card>
-    );
-  }
-
-  return (
-    <Card>
-      <View style={styles.bloco}>
-        <Kicker>Sua jornada</Kicker>
-        <Text variant="section">Nada marcado para agora</Text>
-        <Text variant="body" tone="muted">
-          O roteiro completo está logo abaixo.
-        </Text>
-      </View>
-    </Card>
-  );
-}
-
-function Progresso({ viagem }: { viagem: Viagem }) {
-  if (viagem.diaAtual === null) return null;
-
-  const pct = Math.round((viagem.diaAtual / viagem.totalDias) * 100);
-
-  return (
-    <Card>
-      <View style={styles.bloco}>
-        <View style={styles.linhaEntre}>
-          <Text variant="body" tone="muted">
-            Dia {viagem.diaAtual} de {viagem.totalDias}
-          </Text>
-          <Text variant="body" tone="faint">
-            {viagem.destino}
-          </Text>
-        </View>
-        {/* A barra é decorativa: o número acima já diz tudo, e um leitor de
-            tela não deve anunciar a mesma informação duas vezes. */}
-        <View
-          accessibilityElementsHidden
-          importantForAccessibility="no-hide-descendants"
-          style={styles.trilho}
-        >
-          <View style={[styles.preenchido, { width: `${pct}%` }]} />
-        </View>
-      </View>
-    </Card>
-  );
-}
-
 function Hub() {
   return (
     <View style={styles.secao}>
@@ -179,8 +58,94 @@ function Hub() {
   );
 }
 
+const SEMANA = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
+
+const ROTULO_ITEM: Record<string, string> = {
+  done: 'CONCLUÍDO',
+  confirmed: 'CONFIRMADO',
+  scheduled: 'CONFIRMADO',
+  cancelled: 'CANCELADO',
+};
+
+/**
+ * O diario: seletor de dias, titulo do dia e a linha do tempo.
+ *
+ * Substitui os blocos "Proximo passo" e "Progresso", que repetiam o que o
+ * cartao da viagem ja diz. O design abre a viagem no roteiro, e nao num resumo
+ * do resumo.
+ */
+function Diario({
+  dias,
+  viagem,
+  escolhido,
+  aoEscolher,
+}: {
+  dias: readonly DiaDaViagem[];
+  viagem: Viagem;
+  escolhido: string | null;
+  aoEscolher: (chave: string) => void;
+}) {
+  const hoje = new Date().toISOString().slice(0, 10);
+  const atual = escolhido ?? dias.find((d) => d.data === hoje)?.id ?? dias[0]!.id;
+  const dia = dias.find((d) => d.id === atual) ?? dias[0]!;
+
+  const chips: Dia[] = dias.map((d) => {
+    const data = new Date(`${d.data}T12:00:00`);
+    return {
+      chave: d.id,
+      semana: SEMANA[data.getDay()] ?? '',
+      numero: String(data.getDate()),
+    };
+  });
+
+  const agora = Date.now();
+  const proximo = dia.atividades.find((a) => a.comecaEm && Date.parse(a.comecaEm) >= agora);
+
+  const itens: ItemDoRoteiro[] = dia.atividades.map((a) => ({
+    id: a.id,
+    titulo: a.titulo,
+    hora: hora(a.comecaEm, viagem.timezone),
+    status: a.alteradaEm
+      ? 'ALTEROU'
+      : proximo?.id === a.id
+        ? (faltam(a.comecaEm)?.toUpperCase() ?? null)
+        : (ROTULO_ITEM[a.status] ?? null),
+    local: a.local,
+    concluido: a.status === 'done',
+    pendente: a.alteradaEm !== null,
+    destaque: proximo?.id === a.id,
+    detalhes: a.local,
+  }));
+
+  return (
+    <>
+      <SeletorDeDias dias={chips} selecionado={atual} aoEscolher={aoEscolher} />
+      <RoteiroDoDia
+        titulo={dia.titulo ?? tituloDoDia(dia.data)}
+        itens={itens}
+        aoAbrir={(id) => router.push(`/viagem/atividade/${id}`)}
+        aoVerIngressos={() => router.push('/viagem/qr')}
+        aoVerRota={() => undefined}
+      />
+    </>
+  );
+}
+
+/** "Sexta, 25 de agosto" — o titulo do dia, como o design escreve. */
+function tituloDoDia(iso: string): string {
+  const d = new Date(`${iso}T12:00:00`);
+  const nome = d.toLocaleDateString('pt-BR', { weekday: 'long' });
+  return `${nome.charAt(0).toUpperCase()}${nome.slice(1)}, ${d.toLocaleDateString('pt-BR', {
+    day: 'numeric',
+    month: 'long',
+  })}`;
+}
+
 export default function TripScreen() {
   const { data, reload } = useViagem();
+  const tripId = data.kind === 'ready' ? data.viagem.id : null;
+  const dias = useDias(tripId);
+  const [diaEscolhido, setDiaEscolhido] = useState<string | null>(null);
 
   if (data.kind === 'loading') {
     return (
@@ -248,8 +213,15 @@ export default function TripScreen() {
         />
       ) : null}
 
-      <ProximoPasso viagem={viagem} />
-      <Progresso viagem={viagem} />
+      {dias.kind === 'ready' && dias.dias.length > 0 ? (
+        <Diario
+          dias={dias.dias}
+          viagem={viagem}
+          escolhido={diaEscolhido}
+          aoEscolher={setDiaEscolhido}
+        />
+      ) : null}
+
       <Hub />
     </Screen>
   );
