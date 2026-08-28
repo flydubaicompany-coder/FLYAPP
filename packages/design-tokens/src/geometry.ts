@@ -138,7 +138,7 @@ export const floating = {
       fontSize: 12,
       /** O pulo ao somar item. Unico lugar que usa a curva `overshoot`. */
       popScale: 1.22,
-      popMs: 380,
+      popMs: 340,
     },
   },
   sos: {
@@ -147,7 +147,7 @@ export const floating = {
     left: 20,
     bottom: 104,
     background: '#F2F2F5',
-    glyph: '#0A0A0B',
+    glyph: '#101013',
     ringWidth: 1.5,
     ringColor: 'rgba(242,242,245,.5)',
     pulseMs: 2800,

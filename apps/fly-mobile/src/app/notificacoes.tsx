@@ -288,11 +288,14 @@ export default function NotificacoesScreen() {
               <Pressable
                 accessibilityRole="link"
                 accessibilityLabel="Abrir configuração e teste de push"
-                style={styles.linkPush}
               >
-                <Text variant="body" tone="gold">
-                  Configurar e testar
-                </Text>
+                {() => (
+                  <View style={styles.linkPush}>
+                    <Text variant="body" tone="gold">
+                      Configurar e testar
+                    </Text>
+                  </View>
+                )}
               </Pressable>
             </Link>
           </View>

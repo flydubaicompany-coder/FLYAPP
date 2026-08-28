@@ -48,38 +48,37 @@ export function EventCard({ event }: { event: HomeEvent }) {
       <Pressable
         accessibilityRole="link"
         accessibilityLabel={`${event.title}. ${detalhes}`}
-        style={({ pressed }) => [
-          styles.card,
-          encerrado && styles.encerrado,
-          pressed && styles.pressed,
-        ]}
         testID={`event-card-${event.slug}`}
       >
-        <Kicker>{ROTULO_STATUS[event.status] ?? event.status}</Kicker>
+        {({ pressed }) => (
+          <View style={[styles.card, encerrado && styles.encerrado, pressed && styles.pressed]}>
+            <Kicker>{ROTULO_STATUS[event.status] ?? event.status}</Kicker>
 
-        <Text variant="section" numberOfLines={2}>
-          {event.title}
-        </Text>
-
-        {event.summary ? (
-          <Text variant="body" tone="muted" numberOfLines={2}>
-            {event.summary}
-          </Text>
-        ) : null}
-
-        {data || event.city ? (
-          <Text variant="body" tone="faint">
-            {[data, event.city].filter(Boolean).join(' · ')}
-          </Text>
-        ) : null}
-
-        {event.flyBenefit ? (
-          <View style={styles.beneficio}>
-            <Text variant="body" tone="gold" numberOfLines={2}>
-              {event.flyBenefit}
+            <Text variant="section" numberOfLines={2}>
+              {event.title}
             </Text>
+
+            {event.summary ? (
+              <Text variant="body" tone="muted" numberOfLines={2}>
+                {event.summary}
+              </Text>
+            ) : null}
+
+            {data || event.city ? (
+              <Text variant="body" tone="faint">
+                {[data, event.city].filter(Boolean).join(' · ')}
+              </Text>
+            ) : null}
+
+            {event.flyBenefit ? (
+              <View style={styles.beneficio}>
+                <Text variant="body" tone="gold" numberOfLines={2}>
+                  {event.flyBenefit}
+                </Text>
+              </View>
+            ) : null}
           </View>
-        ) : null}
+        )}
       </Pressable>
     </Link>
   );

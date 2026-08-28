@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import { easing, floating } from '@/theme';
 import { Text } from '@/ui';
-import { CartIcon, ScopeIcon } from './TabIcons';
+import { CartFloatIcon, LifeRingIcon } from './TabIcons';
 
 /**
  * As duas acoes flutuantes (spec §4.2, secao 2 do handoff).
@@ -58,15 +58,17 @@ function PulseRing() {
       style={[
         styles.pulse,
         {
+          // `flyPulse` do prototipo: some em 75% e **segura** ate o fim. Sem a
+          // pausa a onda vira um piscar continuo, que cansa em vez de chamar.
           opacity: t.interpolate({
-            inputRange: [0, 1],
-            outputRange: [floating.sos.pulseOpacity, 0],
+            inputRange: [0, 0.75, 1],
+            outputRange: [floating.sos.pulseOpacity, 0, 0],
           }),
           transform: [
             {
               scale: t.interpolate({
-                inputRange: [0, 1],
-                outputRange: [1, floating.sos.pulseScale],
+                inputRange: [0, 0.75, 1],
+                outputRange: [1, floating.sos.pulseScale, floating.sos.pulseScale],
               }),
             },
           ],
@@ -132,7 +134,7 @@ export function FloatingActionRail({
               : 'Carrinho vazio'
           }
           onPress={onOpenCart}
-          style={({ pressed }) => [styles.cart, pressed && styles.pressed]}
+          style={({ pressed }) => [styles.cart, pressed && styles.pressedCart]}
           testID="floating-cart"
         >
           {/* Vidro: blur, gradiente, borda de 1 px e a linha de luz no topo. */}
@@ -151,7 +153,7 @@ export function FloatingActionRail({
               `position: absolute` pinta por cima de um estatico, mesmo vindo
               antes no JSX — sem isto o gradiente cobre o icone. */}
           <View style={styles.cartContent}>
-            <CartIcon color="#F5F5F7" />
+            <CartFloatIcon color="#F5F5F7" />
           </View>
           {cartCount > 0 ? <CartBadge count={cartCount} /> : null}
         </Pressable>
@@ -162,12 +164,12 @@ export function FloatingActionRail({
         accessibilityLabel="Fly Assist e emergência"
         accessibilityHint="Falar com a Fly, pedir ajuda agora ou acionar SOS"
         onPress={onOpenAssist}
-        style={({ pressed }) => [styles.sos, pressed && styles.pressed]}
+        style={({ pressed }) => [styles.sos, pressed && styles.pressedSos]}
         testID="floating-assist"
       >
         <PulseRing />
         <View style={styles.cartContent}>
-          <ScopeIcon color={floating.sos.glyph} size={22} />
+          <LifeRingIcon color={floating.sos.glyph} size={23} />
         </View>
       </Pressable>
     </>
@@ -175,9 +177,8 @@ export function FloatingActionRail({
 }
 
 const styles = StyleSheet.create({
-  pressed: {
-    transform: [{ scale: 0.92 }],
-  },
+  pressedCart: { transform: [{ scale: 0.93 }] },
+  pressedSos: { transform: [{ scale: 0.9 }] },
 
   // --- Carrinho: vidro grafite, a direita ------------------------------------
   cart: {
@@ -222,12 +223,16 @@ const styles = StyleSheet.create({
     right: floating.cart.badge.right,
     minWidth: floating.cart.badge.minWidth,
     height: floating.cart.badge.height,
-    paddingHorizontal: 5,
+    paddingHorizontal: 6,
     borderRadius: floating.cart.badge.radius,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#DFC98A',
     zIndex: 2,
+    shadowColor: 'rgba(223,201,138,.55)',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 12,
   },
   badgeLabel: {
     color: floating.cart.badge.textColor,

@@ -81,14 +81,14 @@ function ProximoPasso({ viagem }: { viagem: Viagem }) {
           ) : null}
 
           <Link href={`/viagem/atividade/${proximo.id}`} asChild>
-            <Pressable
-              accessibilityRole="link"
-              accessibilityLabel={`Abrir ${proximo.titulo}`}
-              style={styles.linkCard}
-            >
-              <Text variant="body" tone="gold">
-                Ver detalhes
-              </Text>
+            <Pressable accessibilityRole="link" accessibilityLabel={`Abrir ${proximo.titulo}`}>
+              {() => (
+                <View style={styles.linkCard}>
+                  <Text variant="body" tone="gold">
+                    Ver detalhes
+                  </Text>
+                </View>
+              )}
             </Pressable>
           </Link>
         </View>
@@ -149,15 +149,18 @@ function Hub() {
             <Pressable
               accessibilityRole="link"
               accessibilityLabel={`${item.rotulo}. ${item.descricao}`}
-              style={({ pressed }) => [styles.itemHub, pressed && styles.pressed]}
               testID={`hub-${item.chave}`}
             >
-              <Text variant="body" style={styles.itemTitulo}>
-                {item.rotulo}
-              </Text>
-              <Text variant="body" tone="faint" numberOfLines={2}>
-                {item.descricao}
-              </Text>
+              {({ pressed }) => (
+                <View style={[styles.itemHub, pressed && styles.pressed]}>
+                  <Text variant="body" style={styles.itemTitulo}>
+                    {item.rotulo}
+                  </Text>
+                  <Text variant="body" tone="faint" numberOfLines={2}>
+                    {item.descricao}
+                  </Text>
+                </View>
+              )}
             </Pressable>
           </Link>
         ))}

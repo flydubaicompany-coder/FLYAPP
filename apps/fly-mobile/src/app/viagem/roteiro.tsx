@@ -264,47 +264,52 @@ export default function RoteiroScreen() {
                       accessibilityLabel={`${a.titulo}. ${ROTULO_STATUS[a.status] ?? a.status}${
                         a.comeca ? `, ${hora(a.comeca, timezone)}` : ''
                       }`}
-                      style={({ pressed }) => [
-                        styles.atividade,
-                        a.status === 'cancelled' && styles.cancelada,
-                        a.status === 'changed' && styles.alterada,
-                        pressed && styles.pressed,
-                      ]}
                       testID={`atividade-${a.id}`}
                     >
-                      <View style={styles.linhaTopo}>
-                        <Text variant="body" tone="muted" style={styles.horario}>
-                          {hora(a.comeca, timezone) ?? '—'}
-                        </Text>
-                        <View style={styles.corpo}>
-                          <Text variant="body" style={styles.tituloAtividade}>
-                            {a.titulo}
-                          </Text>
-
-                          {/* Estado em texto, nunca só em cor (§25.4). */}
-                          <Text variant="body" tone={a.status === 'changed' ? 'gold' : 'faint'}>
-                            {ROTULO_STATUS[a.status] ?? a.status}
-                          </Text>
-
-                          {saidaEminente(a.saida) && a.saida ? (
-                            <Text variant="body" tone="gold">
-                              Sair às {hora(a.saida, timezone)} · {faltam(a.saida)}
+                      {({ pressed }) => (
+                        <View
+                          style={[
+                            styles.atividade,
+                            a.status === 'cancelled' && styles.cancelada,
+                            a.status === 'changed' && styles.alterada,
+                            pressed && styles.pressed,
+                          ]}
+                        >
+                          <View style={styles.linhaTopo}>
+                            <Text variant="body" tone="muted" style={styles.horario}>
+                              {hora(a.comeca, timezone) ?? '—'}
                             </Text>
-                          ) : null}
+                            <View style={styles.corpo}>
+                              <Text variant="body" style={styles.tituloAtividade}>
+                                {a.titulo}
+                              </Text>
 
-                          {a.ponto ? (
-                            <Text variant="body" tone="faint" numberOfLines={1}>
-                              {a.ponto}
-                            </Text>
-                          ) : null}
+                              {/* Estado em texto, nunca só em cor (§25.4). */}
+                              <Text variant="body" tone={a.status === 'changed' ? 'gold' : 'faint'}>
+                                {ROTULO_STATUS[a.status] ?? a.status}
+                              </Text>
 
-                          {a.status === 'changed' && a.notaDaMudanca ? (
-                            <Text variant="body" tone="muted">
-                              {a.notaDaMudanca}
-                            </Text>
-                          ) : null}
+                              {saidaEminente(a.saida) && a.saida ? (
+                                <Text variant="body" tone="gold">
+                                  Sair às {hora(a.saida, timezone)} · {faltam(a.saida)}
+                                </Text>
+                              ) : null}
+
+                              {a.ponto ? (
+                                <Text variant="body" tone="faint" numberOfLines={1}>
+                                  {a.ponto}
+                                </Text>
+                              ) : null}
+
+                              {a.status === 'changed' && a.notaDaMudanca ? (
+                                <Text variant="body" tone="muted">
+                                  {a.notaDaMudanca}
+                                </Text>
+                              ) : null}
+                            </View>
+                          </View>
                         </View>
-                      </View>
+                      )}
                     </Pressable>
                   </Link>
                 ))

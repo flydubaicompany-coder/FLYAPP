@@ -193,43 +193,46 @@ export default function MeusPasseios() {
                     <Pressable
                       accessibilityRole="link"
                       accessibilityLabel={`Pedido ${p.referencia}, ${ROTULO_STATUS[p.status] ?? p.status}`}
-                      style={({ pressed }) => [styles.pedido, pressed && styles.pressed]}
                       testID={`pedido-${p.referencia}`}
                     >
-                      <View style={styles.bloco}>
-                        <View style={styles.linhaTopo}>
-                          <Text variant="body" style={styles.titulo}>
-                            {p.itens[0]?.titulo ?? 'Pedido'}
-                            {p.itens.length > 1 ? ` +${p.itens.length - 1}` : ''}
-                          </Text>
-                          <Text
-                            variant="body"
-                            tone={
-                              p.status === 'confirmed'
-                                ? 'ok'
-                                : p.status === 'pending_payment'
-                                  ? 'warning'
-                                  : 'faint'
-                            }
-                          >
-                            {ROTULO_STATUS[p.status] ?? p.status}
-                          </Text>
-                        </View>
+                      {({ pressed }) => (
+                        <View style={[styles.pedido, pressed && styles.pressed]}>
+                          <View style={styles.bloco}>
+                            <View style={styles.linhaTopo}>
+                              <Text variant="body" style={styles.titulo}>
+                                {p.itens[0]?.titulo ?? 'Pedido'}
+                                {p.itens.length > 1 ? ` +${p.itens.length - 1}` : ''}
+                              </Text>
+                              <Text
+                                variant="body"
+                                tone={
+                                  p.status === 'confirmed'
+                                    ? 'ok'
+                                    : p.status === 'pending_payment'
+                                      ? 'warning'
+                                      : 'faint'
+                                }
+                              >
+                                {ROTULO_STATUS[p.status] ?? p.status}
+                              </Text>
+                            </View>
 
-                        {p.itens[0]?.comeca ? (
-                          <Text variant="body" tone="muted">
-                            {dataCurta(p.itens[0].comeca, p.itens[0].timezone ?? 'UTC')} ·{' '}
-                            {hora(p.itens[0].comeca, p.itens[0].timezone ?? 'UTC')}
-                          </Text>
-                        ) : null}
+                            {p.itens[0]?.comeca ? (
+                              <Text variant="body" tone="muted">
+                                {dataCurta(p.itens[0].comeca, p.itens[0].timezone ?? 'UTC')} ·{' '}
+                                {hora(p.itens[0].comeca, p.itens[0].timezone ?? 'UTC')}
+                              </Text>
+                            ) : null}
 
-                        <View style={styles.linhaTopo}>
-                          <Text variant="body" tone="faint" style={styles.mono}>
-                            {p.referencia}
-                          </Text>
-                          <Text variant="body">{formatar(p.total)}</Text>
+                            <View style={styles.linhaTopo}>
+                              <Text variant="body" tone="faint" style={styles.mono}>
+                                {p.referencia}
+                              </Text>
+                              <Text variant="body">{formatar(p.total)}</Text>
+                            </View>
+                          </View>
                         </View>
-                      </View>
+                      )}
                     </Pressable>
                   </Link>
 

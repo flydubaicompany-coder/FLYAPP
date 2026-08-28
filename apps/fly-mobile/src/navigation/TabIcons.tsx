@@ -102,18 +102,34 @@ export function AssistIcon({ color, size = 22 }: TabIconProps) {
 }
 
 /**
- * Mira do botao Fly Assist / SOS.
+ * Boia salva-vidas do botao Fly Assist / SOS.
  *
- * O handoff pede "glifo escuro de mira" — equivalente ao `dot.scope` das SF
- * Symbols. Substitui o fone de ouvido, que dizia "atendimento" quando o botao
- * precisa dizer "socorro".
+ * Copiado do prototipo: dois circulos concentricos (8.6 e 3.4) e quatro
+ * tracos diagonais. Nao e uma mira — eu tinha desenhado uma, e a leitura muda:
+ * mira e alvo, boia e socorro.
  */
-export function ScopeIcon({ color, size = 22 }: TabIconProps) {
+export function LifeRingIcon({ color, size = 23 }: TabIconProps) {
   return (
     <Frame color={color} size={size}>
-      <Path d="M12 5.6a6.4 6.4 0 1 1 0 12.8 6.4 6.4 0 0 1 0-12.8Z" />
-      <Path d="M12 3.4v2.6M12 18v2.6M3.4 12h2.6M18 12h2.6" />
-      <Path d="M12 10.7a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6Z" />
+      <Circle cx={12} cy={12} r={8.6} />
+      <Circle cx={12} cy={12} r={3.4} />
+      <Path d="M6 6l3.6 3.6" />
+      <Path d="M18 6l-3.6 3.6" />
+      <Path d="M18 18l-3.6-3.6" />
+      <Path d="M6 18l3.6-3.6" />
+    </Frame>
+  );
+}
+
+/**
+ * Carrinho do botao flutuante. Traco 1.6, tamanho 22, como o prototipo.
+ */
+export function CartFloatIcon({ color, size = 22 }: TabIconProps) {
+  return (
+    <Frame color={color} size={size}>
+      <Path d="M3 4.6h2.5l2.6 11.2h9.3l2.3-8.2H6.7" />
+      <Circle cx={9.7} cy={19.3} r={1.5} />
+      <Circle cx={17.3} cy={19.3} r={1.5} />
     </Frame>
   );
 }

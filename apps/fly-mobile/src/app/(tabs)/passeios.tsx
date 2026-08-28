@@ -99,44 +99,50 @@ function BarraMeusPasseios() {
       <Pressable
         accessibilityRole="link"
         accessibilityLabel={`Meus passeios, ${quantidade} ${quantidade === 1 ? 'experiência' : 'experiências'}${proximo ? `, ${proximo}` : ''}`}
-        style={({ pressed }) => [styles.barra, pressed && styles.barraPressionada]}
         testID="meus-passeios"
       >
-        <View style={styles.pilha}>
-          {capas.slice(0, 3).map((capa, n) => {
-            const uri = urlDaImagem(capa);
-            return uri ? (
-              <Image
-                key={`${capa}-${n}`}
-                source={{ uri }}
-                style={[styles.capa, { left: n * 13 }]}
-                contentFit="cover"
-              />
-            ) : (
-              <View key={`vazia-${n}`} style={[styles.capa, styles.capaVazia, { left: n * 13 }]} />
-            );
-          })}
-        </View>
+        {({ pressed }) => (
+          <View style={[styles.barra, pressed && styles.barraPressionada]}>
+            <View style={styles.pilha}>
+              {capas.slice(0, 3).map((capa, n) => {
+                const uri = urlDaImagem(capa);
+                return uri ? (
+                  <Image
+                    key={`${capa}-${n}`}
+                    source={{ uri }}
+                    style={[styles.capa, { left: n * 13 }]}
+                    contentFit="cover"
+                  />
+                ) : (
+                  <View
+                    key={`vazia-${n}`}
+                    style={[styles.capa, styles.capaVazia, { left: n * 13 }]}
+                  />
+                );
+              })}
+            </View>
 
-        <View style={styles.barraTexto}>
-          <Text variant="body" style={styles.barraTitulo}>
-            Meus Passeios
-          </Text>
-          {proximo ? (
-            <Text variant="body" tone="faint" numberOfLines={1} style={styles.barraSub}>
-              {proximo}
-            </Text>
-          ) : null}
-        </View>
+            <View style={styles.barraTexto}>
+              <Text variant="body" style={styles.barraTitulo}>
+                Meus Passeios
+              </Text>
+              {proximo ? (
+                <Text variant="body" tone="faint" numberOfLines={1} style={styles.barraSub}>
+                  {proximo}
+                </Text>
+              ) : null}
+            </View>
 
-        <View style={styles.barraFim}>
-          <View style={styles.contador}>
-            <Text variant="body" tone="gold" style={styles.contadorTexto}>
-              {quantidade}
-            </Text>
+            <View style={styles.barraFim}>
+              <View style={styles.contador}>
+                <Text variant="body" tone="gold" style={styles.contadorTexto}>
+                  {quantidade}
+                </Text>
+              </View>
+              <Seta />
+            </View>
           </View>
-          <Seta />
-        </View>
+        )}
       </Pressable>
     </Link>
   );
