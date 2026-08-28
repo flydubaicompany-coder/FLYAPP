@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { router } from 'expo-router';
 import { Linking, StyleSheet, View } from 'react-native';
 import { palette, radius, space } from '@/theme';
 import {
@@ -154,7 +155,7 @@ export default function HotelScreen() {
   if (viagemData.kind === 'semViagem') {
     return (
       <Screen withBottomNav={false} testID="screen-hotel">
-        <AppHeader kicker="Hotel" title="Sem viagem ativa" />
+        <AppHeader kicker="Minha Viagem" title="Sem viagem ativa" onBack={() => router.back()} />
         <EmptyState title="Nada por aqui ainda" description="A hospedagem aparece com a viagem." />
       </Screen>
     );
@@ -180,7 +181,7 @@ export default function HotelScreen() {
 
   return (
     <Screen withBottomNav={false} testID="screen-hotel">
-      <AppHeader kicker="Sua viagem" title="Hotel e transfers" />
+      <AppHeader kicker="Minha Viagem" title="Hotel e transfers" onBack={() => router.back()} />
 
       {hotel ? (
         <Card>

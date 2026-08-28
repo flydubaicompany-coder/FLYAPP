@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { palette, radius, space } from '@/theme';
 import {
@@ -175,7 +176,7 @@ export default function PassaporteScreen() {
 
   return (
     <Screen withBottomNav={false} testID="screen-passaporte">
-      <AppHeader kicker="Perfil" title="Passaporte" />
+      <AppHeader kicker="Perfil" title="Passaporte" onBack={() => router.back()} />
 
       <Text variant="body" tone="muted">
         Digite os dados exatamente como estão no seu passaporte. A Fly usa isso para emitir suas

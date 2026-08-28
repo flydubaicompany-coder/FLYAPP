@@ -206,7 +206,7 @@ export default function PedidoScreen() {
   if (falhaAoCarregar) {
     return (
       <Screen withBottomNav={false} testID="screen-pedido">
-        <AppHeader kicker="Pedido" title="Não carregou" />
+        <AppHeader kicker="Passeios" title="Não carregou" onBack={() => router.back()} />
         <ErrorState description={falhaAoCarregar} onRetry={() => void carregar()} />
       </Screen>
     );
@@ -215,7 +215,7 @@ export default function PedidoScreen() {
   if (pedido === 'nao-encontrado') {
     return (
       <Screen withBottomNav={false} testID="screen-pedido">
-        <AppHeader kicker="Pedido" title="Não encontrei" />
+        <AppHeader kicker="Passeios" title="Não encontrei" onBack={() => router.back()} />
         <EmptyState title="Este pedido não existe" description="Confira em Meus passeios." />
       </Screen>
     );
@@ -262,7 +262,11 @@ export default function PedidoScreen() {
 
   return (
     <Screen withBottomNav={false} testID="screen-pedido">
-      <AppHeader kicker={pedido.referencia} title={ROTULO_STATUS[pedido.status] ?? pedido.status} />
+      <AppHeader
+        kicker={pedido.referencia}
+        title={ROTULO_STATUS[pedido.status] ?? pedido.status}
+        onBack={() => router.back()}
+      />
 
       {aviso ? <AlertBanner title={aviso} /> : null}
 

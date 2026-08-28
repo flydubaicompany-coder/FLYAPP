@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { router } from 'expo-router';
 import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { palette, radius, space, touchTarget } from '@/theme';
 import { AppHeader, Field, Screen, Text } from '@/ui';
@@ -53,7 +54,7 @@ export default function DadosScreen() {
   if (!perfil) {
     return (
       <Screen withBottomNav={false} testID="screen-dados">
-        <AppHeader kicker="Dados" title="Entre para ver" />
+        <AppHeader kicker="Perfil" title="Entre para ver" onBack={() => router.back()} />
       </Screen>
     );
   }
@@ -64,7 +65,7 @@ export default function DadosScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <Screen withBottomNav={false} testID="screen-dados">
-        <AppHeader kicker="Dados pessoais" title="Sobre você" />
+        <AppHeader kicker="Perfil" title="Sobre você" onBack={() => router.back()} />
 
         <View style={styles.campos}>
           <Field

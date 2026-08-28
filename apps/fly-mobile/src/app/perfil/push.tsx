@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { palette, radius, space } from '@/theme';
 import { AlertBanner, AppHeader, Botao, Card, Screen, Text } from '@/ui';
@@ -81,7 +82,7 @@ export default function PushScreen() {
 
   return (
     <Screen withBottomNav={false} testID="screen-push">
-      <AppHeader kicker="Notificações" title="Teste de push" />
+      <AppHeader kicker="Perfil" title="Teste de push" onBack={() => router.back()} />
 
       <Card>
         <View style={styles.bloco}>

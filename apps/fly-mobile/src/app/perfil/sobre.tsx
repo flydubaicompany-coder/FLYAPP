@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
 import { space } from '@/theme';
 import { AppHeader, Card, Kicker, Screen, Text } from '@/ui';
 
@@ -13,7 +14,7 @@ import { AppHeader, Card, Kicker, Screen, Text } from '@/ui';
 export default function SobreScreen() {
   return (
     <Screen withBottomNav={false} testID="screen-sobre">
-      <AppHeader kicker="Quem Somos" title="A Fly" />
+      <AppHeader kicker="Perfil" title="A Fly" onBack={() => router.back()} />
 
       <Card>
         <View style={styles.bloco}>

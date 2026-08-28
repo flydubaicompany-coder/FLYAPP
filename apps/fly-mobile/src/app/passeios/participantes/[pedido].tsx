@@ -156,7 +156,7 @@ export default function ParticipantesScreen() {
   if (estado.kind === 'error') {
     return (
       <Screen withBottomNav={false} testID="screen-participantes">
-        <AppHeader kicker="Participantes" title="Não carregou" />
+        <AppHeader kicker="Passeios" title="Não carregou" onBack={() => router.back()} />
         <ErrorState description={estado.message} onRetry={() => void carregar()} />
       </Screen>
     );
@@ -165,7 +165,7 @@ export default function ParticipantesScreen() {
   if (estado.kind === 'nao-encontrado') {
     return (
       <Screen withBottomNav={false} testID="screen-participantes">
-        <AppHeader kicker="Participantes" title="Não encontrei" />
+        <AppHeader kicker="Passeios" title="Não encontrei" onBack={() => router.back()} />
         <EmptyState title="Este pedido não existe" description="Confira em Meus passeios." />
       </Screen>
     );
@@ -173,7 +173,7 @@ export default function ParticipantesScreen() {
 
   return (
     <Screen withBottomNav={false} testID="screen-participantes">
-      <AppHeader kicker={estado.referencia} title="Quem vai" />
+      <AppHeader kicker={estado.referencia} title="Quem vai" onBack={() => router.back()} />
 
       {aviso ? <AlertBanner title={aviso} /> : null}
 

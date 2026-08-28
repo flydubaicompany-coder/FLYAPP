@@ -168,7 +168,7 @@ export default function NotificacoesScreen() {
   if (state.kind !== 'signedIn') {
     return (
       <Screen withBottomNav={false} testID="screen-notificacoes">
-        <AppHeader kicker="Notificações" title="Entre para ver" />
+        <AppHeader kicker="Início" title="Entre para ver" onBack={() => router.back()} />
       </Screen>
     );
   }
@@ -194,7 +194,7 @@ export default function NotificacoesScreen() {
 
   return (
     <Screen withBottomNav={false} testID="screen-notificacoes">
-      <AppHeader kicker="Notificações" title="Seus avisos" />
+      <AppHeader kicker="Início" title="Seus avisos" onBack={() => router.back()} />
 
       {avisos.length === 0 ? (
         <EmptyState

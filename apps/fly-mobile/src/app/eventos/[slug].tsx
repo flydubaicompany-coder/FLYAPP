@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import { palette, radius, space, touchTarget } from '@/theme';
 import {
@@ -140,7 +140,7 @@ export default function EventoScreen() {
   if (erro) {
     return (
       <Screen withBottomNav={false} testID="screen-evento">
-        <AppHeader kicker="Evento" title="Não carregou" />
+        <AppHeader kicker="Eventos" title="Não carregou" onBack={() => router.back()} />
         <ErrorState description={erro} onRetry={() => setTentativa((n) => n + 1)} />
       </Screen>
     );
@@ -149,7 +149,7 @@ export default function EventoScreen() {
   if (evento === 'nao-encontrado') {
     return (
       <Screen withBottomNav={false} testID="screen-evento">
-        <AppHeader kicker="Evento" title="Não encontrei" />
+        <AppHeader kicker="Eventos" title="Não encontrei" onBack={() => router.back()} />
         <EmptyState
           title="Este evento não está disponível"
           description="Ele pode não ter sido publicado ainda, ou o link estar desatualizado."
@@ -171,9 +171,10 @@ export default function EventoScreen() {
   return (
     <Screen withBottomNav={false} testID="screen-evento">
       <AppHeader
-        kicker="Acontece na Fly"
+        kicker="Eventos"
         title={evento.title}
         {...(evento.summary ? { subtitle: evento.summary } : {})}
+        onBack={() => router.back()}
       />
 
       {local || evento.startsAt ? (

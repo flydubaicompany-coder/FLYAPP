@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { space } from '@/theme';
 import { AppHeader, Card, ErrorState, LoadingSkeleton, Screen, Text, Toggle } from '@/ui';
@@ -99,7 +100,7 @@ export default function PrivacidadeScreen() {
   if (state.kind !== 'signedIn') {
     return (
       <Screen withBottomNav={false} testID="screen-privacidade">
-        <AppHeader kicker="Privacidade" title="Entre para ver" />
+        <AppHeader kicker="Perfil" title="Entre para ver" onBack={() => router.back()} />
       </Screen>
     );
   }
@@ -126,9 +127,10 @@ export default function PrivacidadeScreen() {
   return (
     <Screen withBottomNav={false} testID="screen-privacidade">
       <AppHeader
-        kicker="Privacidade"
+        kicker="Perfil"
         title="Suas escolhas"
         subtitle="Você decide o que a Fly pode usar, e muda quando quiser."
+        onBack={() => router.back()}
       />
 
       {comuns.length > 0 ? (

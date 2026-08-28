@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { palette, radius, space } from '@/theme';
 import {
@@ -194,7 +194,7 @@ export default function AtividadeScreen() {
   if (atividade === 'nao-encontrada') {
     return (
       <Screen withBottomNav={false} testID="screen-atividade">
-        <AppHeader kicker="Atividade" title="Não encontrei" />
+        <AppHeader kicker="Minha Viagem" title="Não encontrei" onBack={() => router.back()} />
         <EmptyState
           title="Esta atividade não está disponível"
           description="Ela pode ter sido removida do roteiro, ou o link estar desatualizado."
@@ -226,6 +226,7 @@ export default function AtividadeScreen() {
       <AppHeader
         kicker={ROTULO_STATUS[atividade.status] ?? atividade.status}
         title={atividade.titulo}
+        onBack={() => router.back()}
       />
 
       {/* Alteração pendente vem antes de tudo. */}

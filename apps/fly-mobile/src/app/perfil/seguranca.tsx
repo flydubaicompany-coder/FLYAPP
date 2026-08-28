@@ -142,7 +142,7 @@ export default function SegurancaScreen() {
   if (!perfil) {
     return (
       <Screen withBottomNav={false} testID="screen-seguranca">
-        <AppHeader kicker="Segurança" title="Entre para ver" />
+        <AppHeader kicker="Perfil" title="Entre para ver" onBack={() => router.back()} />
       </Screen>
     );
   }
@@ -151,7 +151,7 @@ export default function SegurancaScreen() {
 
   return (
     <Screen withBottomNav={false} testID="screen-seguranca">
-      <AppHeader kicker="Segurança" title="Sua conta" />
+      <AppHeader kicker="Perfil" title="Sua conta" onBack={() => router.back()} />
 
       <View style={styles.secao}>
         <Kicker>Biometria</Kicker>

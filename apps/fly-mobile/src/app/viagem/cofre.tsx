@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { router } from 'expo-router';
 import { Linking, StyleSheet, View } from 'react-native';
 import { palette, radius, space } from '@/theme';
 import {
@@ -152,7 +153,7 @@ export default function CofreScreen() {
 
   return (
     <Screen withBottomNav={false} testID="screen-cofre">
-      <AppHeader kicker="Sua viagem" title="Documentos" />
+      <AppHeader kicker="Minha Viagem" title="Documentos" onBack={() => router.back()} />
 
       <Text variant="body" tone="muted">
         Seus documentos ficam em armazenamento privado. Cada abertura gera um link temporário e fica

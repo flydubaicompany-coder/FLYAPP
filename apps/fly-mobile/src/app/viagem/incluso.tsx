@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { palette, radius, space } from '@/theme';
 import {
@@ -100,7 +101,7 @@ export default function InclusoScreen() {
   if (viagemData.kind === 'semViagem') {
     return (
       <Screen withBottomNav={false} testID="screen-incluso">
-        <AppHeader kicker="Incluso" title="Sem viagem ativa" />
+        <AppHeader kicker="Minha Viagem" title="Sem viagem ativa" onBack={() => router.back()} />
         <EmptyState title="Nada por aqui ainda" description="A lista aparece com a sua viagem." />
       </Screen>
     );
@@ -174,7 +175,7 @@ export default function InclusoScreen() {
 
   return (
     <Screen withBottomNav={false} testID="screen-incluso">
-      <AppHeader kicker="Sua viagem" title="Tudo que está incluso" />
+      <AppHeader kicker="Minha Viagem" title="Tudo que está incluso" onBack={() => router.back()} />
 
       {itens.length === 0 ? (
         <EmptyState

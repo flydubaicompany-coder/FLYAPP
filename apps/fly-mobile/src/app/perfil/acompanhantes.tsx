@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { palette, radius, space } from '@/theme';
 import { AppHeader, Card, EmptyState, Screen, Text } from '@/ui';
@@ -58,7 +59,7 @@ export default function AcompanhantesScreen() {
 
   return (
     <Screen withBottomNav={false} testID="screen-acompanhantes">
-      <AppHeader kicker="Família" title="Acompanhantes" />
+      <AppHeader kicker="Perfil" title="Acompanhantes" onBack={() => router.back()} />
 
       {vinculos && vinculos.length > 0 ? (
         <View style={styles.lista}>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { space } from '@/theme';
 import {
@@ -109,7 +110,7 @@ export default function QrScreen() {
 
   return (
     <Screen withBottomNav={false} testID="screen-qr">
-      <AppHeader kicker="Sua viagem" title="Ingressos e QR" />
+      <AppHeader kicker="Minha Viagem" title="Ingressos e QR" onBack={() => router.back()} />
 
       {aviso ? <AlertBanner severity="warning" title={aviso} /> : null}
 

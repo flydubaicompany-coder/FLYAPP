@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { space } from '@/theme';
 import { AppHeader, EmptyState, ErrorState, LoadingSkeleton, Screen, Text } from '@/ui';
@@ -44,7 +45,7 @@ export default function EventosScreen() {
 
   return (
     <Screen withBottomNav={false} testID="screen-eventos">
-      <AppHeader kicker="Acontece na Fly" title="Eventos" />
+      <AppHeader kicker="Início" title="Eventos" onBack={() => router.back()} />
 
       {erro ? (
         <ErrorState description={erro} />

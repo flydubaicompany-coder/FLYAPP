@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { router } from 'expo-router';
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { space } from '@/theme';
 import { AppHeader, Card, Field, Kicker, Screen, Text } from '@/ui';
@@ -63,7 +64,7 @@ export default function PreferenciasScreen() {
   if (!userId) {
     return (
       <Screen withBottomNav={false} testID="screen-preferencias">
-        <AppHeader kicker="Preferências" title="Entre para ver" />
+        <AppHeader kicker="Perfil" title="Entre para ver" onBack={() => router.back()} />
       </Screen>
     );
   }
@@ -75,9 +76,10 @@ export default function PreferenciasScreen() {
     >
       <Screen withBottomNav={false} testID="screen-preferencias">
         <AppHeader
-          kicker="Preferências"
+          kicker="Perfil"
           title="Os detalhes"
           subtitle="Ajude a Fly a cuidar dos detalhes que fazem diferença para você."
+          onBack={() => router.back()}
         />
 
         {PREFERENCE_GROUPS.map((grupo) => {

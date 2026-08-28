@@ -193,7 +193,7 @@ export default function DetalheDoPasseio() {
   if (passeio === 'nao-encontrado') {
     return (
       <Screen withBottomNav={false} testID="screen-passeio">
-        <AppHeader kicker="Passeio" title="Não encontrei" />
+        <AppHeader kicker="Passeios" title="Não encontrei" onBack={() => router.back()} />
         <EmptyState
           title="Este passeio não está disponível"
           description="Ele pode ter saído do catálogo, ou o link estar desatualizado."
@@ -232,7 +232,11 @@ export default function DetalheDoPasseio() {
 
   return (
     <Screen withBottomNav={false} testID="screen-passeio">
-      <AppHeader kicker={passeio.cidade ?? 'Passeio'} title={passeio.titulo} />
+      <AppHeader
+        kicker={passeio.cidade ?? 'Passeio'}
+        title={passeio.titulo}
+        onBack={() => router.back()}
+      />
 
       {aviso ? <AlertBanner severity="warning" title={aviso} /> : null}
 

@@ -13,7 +13,7 @@ import {
   Screen,
   Text,
 } from '@/ui';
-import { Link } from 'expo-router';
+import { router, Link } from 'expo-router';
 import { supabase } from '@/auth/client';
 import { useSession } from '@/auth/session';
 import { useViagem } from '@/viagem/useViagem';
@@ -152,7 +152,7 @@ export default function VoosScreen() {
   if (viagemData.kind === 'semViagem') {
     return (
       <Screen withBottomNav={false} testID="screen-voos">
-        <AppHeader kicker="Voos" title="Sem viagem ativa" />
+        <AppHeader kicker="Minha Viagem" title="Sem viagem ativa" onBack={() => router.back()} />
         <EmptyState title="Nada por aqui ainda" description="Seus voos aparecem com a viagem." />
       </Screen>
     );
@@ -255,7 +255,7 @@ export default function VoosScreen() {
 
   return (
     <Screen withBottomNav={false} testID="screen-voos">
-      <AppHeader kicker="Sua viagem" title="Voos" />
+      <AppHeader kicker="Minha Viagem" title="Voos" onBack={() => router.back()} />
 
       {voos.length === 0 ? (
         <EmptyState

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { router } from 'expo-router';
 import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { palette, radius, space, touchTarget } from '@/theme';
 import { AppHeader, Field, Screen, Text } from '@/ui';
@@ -73,7 +74,7 @@ export default function EmergenciaScreen() {
   if (!userId) {
     return (
       <Screen withBottomNav={false} testID="screen-emergencia">
-        <AppHeader kicker="Emergência" title="Entre para ver" />
+        <AppHeader kicker="Perfil" title="Entre para ver" onBack={() => router.back()} />
       </Screen>
     );
   }
@@ -85,9 +86,10 @@ export default function EmergenciaScreen() {
     >
       <Screen withBottomNav={false} testID="screen-emergencia">
         <AppHeader
-          kicker="Emergência"
+          kicker="Perfil"
           title="Quem avisamos"
           subtitle="Só a equipe atribuída à sua viagem enxerga este contato."
+          onBack={() => router.back()}
         />
 
         <View style={styles.campos}>

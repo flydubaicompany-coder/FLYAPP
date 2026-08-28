@@ -50,7 +50,7 @@ export default function PropostaScreen() {
   if (enviado) {
     return (
       <Screen withBottomNav={false} testID="screen-proposta">
-        <AppHeader kicker="Fly Exclusives" title="Pedido enviado" />
+        <AppHeader kicker="Passeios" title="Pedido enviado" onBack={() => router.back()} />
         <Text variant="body" tone="muted">
           A Fly monta a proposta e responde por aqui. Você recebe um aviso quando ela estiver
           pronta.
@@ -64,7 +64,7 @@ export default function PropostaScreen() {
 
   return (
     <Screen withBottomNav={false} testID="screen-proposta">
-      <AppHeader kicker="Fly Exclusives" title="Solicitar proposta" />
+      <AppHeader kicker="Passeios" title="Solicitar proposta" onBack={() => router.back()} />
 
       <Text variant="body" tone="muted">
         Esta experiência é montada sob medida. Conte o que você quer, e a Fly volta com a proposta —

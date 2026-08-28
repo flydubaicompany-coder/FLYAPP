@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { router } from 'expo-router';
 import { StyleSheet } from 'react-native';
 import { space } from '@/theme';
 import { AppHeader, Card, Screen, Text, Toggle } from '@/ui';
@@ -42,9 +43,10 @@ export default function RankingScreen() {
   return (
     <Screen withBottomNav={false} testID="screen-ranking">
       <AppHeader
-        kicker="Ranking"
+        kicker="Perfil"
         title="Participação é sua escolha"
         subtitle="Por padrão, você não aparece."
+        onBack={() => router.back()}
       />
 
       <Card padding={space.xs}>

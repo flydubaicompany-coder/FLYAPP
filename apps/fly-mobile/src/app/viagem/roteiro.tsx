@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'expo-router';
+import { router, Link } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { palette, radius, space, touchTarget } from '@/theme';
 import {
@@ -174,7 +174,7 @@ export default function RoteiroScreen() {
   if (viagemData.kind === 'semViagem') {
     return (
       <Screen withBottomNav={false} testID="screen-roteiro">
-        <AppHeader kicker="Roteiro" title="Sem viagem ativa" />
+        <AppHeader kicker="Minha Viagem" title="Sem viagem ativa" onBack={() => router.back()} />
         <EmptyState
           title="Nada por aqui ainda"
           description="O roteiro aparece quando sua viagem for publicada."
@@ -203,7 +203,7 @@ export default function RoteiroScreen() {
 
   return (
     <Screen withBottomNav={false} testID="screen-roteiro">
-      <AppHeader kicker="Roteiro" title="Dia a dia" />
+      <AppHeader kicker="Minha Viagem" title="Dia a dia" onBack={() => router.back()} />
 
       {dias.length === 0 ? (
         <EmptyState
