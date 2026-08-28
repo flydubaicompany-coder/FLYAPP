@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useRouter } from 'expo-router';
+import { router, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
@@ -16,6 +16,7 @@ import { CardPasseio } from '@/passeios/CardPasseio';
 import { urlDaImagem } from '@/passeios/midia';
 import { useVitrine } from '@/passeios/useVitrine';
 import { useMeusPasseios } from '@/passeios/useMeusPasseios';
+import { MeusPasseiosSheet } from '@/passeios/MeusPasseiosSheet';
 
 /**
  * Passeios (§6.1), na composição do Claude Design.
@@ -92,13 +93,33 @@ function Ajustes() {
  */
 function BarraMeusPasseios() {
   const { capas, quantidade, proximo } = useMeusPasseios();
+  const [folhaAberta, setFolhaAberta] = useState(false);
   if (quantidade === 0) return null;
 
   return (
-    <Link href="/passeios/meus" asChild>
+    <>
+      <MeusPasseiosSheet
+        visivel={folhaAberta}
+        aoFechar={() => setFolhaAberta(false)}
+        resumo={`${quantidade} ${quantidade === 1 ? 'confirmado' : 'confirmados'}${proximo ? ` · ${proximo}` : ''}`}
+        itens={capas.slice(0, 3).map((capa, n) => ({
+          id: String(n),
+          quando: null,
+          titulo: 'Experiência confirmada',
+          foto: capa,
+        }))}
+        aoAbrirPagina={() => {
+          setFolhaAberta(false);
+          router.push('/passeios/meus');
+        }}
+      />
+
+      {/* A barra **abre a folha**, e nao navega direto: e o comportamento da
+          secao 3 do handoff. A pagina completa fica no CTA da folha. */}
       <Pressable
-        accessibilityRole="link"
+        accessibilityRole="button"
         accessibilityLabel={`Meus passeios, ${quantidade} ${quantidade === 1 ? 'experiência' : 'experiências'}${proximo ? `, ${proximo}` : ''}`}
+        onPress={() => setFolhaAberta(true)}
         testID="meus-passeios"
       >
         {({ pressed }) => (
@@ -144,7 +165,7 @@ function BarraMeusPasseios() {
           </View>
         )}
       </Pressable>
-    </Link>
+    </>
   );
 }
 

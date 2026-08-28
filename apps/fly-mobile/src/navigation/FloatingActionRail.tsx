@@ -40,13 +40,20 @@ function PulseRing() {
   const t = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    // O reset e explicito. `Animated.loop` sozinho deixou o anel **congelado**
+    // em `scale(1.6) opacity 0` depois da primeira volta — medido no DOM: seis
+    // amostras em dois segundos, todas identicas. Sem a volta a zero nao ha
+    // onda nenhuma, e o botao ficava parado.
     const loop = Animated.loop(
-      Animated.timing(t, {
-        toValue: 1,
-        duration: floating.sos.pulseMs,
-        easing: Easing.bezier(ENTER_X1, ENTER_Y1, ENTER_X2, ENTER_Y2),
-        useNativeDriver: true,
-      }),
+      Animated.sequence([
+        Animated.timing(t, {
+          toValue: 1,
+          duration: floating.sos.pulseMs,
+          easing: Easing.bezier(ENTER_X1, ENTER_Y1, ENTER_X2, ENTER_Y2),
+          useNativeDriver: true,
+        }),
+        Animated.timing(t, { toValue: 0, duration: 0, useNativeDriver: true }),
+      ]),
     );
     loop.start();
     return () => loop.stop();
