@@ -84,8 +84,9 @@ o HTML é **só o visual** de: tab bar, flutuantes, banner e blocos da Início.
 ## Fase 6 — o que existe e o que não
 
 **Existe:** pacote do cliente, ledger de Fly Points append-only, saldo, nível
-(basic/prime/elite), progresso, extrato, a faixa no Perfil, e **o crédito
-automático**: a compra confirmada rende pontos por gatilho, e o reembolso
+(basic/prime/elite), progresso, extrato, a faixa no Perfil, **benefícios com
+resgate atômico** (estoque, elegibilidade por nível e pacote, código para
+apresentar na Base Fly), e **o crédito automático**: a compra confirmada rende pontos por gatilho, e o reembolso
 estorna proporcional. Nenhum lançamento é inserido à mão.
 
 **Não existe, e é decisão registrada:**
@@ -97,8 +98,9 @@ estorna proporcional. Nenhum lançamento é inserido à mão.
 | Botão "Resgatar"                                                              | Resgate é a entrega 4 da Fase 6, não feita. **D131**                                                  |
 | Link "Ver tudo"                                                               | Não há tela de extrato completo. **D131**                                                             |
 
-Falta da Fase 6: benefícios e resgate, vouchers, pagamentos tokenizados,
-ranking opt-in, premiação, scanner de nota e tax-free.
+Falta da Fase 6: vouchers e cupons na Carteira, pagamentos tokenizados,
+ranking opt-in, premiação, scanner de nota e tax-free, e o Fly Ops para
+operar tudo isso.
 
 **A regra de pontos (D129):** 10 pontos por unidade de moeda, 2.000 por
 check-in em evento, 5.000 por indicação. Prime 25.000, elite 100.000, validade
@@ -499,6 +501,20 @@ E uma que só o dono faz, no painel do Supabase:
 ---
 
 ## Armadilhas já pagas — não repetir
+
+**O React Compiler ignora dependência que a função não lê.** Este app roda com
+`reactCompiler: true` (`app.json`). O compilador memoiza pelo que a função **de
+fato lê no corpo**, não pela lista de dependências declarada. Um
+`useCallback(..., [userId, chave])` em que `chave` nunca é lida dentro vira uma
+função estável, e o efeito nunca re-executa. O sintoma é cruel: a tela fica com
+dado velho e **nenhuma requisição sai do navegador** — parece cache, parece
+RLS, parece qualquer coisa menos o que é. Custou uma investigação em 28/08.
+Para forçar releitura, **devolva uma função** do hook em vez de passar uma
+chave.
+
+**Supabase concede tudo a `anon` e `authenticated` por padrão.** Toda tabela
+nova nasce aberta, e um `grant select` não restringe — só repete. Mordeu quatro
+vezes (ver D128). Desde a Fase 6 há teste de `has_table_privilege` guardando.
 
 Estão detalhadas em [quality/TEST_MATRIX.md](quality/TEST_MATRIX.md) e no
 decision log. O resumo:

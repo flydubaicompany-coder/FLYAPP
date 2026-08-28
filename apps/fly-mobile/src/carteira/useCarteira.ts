@@ -46,7 +46,25 @@ function numeroOuNulo(valor: unknown): number | null {
   return typeof valor === 'number' && Number.isFinite(valor) ? valor : null;
 }
 
-export function useCarteira(userId: string | null): CarteiraData {
+export interface CarteiraHook {
+  data: CarteiraData;
+  /** Chame depois de qualquer coisa que mexa no saldo — um resgate, por exemplo. */
+  recarregar: () => Promise<void>;
+}
+
+/**
+ * **Devolve uma funcao de recarga, e nao aceita uma chave.**
+ *
+ * A primeira versao recebia um `chaveDeRecarga` que entrava na lista de
+ * dependencias do `useCallback`. Nao funcionou, e o motivo vale registrar:
+ * este app roda com o **React Compiler ligado** (`app.json`, experiments), e
+ * ele memoiza pelo que a funcao **de fato le no corpo** — nao pela lista de
+ * dependencias declarada. Como `chaveDeRecarga` nunca era lida dentro de
+ * `carregar`, o compilador considerou a funcao estavel e ela nunca era
+ * recriada. O saldo ficava parado depois de um resgate, sem nenhuma consulta
+ * saindo do navegador.
+ */
+export function useCarteira(userId: string | null): CarteiraHook {
   const [data, setData] = useState<CarteiraData>({ kind: 'loading' });
 
   const carregar = useCallback(async () => {
@@ -113,5 +131,5 @@ export function useCarteira(userId: string | null): CarteiraData {
     void carregar();
   }, [carregar]);
 
-  return data;
+  return { data, recarregar: carregar };
 }

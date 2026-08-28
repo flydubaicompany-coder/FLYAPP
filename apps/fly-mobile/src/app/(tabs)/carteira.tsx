@@ -1,10 +1,14 @@
+import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
+import { palette } from '@/theme';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { AppHeader, EmptyState, ErrorState, LoadingSkeleton, PhaseStub, Screen, Text } from '@/ui';
 import { useSession } from '@/auth/session';
 import {
+  CartaoDeBeneficio,
   CartaoDePontos,
+  CartaoDeResgate,
   DivisorDeMovimento,
   FinanceiroDesligado,
   GrupoDeMovimentos,
@@ -15,6 +19,28 @@ import {
 import { ehPacote } from '@/carteira/pacote';
 import { progressoDoSaldo } from '@/carteira/nivel';
 import { useCarteira, type Lancamento } from '@/carteira/useCarteira';
+import { EXPLICACAO, useBeneficios, type Beneficio } from '@/carteira/useBeneficios';
+
+/**
+ * Por que um beneficio nao pode ser resgatado agora.
+ *
+ * Isto e **so para explicar** na tela. Quem decide e a RPC, que refaz todas as
+ * conferencias com a linha travada — a §41 nao permite decidir elegibilidade
+ * no cliente.
+ */
+const ORDEM_NIVEL: Record<string, number> = { basic: 1, prime: 2, elite: 3 };
+
+function bloqueioDe(b: Beneficio, saldo: number, nivel: string): string | null {
+  if (b.estoque !== null && b.estoque <= 0) return 'Esgotado por enquanto.';
+  if (b.nivelMinimo && (ORDEM_NIVEL[nivel] ?? 1) < (ORDEM_NIVEL[b.nivelMinimo] ?? 1)) {
+    return `A partir do nível ${b.nivelMinimo === 'elite' ? 'ELITE' : b.nivelMinimo}.`;
+  }
+  if (b.pacoteMinimo) return 'Disponível para outro pacote Fly.';
+  if (saldo < b.custo) {
+    return `Faltam ${new Intl.NumberFormat('pt-BR').format(b.custo - saldo)} pontos.`;
+  }
+  return null;
+}
 
 /**
  * Carteira (§8), na composicao de `docs/design/extracao/05-carteira.html`.
@@ -113,7 +139,26 @@ export default function WalletScreen() {
   const { state } = useSession();
   const router = useRouter();
   const userId = state.kind === 'signedIn' ? state.profile.id : null;
-  const dados = useCarteira(userId);
+  const { data: dados, recarregar: recarregarCarteira } = useCarteira(userId);
+  const { data: beneficios, resgatar, recarregar } = useBeneficios(userId);
+  const [resgatando, setResgatando] = useState<string | null>(null);
+  const [recado, setRecado] = useState<{ ok: boolean; texto: string } | null>(null);
+
+  async function pedirResgate(id: string) {
+    setResgatando(id);
+    setRecado(null);
+    const r = await resgatar(id);
+    setResgatando(null);
+
+    if (r.ok) {
+      setRecado({ ok: true, texto: `Resgatado. Seu código é ${r.codigo}.` });
+      // O resgate mexe no saldo, no extrato E no estoque: as duas consultas
+      // precisam rodar de novo, nao so a dos beneficios.
+      await Promise.all([recarregar(), recarregarCarteira()]);
+      return;
+    }
+    setRecado({ ok: false, texto: EXPLICACAO[r.motivo] ?? r.motivo });
+  }
 
   if (state.kind === 'signedOut') {
     return (
@@ -162,6 +207,45 @@ export default function WalletScreen() {
         progresso={progresso}
         validadeMeses={carteira.validadeMeses}
       />
+
+      {recado ? (
+        <View style={[styles.recado, recado.ok ? styles.recadoOk : styles.recadoErro]}>
+          <Text variant="body" style={styles.recadoTexto}>
+            {recado.texto}
+          </Text>
+        </View>
+      ) : null}
+
+      {beneficios.kind === 'ready' && beneficios.resgates.length > 0 ? (
+        <>
+          <TituloDeSecao>Seus resgates</TituloDeSecao>
+          <View style={styles.lista}>
+            {beneficios.resgates.map((r) => (
+              <CartaoDeResgate key={r.id} titulo={r.titulo} codigo={r.codigo} pontos={r.pontos} />
+            ))}
+          </View>
+        </>
+      ) : null}
+
+      {beneficios.kind === 'ready' && beneficios.beneficios.length > 0 ? (
+        <>
+          <TituloDeSecao>Benefícios</TituloDeSecao>
+          <View style={styles.lista}>
+            {beneficios.beneficios.map((b) => (
+              <CartaoDeBeneficio
+                key={b.id}
+                titulo={b.titulo}
+                descricao={b.descricao}
+                custo={b.custo}
+                estoque={b.estoque}
+                bloqueio={bloqueioDe(b, carteira.saldo, progresso.nivel)}
+                ocupado={resgatando === b.id}
+                aoResgatar={() => void pedirResgate(b.id)}
+              />
+            ))}
+          </View>
+        </>
+      ) : null}
 
       <TituloDeSecao>Movimentações</TituloDeSecao>
 
@@ -235,4 +319,23 @@ const styles = StyleSheet.create({
   },
 
   fases: { marginTop: 28, marginHorizontal: 16 },
+
+  lista: { marginHorizontal: 16, gap: 10 },
+
+  recado: {
+    marginTop: 16,
+    marginHorizontal: 16,
+    padding: 13,
+    borderRadius: 18,
+    borderWidth: 1,
+  },
+  recadoOk: {
+    backgroundColor: 'rgba(223,201,138,.1)',
+    borderColor: 'rgba(223,201,138,.32)',
+  },
+  recadoErro: {
+    backgroundColor: 'rgba(233,162,59,.1)',
+    borderColor: 'rgba(233,162,59,.3)',
+  },
+  recadoTexto: { fontSize: 13, lineHeight: 19, letterSpacing: -0.1, color: palette.text },
 });

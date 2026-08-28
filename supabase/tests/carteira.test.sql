@@ -17,7 +17,7 @@
 
 begin;
 
-select plan(29);
+select plan(41);
 
 insert into auth.users (id, instance_id, aud, role, email, encrypted_password, created_at, updated_at,
   confirmation_token, recovery_token, email_change, email_change_token_new,
@@ -285,6 +285,92 @@ select is(
    where user_id = 'cc220000-0000-0000-0000-0000000000c2'),
   3,
   'o extrato mantem credito e os dois estornos: nada foi apagado');
+
+-- =============================================================================
+-- Beneficios e resgate (§41, entrega 4).
+--
+--   "resgate atomico nao permite saldo negativo"
+--   "beneficio sem estoque e recusado"
+-- =============================================================================
+
+reset role;
+
+insert into public.benefits (id, key, title, points_cost, stock, is_active)
+values
+  ('be010000-0000-0000-0000-0000000000b1','upgrade-mesa','Upgrade de mesa', 5000, null, true),
+  ('be020000-0000-0000-0000-0000000000b2','ultima-garrafa','Ultima garrafa',  1000, 0,    true),
+  ('be030000-0000-0000-0000-0000000000b3','caro-demais','Caro demais',     999999, null, true),
+  ('be040000-0000-0000-0000-0000000000b4','so-elite','So para elite',        1000, null, true),
+  ('be050000-0000-0000-0000-0000000000b5','rascunho','Rascunho',             1000, null, false);
+
+update public.benefits set min_level = 'elite' where id = 'be040000-0000-0000-0000-0000000000b4';
+
+-- O cliente 1 tem 1.000 pontos (24.800+... foi estornado; sobrou o evento).
+set local role authenticated;
+set local request.jwt.claims to '{"sub":"cc110000-0000-0000-0000-0000000000c1","role":"authenticated"}';
+
+select is(
+  (select balance from public.points_balance where user_id = 'cc110000-0000-0000-0000-0000000000c1'),
+  1000,
+  'saldo de partida do resgate');
+
+select is(
+  (select motivo from public.resgatar_beneficio('be020000-0000-0000-0000-0000000000b2')),
+  'beneficio esgotado',
+  'beneficio sem estoque e recusado');
+
+select is(
+  (select motivo from public.resgatar_beneficio('be030000-0000-0000-0000-0000000000b3')),
+  'saldo insuficiente',
+  'resgate acima do saldo e recusado: nunca fica negativo');
+
+select is(
+  (select motivo from public.resgatar_beneficio('be040000-0000-0000-0000-0000000000b4')),
+  'nivel nao elegivel',
+  'beneficio so para elite e recusado a quem esta em basic');
+
+select is(
+  (select motivo from public.resgatar_beneficio('be050000-0000-0000-0000-0000000000b5')),
+  'beneficio indisponivel',
+  'beneficio inativo nao pode ser resgatado');
+
+select is(
+  (select balance from public.points_balance where user_id = 'cc110000-0000-0000-0000-0000000000c1'),
+  1000,
+  'nenhuma recusa mexeu no saldo');
+
+-- Agora um que da certo. O cliente 2 tem 5.000 (pedido de teste, ja estornado
+-- ate zero), entao usamos o cliente 1 com um beneficio de 1.000.
+insert into public.benefits (id, key, title, points_cost, stock, is_active)
+values ('be060000-0000-0000-0000-0000000000b6','cabe','Cabe no saldo', 1000, 2, true);
+
+select is(
+  (select ok from public.resgatar_beneficio('be060000-0000-0000-0000-0000000000b6')),
+  true,
+  'resgate dentro do saldo e aceito');
+
+select is(
+  (select balance from public.points_balance where user_id = 'cc110000-0000-0000-0000-0000000000c1'),
+  0,
+  'o resgate debita do ledger e o saldo fecha');
+
+select is(
+  (select stock from public.benefits where id = 'be060000-0000-0000-0000-0000000000b6'),
+  1,
+  'o resgate baixa uma unidade do estoque');
+
+select is(
+  (select count(*)::int from public.benefit_redemptions
+   where user_id = 'cc110000-0000-0000-0000-0000000000c1'),
+  1,
+  'o resgate deixa registro com codigo');
+
+reset role;
+select throws_ok(
+  $$update public.benefit_redemptions set points_spent = 1$$,
+  '2F004',
+  null,
+  'resgate e append-only: nem o dono do banco edita');
 
 select * from finish();
 rollback;

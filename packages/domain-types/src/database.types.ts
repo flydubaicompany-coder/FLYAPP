@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.17"
+    PostgrestVersion: "14.5"
   }
   graphql_public: {
     Tables: {
@@ -357,6 +357,102 @@ export type Database = {
           id?: never
           metadata?: Json
           occurred_at?: string
+        }
+        Relationships: []
+      }
+      benefit_redemptions: {
+        Row: {
+          benefit_id: string
+          code: string
+          id: string
+          ledger_entry_id: string
+          points_spent: number
+          redeemed_at: string
+          user_id: string
+        }
+        Insert: {
+          benefit_id: string
+          code: string
+          id?: string
+          ledger_entry_id: string
+          points_spent: number
+          redeemed_at?: string
+          user_id: string
+        }
+        Update: {
+          benefit_id?: string
+          code?: string
+          id?: string
+          ledger_entry_id?: string
+          points_spent?: number
+          redeemed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "benefit_redemptions_benefit_id_fkey"
+            columns: ["benefit_id"]
+            isOneToOne: false
+            referencedRelation: "benefits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "benefit_redemptions_ledger_entry_id_fkey"
+            columns: ["ledger_entry_id"]
+            isOneToOne: false
+            referencedRelation: "points_ledger"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      benefits: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          key: string
+          min_level: string | null
+          min_package: Database["public"]["Enums"]["fly_package"] | null
+          points_cost: number
+          sort_order: number
+          stock: number | null
+          title: string
+          updated_at: string
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          key: string
+          min_level?: string | null
+          min_package?: Database["public"]["Enums"]["fly_package"] | null
+          points_cost: number
+          sort_order?: number
+          stock?: number | null
+          title: string
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          key?: string
+          min_level?: string | null
+          min_package?: Database["public"]["Enums"]["fly_package"] | null
+          points_cost?: number
+          sort_order?: number
+          stock?: number | null
+          title?: string
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
         }
         Relationships: []
       }
@@ -3279,6 +3375,15 @@ export type Database = {
           motivo: string
           ok: boolean
           vagas: number
+        }[]
+      }
+      resgatar_beneficio: {
+        Args: { p_benefit: string }
+        Returns: {
+          codigo: string
+          motivo: string
+          ok: boolean
+          saldo_final: number
         }[]
       }
       revogar_qr: { Args: { p_id: string }; Returns: undefined }

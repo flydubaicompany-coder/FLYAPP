@@ -401,4 +401,216 @@ const styles = StyleSheet.create({
   },
   desligadoLink: { marginTop: 9, alignSelf: 'flex-start' },
   desligadoLinkTexto: { fontSize: 13, fontWeight: '600', letterSpacing: -0.13 },
+
+  beneficio: {
+    padding: 14,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,.045)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,.07)',
+  },
+  // Bloqueado nao some: continua legivel, so recuado. Sumir esconderia do
+  // cliente o que ele ganha ao subir de nivel.
+  beneficioBloqueado: { opacity: 0.62 },
+  beneficioTopo: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  beneficioTexto: { flex: 1, minWidth: 0 },
+  beneficioTitulo: { fontSize: 14.5, fontWeight: '600', letterSpacing: -0.23, color: palette.text },
+  beneficioDescricao: {
+    marginTop: 4,
+    fontSize: 12.5,
+    lineHeight: 18,
+    letterSpacing: -0.08,
+    color: 'rgba(245,245,247,.42)',
+  },
+  beneficioCusto: { alignItems: 'flex-end' },
+  beneficioCustoValor: {
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: -0.35,
+    color: palette.gold,
+    fontVariant: ['tabular-nums'],
+  },
+  beneficioCustoUnidade: {
+    fontSize: 8.5,
+    fontWeight: '700',
+    letterSpacing: 1.1,
+    color: 'rgba(223,201,138,.55)',
+  },
+  beneficioRodape: {
+    marginTop: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+  },
+  beneficioBloqueio: { flex: 1, fontSize: 12, letterSpacing: -0.06, color: 'rgba(245,245,247,.4)' },
+  beneficioEstoque: { fontSize: 12, letterSpacing: -0.06, color: palette.warning },
+  resgatar: {
+    height: 34,
+    paddingHorizontal: 16,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(223,201,138,.14)',
+    borderWidth: 1,
+    borderColor: 'rgba(223,201,138,.38)',
+  },
+  resgatarPressionado: { transform: [{ scale: 0.95 }] },
+  resgatarTexto: { fontSize: 13, fontWeight: '600', letterSpacing: -0.13, color: palette.gold },
+
+  resgate: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 14,
+    borderRadius: 22,
+    backgroundColor: 'rgba(223,201,138,.07)',
+    borderWidth: 1,
+    borderColor: 'rgba(223,201,138,.2)',
+  },
+  resgateTexto: { flex: 1, minWidth: 0 },
+  resgateTitulo: { fontSize: 14, fontWeight: '600', letterSpacing: -0.2, color: palette.text },
+  resgateNota: {
+    marginTop: 3,
+    fontSize: 12,
+    letterSpacing: -0.06,
+    color: 'rgba(245,245,247,.4)',
+  },
+  resgateCodigo: {
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+    borderRadius: 11,
+    backgroundColor: 'rgba(0,0,0,.35)',
+    borderWidth: 1,
+    borderColor: 'rgba(223,201,138,.3)',
+  },
+  resgateCodigoTexto: {
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    color: palette.gold,
+    fontVariant: ['tabular-nums'],
+  },
 });
+
+/* ------------------------------------------------------------- beneficios */
+
+export interface CartaoDeBeneficioProps {
+  titulo: string;
+  descricao: string | null;
+  custo: number;
+  /** `null` = ilimitado, `0` = esgotado. */
+  estoque: number | null;
+  /** Por que nao da para resgatar agora. `null` = pode. */
+  bloqueio: string | null;
+  ocupado: boolean;
+  aoResgatar: () => void;
+}
+
+/**
+ * Um beneficio.
+ *
+ * Quando nao da para resgatar, o cartao **diz o motivo** em vez de so
+ * desabilitar o botao. Botao cinza sem explicacao e a forma mais rapida de
+ * fazer alguem achar que o app quebrou.
+ */
+export function CartaoDeBeneficio({
+  titulo,
+  descricao,
+  custo,
+  estoque,
+  bloqueio,
+  ocupado,
+  aoResgatar,
+}: CartaoDeBeneficioProps) {
+  const podeResgatar = bloqueio === null && !ocupado;
+
+  return (
+    <View style={[styles.beneficio, bloqueio !== null && styles.beneficioBloqueado]}>
+      <View style={styles.beneficioTopo}>
+        <View style={styles.beneficioTexto}>
+          <Text variant="body" style={styles.beneficioTitulo}>
+            {titulo}
+          </Text>
+          {descricao ? (
+            <Text variant="body" style={styles.beneficioDescricao}>
+              {descricao}
+            </Text>
+          ) : null}
+        </View>
+        <View style={styles.beneficioCusto}>
+          <Text variant="body" style={styles.beneficioCustoValor}>
+            {formatar(custo)}
+          </Text>
+          <Text variant="caption" style={styles.beneficioCustoUnidade}>
+            PTS
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.beneficioRodape}>
+        {bloqueio !== null ? (
+          <Text variant="body" style={styles.beneficioBloqueio}>
+            {bloqueio}
+          </Text>
+        ) : estoque !== null && estoque <= 3 ? (
+          <Text variant="body" style={styles.beneficioEstoque}>
+            {estoque === 1 ? 'Última unidade' : `Restam ${estoque}`}
+          </Text>
+        ) : (
+          <View />
+        )}
+
+        {podeResgatar ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Resgatar ${titulo}`}
+            onPress={aoResgatar}
+            testID={`resgatar-${titulo}`}
+          >
+            {({ pressed }) => (
+              <View style={[styles.resgatar, pressed && styles.resgatarPressionado]}>
+                <Text variant="body" style={styles.resgatarTexto}>
+                  Resgatar
+                </Text>
+              </View>
+            )}
+          </Pressable>
+        ) : ocupado ? (
+          <Text variant="body" style={styles.beneficioEstoque}>
+            Resgatando…
+          </Text>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+/** O codigo que o cliente apresenta na Base Fly. */
+export function CartaoDeResgate({
+  titulo,
+  codigo,
+  pontos,
+}: {
+  titulo: string;
+  codigo: string;
+  pontos: number;
+}) {
+  return (
+    <View style={styles.resgate}>
+      <View style={styles.resgateTexto}>
+        <Text variant="body" numberOfLines={1} style={styles.resgateTitulo}>
+          {titulo}
+        </Text>
+        <Text variant="body" style={styles.resgateNota}>
+          {formatar(pontos)} pts · apresente na Base Fly
+        </Text>
+      </View>
+      <View style={styles.resgateCodigo}>
+        <Text variant="body" style={styles.resgateCodigoTexto}>
+          {codigo}
+        </Text>
+      </View>
+    </View>
+  );
+}

@@ -89,7 +89,7 @@ export default function ProfileScreen() {
   // O Perfil mostra pacote e nivel, e as duas coisas moram na Carteira. E o
   // mesmo cartao de `CarteiraBlocos`, de proposito: duas implementacoes da
   // mesma barra de progresso viram duas contas diferentes com o tempo.
-  const carteira = useCarteira(state.kind === 'signedIn' ? state.profile.id : null);
+  const { data: carteira } = useCarteira(state.kind === 'signedIn' ? state.profile.id : null);
 
   if (state.kind === 'loading') {
     return (
