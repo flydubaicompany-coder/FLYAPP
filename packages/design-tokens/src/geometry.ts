@@ -84,6 +84,27 @@ export const bottomBar = {
   itemGap: 5,
   /** Corpo do rotulo de aba. */
   labelSize: 9.5,
+
+  /**
+   * Cor do item de aba. **Nao e dourado.** A aba selecionada nunca esteve
+   * entre os usos permitidos do dourado, e estava dourada no codigo por
+   * engano — o handoff de 28/08 fecha em `#F5F5F7`.
+   */
+  labelActive: '#F5F5F7',
+  labelInactive: 'rgba(245,245,247,.4)',
+  colorTransitionMs: 250,
+
+  /** Material: gradiente vertical sobre o blur, nao uma camada chapada. */
+  materialTop: 'rgba(17,17,20,.7)',
+  materialBottom: 'rgba(9,9,11,.9)',
+  blur: 36,
+  saturate: 1.9,
+  /** A linha de luz de 1 px que faz o vidro parecer fisico. */
+  topHighlight: 'rgba(255,255,255,.09)',
+  shadow: { color: 'rgba(0,0,0,.85)', offsetY: -22, blur: 44, spread: -22 },
+
+  /** Home indicator, desenhado pelo proprio app. */
+  homeIndicator: { width: 140, height: 5, radius: 3, bottom: 9 },
 } as const;
 
 export const centralButton = {
@@ -97,6 +118,36 @@ export const centralButton = {
   iconWidth: 30,
   /** Distancia do topo do botao ate o rotulo. */
   labelTop: 37,
+
+  /**
+   * Nucleo: gradiente radial de 118% ancorado no topo, nao um cinza chapado.
+   * E o que da volume ao circulo — sem ele o botao vira um disco morto.
+   */
+  coreGradient: [
+    { offset: 0, color: '#2E2E34' },
+    { offset: 0.56, color: '#16161A' },
+    { offset: 1, color: '#0B0B0D' },
+  ],
+  coreGradientRadius: 1.18,
+
+  /** Borda dourada: repouso e selecionado. Este e um uso permitido. */
+  borderRest: 'rgba(223,201,138,.28)',
+  borderSelected: 'rgba(223,201,138,.75)',
+  borderTransitionMs: 350,
+
+  /** O recorte que separa o botao da barra. */
+  cutout: 'rgba(9,9,11,.94)',
+  /** Sombra de elevacao do botao. */
+  dropShadow: { color: 'rgba(0,0,0,.9)', offsetY: 14, blur: 32, spread: -6 },
+  /** Linha de luz interna no topo do nucleo. */
+  innerHighlight: 'rgba(255,255,255,.12)',
+  /** Brilho dourado difuso ao redor. */
+  goldGlow: { color: 'rgba(223,201,138,.13)', blur: 26 },
+
+  /** A asa e sempre dourada; o que muda com a selecao e a opacidade. */
+  wingGlow: { color: 'rgba(223,201,138,.4)', blur: 7 },
+  wingOpacityRest: 0.72,
+  wingOpacitySelected: 1,
 } as const;
 
 /** Area visual do botao central: nucleo mais os dois lados do anel. */

@@ -48,8 +48,17 @@ describe('cores derivadas do design', () => {
 });
 
 describe('regra do dourado', () => {
-  it('declara exatamente os cinco usos permitidos', () => {
-    expect(GOLD_ALLOWED_USES).toHaveLength(5);
+  it('declara exatamente os sete usos permitidos', () => {
+    expect(GOLD_ALLOWED_USES).toHaveLength(7);
+  });
+
+  // A aba selecionada era dourada no codigo e nunca esteve na lista. O handoff
+  // de 28/08 fecha a questao: ativa e `#F5F5F7`. Este teste existe para o
+  // dourado nao voltar para a barra por descuido.
+  it('nao inclui rotulo nem icone de aba', () => {
+    expect(GOLD_ALLOWED_USES).not.toContain('active-tab');
+    expect(geometry.bottomBar.labelActive).toBe('#F5F5F7');
+    expect(geometry.bottomBar.labelInactive).toBe('rgba(245,245,247,.4)');
   });
 
   it('nao permite duplicatas na lista de usos', () => {

@@ -42,6 +42,8 @@ export const text = {
  */
 export const gold = {
   base: '#DFC98A',
+  /** Fim escuro dos gradientes dourados. */
+  deep: '#C9A96B',
   /** Estado hover/pressed em superficies claras. */
   hover: '#EBD9AC',
   /** Preenchimento de chip selecionado. */
@@ -52,13 +54,26 @@ export const gold = {
   glow: 'rgba(223,201,138,.3)',
 } as const;
 
-/** Os cinco usos permitidos do dourado, para checagem em revisao de codigo. */
+/**
+ * Os usos permitidos do dourado, para checagem em revisao de codigo.
+ *
+ * Eram cinco ate 27/08/2026. O handoff de 28/08 ampliou para **sete**,
+ * acrescentando o chip de dia selecionado (na tela Minha Viagem) e os detalhes
+ * do cartao Fly Black. Aprovado pelo dono do produto e registrado em D106 —
+ * o `CLAUDE.md` exige decisao registrada para qualquer uso alem dos cinco
+ * originais, e e o que esta linha documenta.
+ *
+ * O que continua **proibido**, e ja estava errado no codigo: rotulo e icone de
+ * aba selecionada. A aba ativa e `#F5F5F7`.
+ */
 export const GOLD_ALLOWED_USES = [
   'event-kicker',
   'exclusive-fly-badge',
   'selected-chip',
+  'selected-day-chip',
   'billionaire-progress',
   'central-button-ring',
+  'fly-black-card-detail',
 ] as const;
 
 export type GoldUse = (typeof GOLD_ALLOWED_USES)[number];

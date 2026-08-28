@@ -463,11 +463,472 @@ a:hover{color:#EBD9AC}
 </div>
 </sc-if>
 
+<sc-if value="{{ isViagem }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Minha Viagem" data-fly-scroll style="position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;background:#08080A;padding:56px 0 122px">
+
+<div style="display:flex;align-items:flex-end;justify-content:space-between;padding:14px 20px 0">
+<h1 style="margin:0;font-size:33px;line-height:1.04;font-weight:700;letter-spacing:-.038em;color:#F5F5F7">Minha Viagem</h1>
+<button onClick="{{ noop }}" style="flex:none;width:36px;height:36px;margin-bottom:3px;border-radius:18px;border:1px solid rgba(255,255,255,.085);background:rgba(255,255,255,.05);backdrop-filter:blur(18px) saturate(160%);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:transform .18s" style-active="transform:scale(.9)">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,247,.8)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c4.6-4.4 6.9-7.9 6.9-10.6a6.9 6.9 0 0 0-13.8 0C5.1 13.1 7.4 16.6 12 21z"></path><circle cx="12" cy="10.2" r="2.4"></circle></svg>
+</button>
+</div>
+
+<div style="position:relative;margin:20px 16px 0;height:196px;border-radius:30px;overflow:hidden;background:#101013;box-shadow:0 26px 50px -26px rgba(0,0,0,.95),0 0 0 1px rgba(255,255,255,.07)">
+<div style="position:absolute;inset:0;background-image:url(assets/opt-downtown-crepusculo.jpg);background-size:cover;background-position:56% 38%"></div>
+<div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,4,6,.5) 0%,rgba(4,4,6,.12) 34%,rgba(4,4,6,.72) 72%,rgba(4,4,6,.97) 100%)"></div>
+<div style="position:absolute;top:17px;left:18px;display:flex;align-items:center;gap:7px;height:26px;padding:0 11px;border-radius:13px;background:rgba(223,201,138,.15);border:1px solid rgba(223,201,138,.42);backdrop-filter:blur(16px) saturate(180%)">
+<span style="width:5px;height:5px;border-radius:3px;background:#DFC98A;box-shadow:0 0 8px rgba(223,201,138,.9)"></span>
+<span style="font-size:9px;font-weight:700;letter-spacing:.13em;color:#DFC98A">VIAGEM EM CURSO</span>
+</div>
+<div style="position:absolute;left:20px;right:20px;bottom:17px">
+<div style="font-size:27px;line-height:1.04;font-weight:700;letter-spacing:-.034em;color:#fff">Dubai</div>
+<div style="margin-top:6px;font-size:13px;letter-spacing:-.008em;color:rgba(255,255,255,.66)">25 &ndash; 31 ago &middot; Atlantis The Royal &middot; 2 pessoas</div>
+<div style="margin-top:13px;display:flex;align-items:center;gap:10px">
+<div style="flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.22);overflow:hidden">
+<div style="width:43%;height:100%;border-radius:2px;background:#DFC98A;box-shadow:0 0 9px rgba(223,201,138,.7)"></div>
+</div>
+<span style="flex:none;font-size:11px;font-weight:600;letter-spacing:.02em;color:rgba(255,255,255,.78)">dia 3 de 7</span>
+</div>
+</div>
+</div>
+
+<div data-fly-row style="margin-top:16px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 16px 4px">
+<button onClick="{{ setD25 }}" style="flex:none;width:52px;padding:9px 0 10px;border-radius:19px;cursor:pointer;text-align:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.075);transition:background-color .25s,border-color .25s,color .25s;background-color:{{ days.d25.bg }};border-color:{{ days.d25.bd }};color:{{ days.d25.c }}">
+<span style="display:block;font-size:9.5px;font-weight:700;letter-spacing:.1em;opacity:.6">SEX</span>
+<span style="display:block;margin-top:4px;font-size:16.5px;font-weight:700;letter-spacing:-.02em">25</span>
+</button>
+<button onClick="{{ setD26 }}" style="flex:none;width:52px;padding:9px 0 10px;border-radius:19px;cursor:pointer;text-align:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.075);transition:background-color .25s,border-color .25s,color .25s;background-color:{{ days.d26.bg }};border-color:{{ days.d26.bd }};color:{{ days.d26.c }}">
+<span style="display:block;font-size:9.5px;font-weight:700;letter-spacing:.1em;opacity:.6">S&Aacute;B</span>
+<span style="display:block;margin-top:4px;font-size:16.5px;font-weight:700;letter-spacing:-.02em">26</span>
+</button>
+<button onClick="{{ setD27 }}" style="flex:none;width:52px;padding:9px 0 10px;border-radius:19px;cursor:pointer;text-align:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.075);transition:background-color .25s,border-color .25s,color .25s;background-color:{{ days.d27.bg }};border-color:{{ days.d27.bd }};color:{{ days.d27.c }}">
+<span style="display:block;font-size:9.5px;font-weight:700;letter-spacing:.1em;opacity:.6">DOM</span>
+<span style="display:block;margin-top:4px;font-size:16.5px;font-weight:700;letter-spacing:-.02em">27</span>
+</button>
+<button onClick="{{ setD28 }}" style="flex:none;width:52px;padding:9px 0 10px;border-radius:19px;cursor:pointer;text-align:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.075);transition:background-color .25s,border-color .25s,color .25s;background-color:{{ days.d28.bg }};border-color:{{ days.d28.bd }};color:{{ days.d28.c }}">
+<span style="display:block;font-size:9.5px;font-weight:700;letter-spacing:.1em;opacity:.6">SEG</span>
+<span style="display:block;margin-top:4px;font-size:16.5px;font-weight:700;letter-spacing:-.02em">28</span>
+</button>
+<button onClick="{{ setD29 }}" style="flex:none;width:52px;padding:9px 0 10px;border-radius:19px;cursor:pointer;text-align:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.075);transition:background-color .25s,border-color .25s,color .25s;background-color:{{ days.d29.bg }};border-color:{{ days.d29.bd }};color:{{ days.d29.c }}">
+<span style="display:block;font-size:9.5px;font-weight:700;letter-spacing:.1em;opacity:.6">TER</span>
+<span style="display:block;margin-top:4px;font-size:16.5px;font-weight:700;letter-spacing:-.02em">29</span>
+</button>
+<button onClick="{{ setD30 }}" style="flex:none;width:52px;padding:9px 0 10px;border-radius:19px;cursor:pointer;text-align:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.075);transition:background-color .25s,border-color .25s,color .25s;background-color:{{ days.d30.bg }};border-color:{{ days.d30.bd }};color:{{ days.d30.c }}">
+<span style="display:block;font-size:9.5px;font-weight:700;letter-spacing:.1em;opacity:.6">QUA</span>
+<span style="display:block;margin-top:4px;font-size:16.5px;font-weight:700;letter-spacing:-.02em">30</span>
+</button>
+<button onClick="{{ setD31 }}" style="flex:none;width:52px;padding:9px 0 10px;border-radius:19px;cursor:pointer;text-align:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.075);transition:background-color .25s,border-color .25s,color .25s;background-color:{{ days.d31.bg }};border-color:{{ days.d31.bd }};color:{{ days.d31.c }}">
+<span style="display:block;font-size:9.5px;font-weight:700;letter-spacing:.1em;opacity:.6">QUI</span>
+<span style="display:block;margin-top:4px;font-size:16.5px;font-weight:700;letter-spacing:-.02em">31</span>
+</button>
+</div>
+
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin:24px 20px 14px">
+<h2 style="margin:0;font-size:20px;font-weight:600;letter-spacing:-.028em;color:#F5F5F7">{{ dayTitle }}</h2>
+<span style="font-size:12.5px;letter-spacing:-.005em;color:rgba(245,245,247,.36)">{{ dayCount }}</span>
+</div>
+
+<div style="display:{{ dayD.d25 }};padding:0 16px">
+<div style="display:flex;gap:13px">
+<div style="flex:none;width:8px;display:flex;flex-direction:column;align-items:center;padding-top:19px">
+<span style="width:8px;height:8px;border-radius:5px;background:rgba(245,245,247,.28)"></span>
+<span style="flex:1;width:1.5px;background:linear-gradient(180deg,rgba(245,245,247,.16),rgba(245,245,247,.06))"></span>
+</div>
+<div style="flex:1;min-width:0;padding-bottom:12px">
+<div style="display:flex;align-items:baseline;gap:9px"><span style="font-size:12.5px;font-weight:700;letter-spacing:.02em;color:rgba(245,245,247,.42);font-variant-numeric:tabular-nums">08:00</span><span style="font-size:11px;letter-spacing:.08em;color:rgba(245,245,247,.28)">CONCLU&Iacute;DO</span></div>
+<div style="margin-top:5px;font-size:15px;font-weight:600;letter-spacing:-.018em;color:rgba(245,245,247,.6)">Caf&eacute; da manh&atilde; no hotel</div>
+<div style="margin-top:3px;font-size:12.5px;letter-spacing:-.005em;color:rgba(245,245,247,.3)">Atlantis The Royal</div>
+</div>
+</div>
+<div style="display:flex;gap:13px">
+<div style="flex:none;width:8px;display:flex;flex-direction:column;align-items:center;padding-top:19px">
+<span style="width:8px;height:8px;border-radius:5px;background:rgba(245,245,247,.28)"></span>
+<span style="flex:1;width:1.5px;background:linear-gradient(180deg,rgba(245,245,247,.12),rgba(223,201,138,.4))"></span>
+</div>
+<div style="flex:1;min-width:0;padding-bottom:12px">
+<div style="display:flex;align-items:baseline;gap:9px"><span style="font-size:12.5px;font-weight:700;letter-spacing:.02em;color:rgba(245,245,247,.42);font-variant-numeric:tabular-nums">14:30</span><span style="font-size:11px;letter-spacing:.08em;color:rgba(245,245,247,.28)">CONFIRMADO</span></div>
+<div style="margin-top:5px;font-size:15px;font-weight:600;letter-spacing:-.018em;color:#F5F5F7">Traslado privativo</div>
+<div style="margin-top:3px;font-size:12.5px;letter-spacing:-.005em;color:rgba(245,245,247,.38)">Motorista Fly &middot; placa DXB 4102</div>
+</div>
+</div>
+<div style="display:flex;gap:13px">
+<div style="flex:none;width:8px;display:flex;flex-direction:column;align-items:center;padding-top:19px">
+<span style="position:relative;width:8px;height:8px;border-radius:5px;background:#DFC98A;box-shadow:0 0 12px rgba(223,201,138,.9)"><span style="position:absolute;inset:-3px;border-radius:8px;border:1.5px solid rgba(223,201,138,.5);animation:flyPulse 2.6s ease-out infinite"></span></span>
+<span style="flex:1;width:1.5px;background:linear-gradient(180deg,rgba(223,201,138,.4),rgba(245,245,247,.1))"></span>
+</div>
+<div style="flex:1;min-width:0;padding-bottom:12px">
+<div style="display:flex;align-items:baseline;gap:9px"><span style="font-size:12.5px;font-weight:700;letter-spacing:.02em;color:#DFC98A;font-variant-numeric:tabular-nums">18:30</span><span style="font-size:11px;font-weight:600;letter-spacing:.08em;color:#DFC98A">EM 4H 12MIN</span></div>
+<div style="margin-top:8px;border-radius:22px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.032));border:1px solid rgba(223,201,138,.28);backdrop-filter:blur(20px) saturate(170%)">
+<div style="display:flex;align-items:center;gap:12px;padding:12px">
+<span style="flex:none;width:52px;height:52px;border-radius:16px;background-image:url(assets/opt-burj-khalifa-noite.jpg);background-size:cover;background-position:52% 26%"></span>
+<span style="flex:1;min-width:0;display:block">
+<span style="display:block;font-size:15px;font-weight:600;letter-spacing:-.018em;color:#F5F5F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">At The Top &middot; Burj Khalifa</span>
+<span style="display:block;margin-top:3px;font-size:12.5px;letter-spacing:-.005em;color:rgba(245,245,247,.4)">2h 30 &middot; n&iacute;vel 148 &middot; 2 ingressos</span>
+</span>
+</div>
+<div style="display:flex;gap:1px;background:rgba(255,255,255,.08)">
+<button onClick="{{ noop }}" style="flex:1;height:42px;background:rgba(255,255,255,.03);border:0;cursor:pointer;font-size:13.5px;font-weight:600;letter-spacing:-.012em;color:#DFC98A;transition:background-color .2s" style-hover="background-color:rgba(223,201,138,.1)">Ingressos</button>
+<button onClick="{{ noop }}" style="flex:1;height:42px;background:rgba(255,255,255,.03);border:0;cursor:pointer;font-size:13.5px;font-weight:600;letter-spacing:-.012em;color:rgba(245,245,247,.7);transition:background-color .2s" style-hover="background-color:rgba(255,255,255,.07)">Rota</button>
+</div>
+</div>
+</div>
+</div>
+<div style="display:flex;gap:13px">
+<div style="flex:none;width:8px;display:flex;flex-direction:column;align-items:center;padding-top:19px">
+<span style="width:8px;height:8px;border-radius:5px;background:rgba(245,245,247,.28)"></span>
+</div>
+<div style="flex:1;min-width:0">
+<div style="display:flex;align-items:baseline;gap:9px"><span style="font-size:12.5px;font-weight:700;letter-spacing:.02em;color:rgba(245,245,247,.42);font-variant-numeric:tabular-nums">21:00</span><span style="font-size:11px;letter-spacing:.08em;color:rgba(245,245,247,.28)">RESERVA CONFIRMADA</span></div>
+<div style="margin-top:5px;font-size:15px;font-weight:600;letter-spacing:-.018em;color:#F5F5F7">Jantar no C&Eacute; LA VI</div>
+<div style="margin-top:3px;font-size:12.5px;letter-spacing:-.005em;color:rgba(245,245,247,.38)">Mesa 12 &middot; terra&ccedil;o</div>
+</div>
+</div>
+</div>
+
+<div style="display:{{ dayD.d27 }};padding:0 16px">
+<div style="display:flex;gap:13px">
+<div style="flex:none;width:8px;display:flex;flex-direction:column;align-items:center;padding-top:19px">
+<span style="width:8px;height:8px;border-radius:5px;background:rgba(245,245,247,.28)"></span>
+<span style="flex:1;width:1.5px;background:linear-gradient(180deg,rgba(245,245,247,.14),rgba(245,245,247,.1))"></span>
+</div>
+<div style="flex:1;min-width:0;padding-bottom:12px">
+<div style="display:flex;align-items:baseline;gap:9px"><span style="font-size:12.5px;font-weight:700;letter-spacing:.02em;color:rgba(245,245,247,.42);font-variant-numeric:tabular-nums">13:30</span><span style="font-size:11px;letter-spacing:.08em;color:rgba(245,245,247,.28)">CONFIRMADO</span></div>
+<div style="margin-top:5px;font-size:15px;font-weight:600;letter-spacing:-.018em;color:#F5F5F7">Traslado ao Burj Al Arab</div>
+<div style="margin-top:3px;font-size:12.5px;letter-spacing:-.005em;color:rgba(245,245,247,.38)">Motorista Fly</div>
+</div>
+</div>
+<div style="display:flex;gap:13px">
+<div style="flex:none;width:8px;display:flex;flex-direction:column;align-items:center;padding-top:19px">
+<span style="width:8px;height:8px;border-radius:5px;background:#DFC98A;box-shadow:0 0 10px rgba(223,201,138,.8)"></span>
+<span style="flex:1;width:1.5px;background:linear-gradient(180deg,rgba(223,201,138,.34),rgba(245,245,247,.1))"></span>
+</div>
+<div style="flex:1;min-width:0;padding-bottom:12px">
+<div style="display:flex;align-items:baseline;gap:9px"><span style="font-size:12.5px;font-weight:700;letter-spacing:.02em;color:#DFC98A;font-variant-numeric:tabular-nums">15:00</span><span style="font-size:11px;font-weight:600;letter-spacing:.08em;color:#DFC98A">EXCLUSIVO FLY</span></div>
+<div style="margin-top:8px;display:flex;align-items:center;gap:12px;padding:12px;border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.032));border:1px solid rgba(255,255,255,.085);backdrop-filter:blur(20px) saturate(170%)">
+<span style="flex:none;width:52px;height:52px;border-radius:16px;background-image:url(assets/opt-burj-al-arab-mar.jpg);background-size:cover;background-position:46% 44%"></span>
+<span style="flex:1;min-width:0;display:block">
+<span style="display:block;font-size:15px;font-weight:600;letter-spacing:-.018em;color:#F5F5F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Ch&aacute; da Tarde no Burj Al Arab</span>
+<span style="display:block;margin-top:3px;font-size:12.5px;letter-spacing:-.005em;color:rgba(245,245,247,.4)">2h &middot; Skyview Bar &middot; dress code</span>
+</span>
+</div>
+</div>
+</div>
+<div style="display:flex;gap:13px">
+<div style="flex:none;width:8px;display:flex;flex-direction:column;align-items:center;padding-top:19px">
+<span style="width:8px;height:8px;border-radius:5px;background:rgba(245,245,247,.28)"></span>
+</div>
+<div style="flex:1;min-width:0">
+<div style="display:flex;align-items:baseline;gap:9px"><span style="font-size:12.5px;font-weight:700;letter-spacing:.02em;color:rgba(245,245,247,.42);font-variant-numeric:tabular-nums">19:00</span><span style="font-size:11px;letter-spacing:.08em;color:rgba(245,245,247,.28)">TEMPO LIVRE</span></div>
+<div style="margin-top:5px;font-size:15px;font-weight:600;letter-spacing:-.018em;color:#F5F5F7">Souk Madinat Jumeirah</div>
+<div style="margin-top:3px;font-size:12.5px;letter-spacing:-.005em;color:rgba(245,245,247,.38)">Sugest&atilde;o da Fly &middot; 10 min do hotel</div>
+</div>
+</div>
+</div>
+
+<div style="display:{{ dayD.d29 }};padding:0 16px">
+<div style="display:flex;gap:13px">
+<div style="flex:none;width:8px;display:flex;flex-direction:column;align-items:center;padding-top:19px">
+<span style="width:8px;height:8px;border-radius:5px;background:#E9A23B;box-shadow:0 0 10px rgba(233,162,59,.7)"></span>
+<span style="flex:1;width:1.5px;background:linear-gradient(180deg,rgba(233,162,59,.3),rgba(245,245,247,.1))"></span>
+</div>
+<div style="flex:1;min-width:0;padding-bottom:12px">
+<div style="display:flex;align-items:baseline;gap:9px"><span style="font-size:12.5px;font-weight:700;letter-spacing:.02em;color:rgba(233,162,59,.9);font-variant-numeric:tabular-nums">09:00</span><span style="font-size:11px;font-weight:600;letter-spacing:.08em;color:rgba(233,162,59,.9)">AGUARDANDO GUIA</span></div>
+<div style="margin-top:8px;display:flex;align-items:center;gap:12px;padding:12px;border-radius:22px;background:rgba(233,162,59,.07);border:1px solid rgba(233,162,59,.22)">
+<span style="flex:none;width:52px;height:52px;border-radius:16px;background-image:url(assets/opt-dubai-frame.jpg);background-size:cover;background-position:50% 40%"></span>
+<span style="flex:1;min-width:0;display:block">
+<span style="display:block;font-size:15px;font-weight:600;letter-spacing:-.018em;color:#F5F5F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Dubai Frame &amp; Old Dubai</span>
+<span style="display:block;margin-top:3px;font-size:12.5px;letter-spacing:-.005em;color:rgba(233,162,59,.72)">Confirmamos o guia at&eacute; 28 ago</span>
+</span>
+</div>
+</div>
+</div>
+<div style="display:flex;gap:13px">
+<div style="flex:none;width:8px;display:flex;flex-direction:column;align-items:center;padding-top:19px">
+<span style="width:8px;height:8px;border-radius:5px;background:rgba(245,245,247,.28)"></span>
+<span style="flex:1;width:1.5px;background:rgba(245,245,247,.12)"></span>
+</div>
+<div style="flex:1;min-width:0;padding-bottom:12px">
+<div style="display:flex;align-items:baseline;gap:9px"><span style="font-size:12.5px;font-weight:700;letter-spacing:.02em;color:rgba(245,245,247,.42);font-variant-numeric:tabular-nums">13:00</span><span style="font-size:11px;letter-spacing:.08em;color:rgba(245,245,247,.28)">RESERVA CONFIRMADA</span></div>
+<div style="margin-top:5px;font-size:15px;font-weight:600;letter-spacing:-.018em;color:#F5F5F7">Almo&ccedil;o no Al Fanar</div>
+<div style="margin-top:3px;font-size:12.5px;letter-spacing:-.005em;color:rgba(245,245,247,.38)">Cozinha emiradense</div>
+</div>
+</div>
+<div style="display:flex;gap:13px">
+<div style="flex:none;width:8px;display:flex;flex-direction:column;align-items:center;padding-top:19px">
+<span style="width:8px;height:8px;border-radius:5px;background:rgba(245,245,247,.28)"></span>
+</div>
+<div style="flex:1;min-width:0">
+<div style="display:flex;align-items:baseline;gap:9px"><span style="font-size:12.5px;font-weight:700;letter-spacing:.02em;color:rgba(245,245,247,.42);font-variant-numeric:tabular-nums">16:00</span><span style="font-size:11px;letter-spacing:.08em;color:rgba(245,245,247,.28)">TEMPO LIVRE</span></div>
+<div style="margin-top:5px;font-size:15px;font-weight:600;letter-spacing:-.018em;color:#F5F5F7">Dubai Mall</div>
+<div style="margin-top:3px;font-size:12.5px;letter-spacing:-.005em;color:rgba(245,245,247,.38)">Personal shopper Fly dispon&iacute;vel</div>
+</div>
+</div>
+</div>
+
+<div style="display:{{ dayD.livre }};margin:0 16px;padding:38px 26px;border-radius:30px;border:1px dashed rgba(255,255,255,.13);background:rgba(255,255,255,.02);text-align:center">
+<img src="assets/fly-wing-dim.png" alt="" style="height:14px;width:auto;display:block;margin:0 auto;opacity:.75">
+<div style="margin-top:17px;font-size:15.5px;font-weight:600;letter-spacing:-.018em;color:rgba(245,245,247,.8)">Dia livre</div>
+<div style="margin-top:6px;font-size:13px;line-height:1.5;letter-spacing:-.005em;color:rgba(245,245,247,.4);text-wrap:pretty">Sem compromissos marcados. Posso sugerir experi&ecirc;ncias perto do hotel.</div>
+<button onClick="{{ goPasseios }}" style="margin-top:18px;height:36px;padding:0 18px;border-radius:18px;background:rgba(223,201,138,.11);border:1px solid rgba(223,201,138,.34);color:#DFC98A;font-size:13px;font-weight:600;letter-spacing:-.01em;cursor:pointer;transition:transform .18s" style-active="transform:scale(.96)">Ver Passeios</button>
+</div>
+
+<div style="height:14px"></div>
+</div>
+
+<div style="position:absolute;left:20px;bottom:104px;z-index:55">
+<sc-if value="{{ sos }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;bottom:62px;left:0;width:242px;padding:7px;border-radius:24px;background:rgba(22,22,26,.84);border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(34px) saturate(180%);box-shadow:0 26px 52px -14px rgba(0,0,0,.92);animation:flyPop .34s cubic-bezier(.22,1,.36,1) both">
+<div style="padding:9px 12px 10px">
+<div style="font-size:9.5px;font-weight:700;letter-spacing:.15em;color:#DFC98A">FLY ASSIST</div>
+<div style="margin-top:4px;font-size:12.5px;letter-spacing:-.005em;color:rgba(245,245,247,.46)">Concierge 24h em portugu&ecirc;s</div>
+</div>
+<button onClick="{{ noop }}" style="width:100%;display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:17px;background:rgba(255,255,255,.06);border:0;cursor:pointer;text-align:left;transition:background-color .2s" style-hover="background-color:rgba(255,255,255,.11)">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#F5F5F7" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M15.6 13.4l-1.9 1.9a13.6 13.6 0 0 1-5-5l1.9-1.9-2.7-4.6-2.7 1a2 2 0 0 0-1.1 2.2 18.8 18.8 0 0 0 14.9 11.9 2 2 0 0 0 2-1.2l1-2.6z"></path></svg>
+<span style="flex:1;font-size:13.5px;font-weight:500;letter-spacing:-.012em;color:#F5F5F7">Ligar para o concierge</span>
+</button>
+<button onClick="{{ noop }}" style="width:100%;display:flex;align-items:center;gap:11px;padding:11px 12px;margin-top:4px;border-radius:17px;background:rgba(255,255,255,.06);border:0;cursor:pointer;text-align:left;transition:background-color .2s" style-hover="background-color:rgba(255,255,255,.11)">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#F5F5F7" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M20.4 12.2a7.9 7.9 0 0 1-8.4 7.9 9 9 0 0 1-2.6-.4L4.6 21l1.4-4.2a7.6 7.6 0 0 1-1.4-4.6A7.9 7.9 0 0 1 12.4 4.3a7.9 7.9 0 0 1 8 7.9z"></path></svg>
+<span style="flex:1;font-size:13.5px;font-weight:500;letter-spacing:-.012em;color:#F5F5F7">Chat com a Fly</span>
+</button>
+<button onClick="{{ noop }}" style="width:100%;display:flex;align-items:center;gap:11px;padding:11px 12px;margin-top:4px;border-radius:17px;background:rgba(233,162,59,.1);border:0;cursor:pointer;text-align:left;transition:background-color .2s" style-hover="background-color:rgba(233,162,59,.17)">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#E9A23B" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M12 4.4l8.6 15.2H3.4z"></path><path d="M12 9.9v4.2"></path><path d="M12 16.9h.01"></path></svg>
+<span style="flex:1;font-size:13.5px;font-weight:600;letter-spacing:-.012em;color:#E9A23B">Emerg&ecirc;ncia &middot; 999</span>
+</button>
+</div>
+</sc-if>
+<button onClick="{{ toggleSos }}" style="position:relative;width:50px;height:50px;border-radius:25px;background:#F2F2F5;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;box-shadow:0 12px 28px -6px rgba(0,0,0,.75),inset 0 -1px 2px rgba(0,0,0,.15);transition:transform .2s" style-active="transform:scale(.9)">
+<span style="position:absolute;inset:0;border-radius:25px;border:1.5px solid rgba(242,242,245,.5);animation:flyPulse 2.8s ease-out infinite;pointer-events:none"></span>
+<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#101013" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="8.6"></circle><circle cx="12" cy="12" r="3.4"></circle><path d="M6 6l3.6 3.6"></path><path d="M18 6l-3.6 3.6"></path><path d="M18 18l-3.6-3.6"></path><path d="M6 18l3.6-3.6"></path></svg>
+</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ isCarteira }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Carteira" data-fly-scroll style="position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;background:#08080A;padding:56px 0 122px">
+
+<div style="display:flex;align-items:flex-end;justify-content:space-between;padding:14px 20px 0">
+<h1 style="margin:0;font-size:33px;line-height:1.04;font-weight:700;letter-spacing:-.038em;color:#F5F5F7">Carteira</h1>
+<button onClick="{{ noop }}" style="flex:none;width:36px;height:36px;margin-bottom:3px;border-radius:18px;border:1px solid rgba(255,255,255,.085);background:rgba(255,255,255,.05);backdrop-filter:blur(18px) saturate(160%);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:transform .18s" style-active="transform:scale(.9)">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,247,.8)" stroke-width="1.7" stroke-linecap="round"><path d="M12 5.6v12.8"></path><path d="M5.6 12h12.8"></path></svg>
+</button>
+</div>
+
+<div style="position:relative;margin:22px 16px 0;padding-top:9px">
+<div style="position:absolute;left:16px;right:16px;top:0;height:40px;border-radius:24px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.06)"></div>
+<div style="position:relative;height:202px;border-radius:26px;overflow:hidden;background:radial-gradient(128% 128% at 82% 6%,#32323A 0%,#191920 44%,#0B0B0E 100%);border:1px solid rgba(223,201,138,.26);box-shadow:0 26px 52px -20px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,255,255,.11)">
+<div style="position:absolute;top:-56px;right:-46px;width:196px;height:196px;border-radius:98px;background:radial-gradient(circle,rgba(223,201,138,.16) 0%,rgba(223,201,138,0) 70%)"></div>
+<div style="position:absolute;top:20px;left:22px;right:22px;display:flex;align-items:flex-start;justify-content:space-between">
+<img src="assets/fly-wing-gold.png" alt="Fly" style="height:13px;width:auto;display:block">
+<span style="height:23px;padding:0 10px;display:flex;align-items:center;border-radius:12px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(14px) saturate(180%);font-size:9px;font-weight:700;letter-spacing:.14em;color:#fff">BLACK</span>
+</div>
+<div style="position:absolute;left:22px;top:74px;width:38px;height:28px;border-radius:7px;background:linear-gradient(135deg,rgba(223,201,138,.62),rgba(201,169,107,.32));box-shadow:inset 0 0 0 1px rgba(223,201,138,.4)"></div>
+<div style="position:absolute;left:22px;right:22px;bottom:20px">
+<div style="font-size:9px;font-weight:700;letter-spacing:.16em;color:rgba(223,201,138,.85)">SALDO DISPON&Iacute;VEL</div>
+<div style="margin-top:7px;font-size:29px;line-height:1;font-weight:700;letter-spacing:-.036em;color:#fff;font-variant-numeric:tabular-nums">R$ 8.420,00</div>
+<div style="margin-top:13px;display:flex;align-items:baseline;justify-content:space-between">
+<span style="font-size:12px;font-weight:600;letter-spacing:.06em;color:rgba(255,255,255,.72)">RAFAEL MENDES</span>
+<span style="font-size:11.5px;letter-spacing:.06em;color:rgba(255,255,255,.42);font-variant-numeric:tabular-nums">&bull;&bull;&bull;&bull; 4102</span>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 16px 0">
+<button onClick="{{ noop }}" style="display:flex;flex-direction:column;align-items:center;gap:9px;padding:14px 6px 13px;border-radius:22px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.075);cursor:pointer;transition:transform .18s" style-active="transform:scale(.96)">
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#F5F5F7" stroke-width="1.7" stroke-linecap="round"><path d="M12 5.4v13.2"></path><path d="M5.4 12h13.2"></path></svg>
+<span style="font-size:12px;font-weight:600;letter-spacing:-.01em;color:rgba(245,245,247,.82)">Adicionar</span>
+</button>
+<button onClick="{{ noop }}" style="display:flex;flex-direction:column;align-items:center;gap:9px;padding:14px 6px 13px;border-radius:22px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.075);cursor:pointer;transition:transform .18s" style-active="transform:scale(.96)">
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#F5F5F7" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10.6L12 5.6l5 5"></path><path d="M12 5.6v12.8"></path></svg>
+<span style="font-size:12px;font-weight:600;letter-spacing:-.01em;color:rgba(245,245,247,.82)">Transferir</span>
+</button>
+<button onClick="{{ noop }}" style="display:flex;flex-direction:column;align-items:center;gap:9px;padding:14px 6px 13px;border-radius:22px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.075);cursor:pointer;transition:transform .18s" style-active="transform:scale(.96)">
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#F5F5F7" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4.4h9.4L19 8v11.6H6z"></path><path d="M9 10.6h7"></path><path d="M9 14.4h7"></path></svg>
+<span style="font-size:12px;font-weight:600;letter-spacing:-.01em;color:rgba(245,245,247,.82)">Extrato</span>
+</button>
+</div>
+
+<div style="margin:12px 16px 0;display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:24px;background:linear-gradient(180deg,rgba(223,201,138,.09),rgba(223,201,138,.035));border:1px solid rgba(223,201,138,.22)">
+<div style="flex:1;min-width:0">
+<div style="font-size:9px;font-weight:700;letter-spacing:.15em;color:#DFC98A">FLY POINTS</div>
+<div style="margin-top:6px;display:flex;align-items:baseline;gap:7px">
+<span style="font-size:20px;line-height:1;font-weight:700;letter-spacing:-.03em;color:#F5F5F7;font-variant-numeric:tabular-nums">48.250</span>
+<span style="font-size:12px;letter-spacing:-.005em;color:rgba(245,245,247,.42)">&asymp; R$ 2.412</span>
+</div>
+</div>
+<button onClick="{{ noop }}" style="flex:none;height:34px;padding:0 16px;border-radius:17px;background:rgba(223,201,138,.14);border:1px solid rgba(223,201,138,.38);color:#DFC98A;font-size:13px;font-weight:600;letter-spacing:-.01em;cursor:pointer;transition:transform .18s" style-active="transform:scale(.95)">Resgatar</button>
+</div>
+
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin:28px 20px 12px">
+<h2 style="margin:0;font-size:20px;font-weight:600;letter-spacing:-.028em;color:#F5F5F7">Movimenta&ccedil;&otilde;es</h2>
+<button onClick="{{ noop }}" style="background:none;border:0;padding:0;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:-.01em;color:#DFC98A">Ver tudo</button>
+</div>
+
+<div style="margin:0 16px;border-radius:24px;overflow:hidden;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07)">
+<button onClick="{{ noop }}" style="width:100%;display:flex;align-items:center;gap:13px;padding:14px 16px;background:none;border:0;cursor:pointer;text-align:left;transition:background-color .2s" style-hover="background-color:rgba(255,255,255,.05)">
+<span style="flex:none;width:36px;height:36px;border-radius:13px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,247,.72)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20.4V8.6L12 4l6 4.6v11.8z"></path><path d="M10.4 20.4v-5.2h3.2v5.2"></path></svg>
+</span>
+<span style="flex:1;min-width:0;display:block">
+<span style="display:block;font-size:14.5px;font-weight:600;letter-spacing:-.016em;color:#F5F5F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">At The Top &middot; Burj Khalifa</span>
+<span style="display:block;margin-top:3px;font-size:12px;letter-spacing:-.005em;color:rgba(245,245,247,.38)">24 ago &middot; cart&atilde;o Fly Black</span>
+</span>
+<span style="flex:none;font-size:14.5px;font-weight:600;letter-spacing:-.018em;color:#F5F5F7;font-variant-numeric:tabular-nums">&minus; R$ 1.240</span>
+</button>
+<div style="height:1px;margin-left:65px;background:rgba(255,255,255,.07)"></div>
+<button onClick="{{ noop }}" style="width:100%;display:flex;align-items:center;gap:13px;padding:14px 16px;background:none;border:0;cursor:pointer;text-align:left;transition:background-color .2s" style-hover="background-color:rgba(255,255,255,.05)">
+<span style="flex:none;width:36px;height:36px;border-radius:13px;background:rgba(223,201,138,.11);border:1px solid rgba(223,201,138,.24);display:flex;align-items:center;justify-content:center">
+<img src="assets/fly-wing-gold.png" alt="" style="height:8px;width:auto;display:block">
+</span>
+<span style="flex:1;min-width:0;display:block">
+<span style="display:block;font-size:14.5px;font-weight:600;letter-spacing:-.016em;color:#F5F5F7">Cashback Fly Points</span>
+<span style="display:block;margin-top:3px;font-size:12px;letter-spacing:-.005em;color:rgba(245,245,247,.38)">24 ago &middot; 4% em experi&ecirc;ncias</span>
+</span>
+<span style="flex:none;font-size:14.5px;font-weight:600;letter-spacing:-.018em;color:#DFC98A;font-variant-numeric:tabular-nums">+ 2.480 pts</span>
+</button>
+<div style="height:1px;margin-left:65px;background:rgba(255,255,255,.07)"></div>
+<button onClick="{{ noop }}" style="width:100%;display:flex;align-items:center;gap:13px;padding:14px 16px;background:none;border:0;cursor:pointer;text-align:left;transition:background-color .2s" style-hover="background-color:rgba(255,255,255,.05)">
+<span style="flex:none;width:36px;height:36px;border-radius:13px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,247,.72)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 17.4h16.8"></path><path d="M5.4 17.4l1.4-4.6h10.4l1.4 4.6"></path><path d="M12 12.8V6.6"></path></svg>
+</span>
+<span style="flex:1;min-width:0;display:block">
+<span style="display:block;font-size:14.5px;font-weight:600;letter-spacing:-.016em;color:#F5F5F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Marina Yacht Sunset</span>
+<span style="display:block;margin-top:3px;font-size:12px;letter-spacing:-.005em;color:rgba(245,245,247,.38)">20 ago &middot; cart&atilde;o Fly Black</span>
+</span>
+<span style="flex:none;font-size:14.5px;font-weight:600;letter-spacing:-.018em;color:#F5F5F7;font-variant-numeric:tabular-nums">&minus; R$ 1.680</span>
+</button>
+<div style="height:1px;margin-left:65px;background:rgba(255,255,255,.07)"></div>
+<button onClick="{{ noop }}" style="width:100%;display:flex;align-items:center;gap:13px;padding:14px 16px;background:none;border:0;cursor:pointer;text-align:left;transition:background-color .2s" style-hover="background-color:rgba(255,255,255,.05)">
+<span style="flex:none;width:36px;height:36px;border-radius:13px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,247,.72)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13.4L12 18.4l5-5"></path><path d="M12 18.4V5.6"></path></svg>
+</span>
+<span style="flex:1;min-width:0;display:block">
+<span style="display:block;font-size:14.5px;font-weight:600;letter-spacing:-.016em;color:#F5F5F7">Recarga da carteira</span>
+<span style="display:block;margin-top:3px;font-size:12px;letter-spacing:-.005em;color:rgba(245,245,247,.38)">18 ago &middot; Pix</span>
+</span>
+<span style="flex:none;font-size:14.5px;font-weight:600;letter-spacing:-.018em;color:#F5F5F7;font-variant-numeric:tabular-nums">+ R$ 5.000</span>
+</button>
+</div>
+
+<div style="height:12px"></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isPerfil }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Perfil" data-fly-scroll style="position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;background:#08080A;padding:56px 0 122px">
+
+<div style="display:flex;align-items:flex-end;justify-content:space-between;padding:14px 20px 0">
+<h1 style="margin:0;font-size:33px;line-height:1.04;font-weight:700;letter-spacing:-.038em;color:#F5F5F7">Perfil</h1>
+<button onClick="{{ noop }}" style="flex:none;width:36px;height:36px;margin-bottom:3px;border-radius:18px;border:1px solid rgba(255,255,255,.085);background:rgba(255,255,255,.05);backdrop-filter:blur(18px) saturate(160%);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;transition:transform .18s" style-active="transform:scale(.9)">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,247,.8)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"></circle><path d="M19.2 14.6a7.8 7.8 0 0 0 0-5.2l-2-.5-1-1.7.6-2a7.8 7.8 0 0 0-4.5-2.6L11 4.4H9l-1.3-1.8a7.8 7.8 0 0 0-4.5 2.6l.6 2-1 1.7-2 .5a7.8 7.8 0 0 0 0 5.2l2 .5 1 1.7-.6 2a7.8 7.8 0 0 0 4.5 2.6L9 19.6h2l1.3 1.8a7.8 7.8 0 0 0 4.5-2.6l-.6-2 1-1.7z"></path></svg>
+</button>
+</div>
+
+<div style="display:flex;align-items:center;gap:15px;margin:22px 16px 0;padding:16px;border-radius:26px;background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.032));border:1px solid rgba(255,255,255,.085);backdrop-filter:blur(22px) saturate(170%)">
+<div style="flex:none;position:relative;width:66px;height:66px;border-radius:33px;background:radial-gradient(118% 118% at 30% 12%,#3A3A42 0%,#1A1A20 60%,#0D0D10 100%);border:1px solid rgba(223,201,138,.34);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 20px rgba(223,201,138,.1)">
+<span style="font-size:22px;font-weight:600;letter-spacing:-.01em;color:rgba(245,245,247,.9)">RM</span>
+</div>
+<div style="flex:1;min-width:0">
+<div style="font-size:20px;line-height:1.12;font-weight:600;letter-spacing:-.028em;color:#F5F5F7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Rafael Mendes</div>
+<div style="margin-top:4px;font-size:12.5px;letter-spacing:-.005em;color:rgba(245,245,247,.42);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">rafael.mendes@email.com</div>
+<div style="margin-top:9px;display:flex;align-items:center;gap:7px;height:22px;width:fit-content;padding:0 10px;border-radius:11px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2)">
+<span style="width:5px;height:5px;border-radius:3px;background:#F5F5F7"></span>
+<span style="font-size:10px;font-weight:700;letter-spacing:.13em;color:#fff">FLY BLACK</span>
+</div>
+</div>
+</div>
+
+<div style="margin:12px 16px 0;padding:16px 16px 15px;border-radius:26px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07)">
+<div style="display:flex;align-items:baseline;justify-content:space-between">
+<span style="font-size:9px;font-weight:700;letter-spacing:.15em;color:rgba(245,245,247,.4)">FLY STATUS</span>
+<span style="font-size:11.5px;letter-spacing:-.005em;color:rgba(245,245,247,.4)">membro desde 2023</span>
+</div>
+<div style="margin-top:14px;position:relative;height:3px;border-radius:2px;background:rgba(255,255,255,.1)">
+<div style="position:absolute;left:0;top:0;width:68%;height:3px;border-radius:2px;background:linear-gradient(90deg,#5B8CFF,#C9A96B 52%,#DFC98A);box-shadow:0 0 10px rgba(223,201,138,.45)"></div>
+<div style="position:absolute;left:0;top:-3.5px;width:10px;height:10px;border-radius:5px;background:#5B8CFF;box-shadow:0 0 0 2px #0E0E11"></div>
+<div style="position:absolute;left:calc(50% - 5px);top:-3.5px;width:10px;height:10px;border-radius:5px;background:#F5F5F7;box-shadow:0 0 0 2px #0E0E11,0 0 10px rgba(245,245,247,.6)"></div>
+<div style="position:absolute;right:0;top:-3.5px;width:10px;height:10px;border-radius:5px;background:rgba(223,201,138,.3);box-shadow:0 0 0 2px #0E0E11"></div>
+</div>
+<div style="margin-top:11px;display:flex;align-items:baseline;justify-content:space-between">
+<span style="font-size:11px;font-weight:600;letter-spacing:-.005em;color:rgba(143,173,255,.75)">Standard</span>
+<span style="font-size:11px;font-weight:700;letter-spacing:-.005em;color:#F5F5F7">Black</span>
+<span style="font-size:11px;font-weight:600;letter-spacing:-.005em;color:rgba(223,201,138,.62)">Billionaire</span>
+</div>
+<div style="margin-top:13px;padding-top:13px;border-top:1px solid rgba(255,255,255,.07);font-size:12.5px;line-height:1.5;letter-spacing:-.008em;color:rgba(245,245,247,.44);text-wrap:pretty">Faltam <span style="color:#DFC98A;font-weight:600">8.400 pontos</span> para Billionaire &mdash; concierge dedicado e acesso antecipado aos eventos Fly.</div>
+</div>
+
+<div style="margin:24px 20px 10px;font-size:9px;font-weight:700;letter-spacing:.15em;color:rgba(245,245,247,.34)">CONTA</div>
+<div style="margin:0 16px;border-radius:24px;overflow:hidden;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07)">
+<button onClick="{{ noop }}" style="width:100%;display:flex;align-items:center;gap:13px;padding:13px 16px;background:none;border:0;cursor:pointer;text-align:left;transition:background-color .2s" style-hover="background-color:rgba(255,255,255,.05)">
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,247,.72)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="8.3" r="3.7"></circle><path d="M4.9 20.2c.9-3.9 3.7-5.8 7.1-5.8s6.2 1.9 7.1 5.8"></path></svg>
+<span style="flex:1;font-size:15px;font-weight:500;letter-spacing:-.016em;color:#F5F5F7">Dados pessoais</span>
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,247,.28)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M9 5l7 7-7 7"></path></svg>
+</button>
+<div style="height:1px;margin-left:48px;background:rgba(255,255,255,.07)"></div>
+<button onClick="{{ noop }}" style="width:100%;display:flex;align-items:center;gap:13px;padding:13px 16px;background:none;border:0;cursor:pointer;text-align:left;transition:background-color .2s" style-hover="background-color:rgba(255,255,255,.05)">
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,247,.72)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M5.4 4.6h13.2v14.8H5.4z"></path><path d="M8.8 9h6.4"></path><path d="M8.8 13h4.2"></path></svg>
+<span style="flex:1;font-size:15px;font-weight:500;letter-spacing:-.016em;color:#F5F5F7">Documentos e visto</span>
+<span style="flex:none;display:flex;align-items:center;gap:8px">
+<span style="width:7px;height:7px;border-radius:4px;background:#E9A23B;box-shadow:0 0 8px rgba(233,162,59,.7)"></span>
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,247,.28)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
+</span>
+</button>
+<div style="height:1px;margin-left:48px;background:rgba(255,255,255,.07)"></div>
+<button onClick="{{ noop }}" style="width:100%;display:flex;align-items:center;gap:13px;padding:13px 16px;background:none;border:0;cursor:pointer;text-align:left;transition:background-color .2s" style-hover="background-color:rgba(255,255,255,.05)">
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,247,.72)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M3 8.4A3.4 3.4 0 0 1 6.4 5h11.2A3.4 3.4 0 0 1 21 8.4v7.2a3.4 3.4 0 0 1-3.4 3.4H6.4A3.4 3.4 0 0 1 3 15.6z"></path><path d="M14.8 12h6.2"></path></svg>
+<span style="flex:1;font-size:15px;font-weight:500;letter-spacing:-.016em;color:#F5F5F7">Formas de pagamento</span>
+<span style="flex:none;display:flex;align-items:center;gap:9px">
+<span style="font-size:13px;letter-spacing:-.005em;color:rgba(245,245,247,.36)">2</span>
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,247,.28)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
+</span>
+</button>
+</div>
+
+<div style="margin:24px 20px 10px;font-size:9px;font-weight:700;letter-spacing:.15em;color:rgba(245,245,247,.34)">PREFER&Ecirc;NCIAS</div>
+<div style="margin:0 16px;border-radius:24px;overflow:hidden;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07)">
+<div style="display:flex;align-items:center;gap:13px;padding:13px 16px">
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,247,.72)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M18 15.2v-4.6a6 6 0 1 0-12 0v4.6L4.4 17.8h15.2z"></path><path d="M9.7 20.4a2.5 2.5 0 0 0 4.6 0"></path></svg>
+<span style="flex:1;font-size:15px;font-weight:500;letter-spacing:-.016em;color:#F5F5F7">Notifica&ccedil;&otilde;es</span>
+<button onClick="{{ toggleNotif }}" style="flex:none;position:relative;width:48px;height:29px;border-radius:15px;border:0;cursor:pointer;padding:0;transition:background-color .28s;background:{{ notif.bg }}">
+<span style="position:absolute;top:2.5px;width:24px;height:24px;border-radius:12px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.3);transition:left .28s cubic-bezier(.32,.9,.28,1);left:{{ notif.x }}"></span>
+</button>
+</div>
+<div style="height:1px;margin-left:48px;background:rgba(255,255,255,.07)"></div>
+<button onClick="{{ noop }}" style="width:100%;display:flex;align-items:center;gap:13px;padding:13px 16px;background:none;border:0;cursor:pointer;text-align:left;transition:background-color .2s" style-hover="background-color:rgba(255,255,255,.05)">
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,247,.72)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="12" r="8.4"></circle><path d="M3.6 12h16.8"></path><path d="M12 3.6c2.2 2.4 3.4 5.3 3.4 8.4s-1.2 6-3.4 8.4c-2.2-2.4-3.4-5.3-3.4-8.4s1.2-6 3.4-8.4z"></path></svg>
+<span style="flex:1;font-size:15px;font-weight:500;letter-spacing:-.016em;color:#F5F5F7">Idioma</span>
+<span style="flex:none;display:flex;align-items:center;gap:9px">
+<span style="font-size:13px;letter-spacing:-.005em;color:rgba(245,245,247,.36)">Portugu&ecirc;s</span>
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,247,.28)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
+</span>
+</button>
+<div style="height:1px;margin-left:48px;background:rgba(255,255,255,.07)"></div>
+<button onClick="{{ noop }}" style="width:100%;display:flex;align-items:center;gap:13px;padding:13px 16px;background:none;border:0;cursor:pointer;text-align:left;transition:background-color .2s" style-hover="background-color:rgba(255,255,255,.05)">
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#DFC98A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M15.6 13.4l-1.9 1.9a13.6 13.6 0 0 1-5-5l1.9-1.9-2.7-4.6-2.7 1a2 2 0 0 0-1.1 2.2 18.8 18.8 0 0 0 14.9 11.9 2 2 0 0 0 2-1.2l1-2.6z"></path></svg>
+<span style="flex:1;font-size:15px;font-weight:500;letter-spacing:-.016em;color:#F5F5F7">Fly Assist</span>
+<span style="flex:none;display:flex;align-items:center;gap:9px">
+<span style="font-size:13px;letter-spacing:-.005em;color:#DFC98A">24h</span>
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(245,245,247,.28)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"></path></svg>
+</span>
+</button>
+</div>
+
+<button onClick="{{ noop }}" style="display:block;width:calc(100% - 32px);margin:22px 16px 0;height:50px;border-radius:20px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.07);color:rgba(245,245,247,.6);font-size:15px;font-weight:500;letter-spacing:-.016em;cursor:pointer;transition:transform .18s" style-active="transform:scale(.985)">Sair da conta</button>
+
+<div style="margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:8px">
+<img src="assets/fly-wing-dim.png" alt="" style="height:9px;width:auto;display:block;opacity:.5">
+<span style="font-size:11px;letter-spacing:.03em;color:rgba(245,245,247,.24)">Fly App 1.0.0 (24)</span>
+</div>
+
+<div style="height:12px"></div>
+</div>
+</sc-if>
+
 <sc-if value="{{ isStub }}" hint-placeholder-val="{{ false }}">
 <div data-screen-label="Placeholder" style="position:absolute;inset:0;background:#08080A;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 48px 110px;text-align:center">
 <img src="assets/fly-wing-dim.png" alt="" style="height:18px;width:auto;display:block;opacity:.6">
 <div style="margin-top:24px;font-size:22px;font-weight:600;letter-spacing:-.03em;color:#F5F5F7">{{ stubTitle }}</div>
-<div style="margin-top:9px;font-size:13.5px;line-height:1.5;letter-spacing:-.005em;color:rgba(245,245,247,.42);text-wrap:pretty">Fora do escopo desta primeira entrega. O foco aqui &eacute; In&iacute;cio e Passeios.</div>
+<div style="margin-top:9px;font-size:13.5px;line-height:1.5;letter-spacing:-.005em;color:rgba(245,245,247,.42);text-wrap:pretty">Roteiro por dia, timeline e mapa entram na pr&oacute;xima rodada.</div>
 </div>
 </sc-if>
 
@@ -561,11 +1022,14 @@ const CATS = {
   c5: ['Aéreo']
 };
 const CARD_KEYS = ['c1','c2','c3','c4','c5'];
-const STUBS = { viagem: 'Minha Viagem', carteira: 'Carteira', perfil: 'Perfil' };
+const DAYS = ['25','26','27','28','29','30','31'];
+const DAY_TITLES = { '25': 'Sexta, 25 de agosto', '26': 'S\u00e1bado, 26 de agosto', '27': 'Domingo, 27 de agosto',
+  '28': 'Segunda, 28 de agosto', '29': 'Ter\u00e7a, 29 de agosto', '30': 'Quarta, 30 de agosto', '31': 'Quinta, 31 de agosto' };
+const DAY_COUNTS = { '25': '4 itens', '27': '3 itens', '29': '3 itens' };
 
 class Component extends DCLogic {
   state = { screen: null, sheet: null, slide: 0, chip: 'Todos', cart: 2, pop: false,
-            sos: false, toast: false, seg: 'conf', dx: 0, dragging: false };
+            sos: false, toast: false, seg: 'conf', dx: 0, dragging: false, notif: true, day: '25' };
 
   get scr() { return this.state.screen ?? (this.props.initialScreen || 'home'); }
   get isSheet() { return this.state.sheet ?? !!this.props.sheetOpen; }
@@ -614,6 +1078,15 @@ class Component extends DCLogic {
     });
     const chips = {};
     KEYS.forEach((k, i) => { chips[k] = on(chip === CHIPS[i]); });
+    const dayChips = {};
+    DAYS.forEach(d => {
+      const sel = st.day === d;
+      dayChips['d' + d] = {
+        bg: sel ? 'rgba(223,201,138,.15)' : 'rgba(255,255,255,.05)',
+        bd: sel ? 'rgba(223,201,138,.44)' : 'rgba(255,255,255,.075)',
+        c: sel ? '#DFC98A' : 'rgba(245,245,247,.6)'
+      };
+    });
 
     const vis = (k) => chip === 'Todos' || CATS[k].indexOf(chip) >= 0;
     const cards = {};
@@ -631,8 +1104,32 @@ class Component extends DCLogic {
       isHome: scr === 'home',
       isPasseios: scr === 'passeios',
       isMeus: scr === 'meus',
-      isStub: !!STUBS[scr],
-      stubTitle: STUBS[scr] || '',
+      isCarteira: scr === 'carteira',
+      isPerfil: scr === 'perfil',
+      isViagem: scr === 'viagem',
+      days: dayChips,
+      dayD: {
+        d25: st.day === '25' ? 'block' : 'none',
+        d27: st.day === '27' ? 'block' : 'none',
+        d29: st.day === '29' ? 'block' : 'none',
+        livre: DAY_COUNTS[st.day] ? 'none' : 'block'
+      },
+      dayTitle: DAY_TITLES[st.day],
+      dayCount: DAY_COUNTS[st.day] || 'dia livre',
+      setD25: () => this.setState({ day: '25' }),
+      setD26: () => this.setState({ day: '26' }),
+      setD27: () => this.setState({ day: '27' }),
+      setD28: () => this.setState({ day: '28' }),
+      setD29: () => this.setState({ day: '29' }),
+      setD30: () => this.setState({ day: '30' }),
+      setD31: () => this.setState({ day: '31' }),
+      notif: {
+        bg: st.notif ? 'rgba(223,201,138,.85)' : 'rgba(255,255,255,.16)',
+        x: st.notif ? '21px' : '2.5px'
+      },
+      toggleNotif: () => this.setState(s => ({ notif: !s.notif })),
+      isStub: false,
+      stubTitle: '',
       sheet: this.isSheet && (scr === 'passeios' || scr === 'meus'),
       sos: st.sos,
       toast: st.toast,

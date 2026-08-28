@@ -1,7 +1,8 @@
 import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { bottomBar, material, palette, shadowStyle, space, touchTarget } from '@/theme';
+import { bottomBar, space, touchTarget } from '@/theme';
 import { Text } from '@/ui';
 import { CentralTripButton } from './CentralTripButton';
 import { HomeIcon, ProfileIcon, ToursIcon, WalletIcon, type TabIconProps } from './TabIcons';
@@ -49,7 +50,9 @@ export interface BottomNavProps {
 
 function TabItem({ def, active, onPress }: { def: TabDef; active: boolean; onPress: () => void }) {
   const { Icon, label } = def;
-  const color = active ? palette.gold : palette.textFaint;
+  // Branco, nunca dourado: aba selecionada nao esta entre os usos permitidos
+  // do dourado, e estava dourada aqui por engano ate 28/08/2026.
+  const color = active ? bottomBar.labelActive : bottomBar.labelInactive;
 
   return (
     <Pressable
@@ -87,8 +90,19 @@ export function BottomNav({
       style={[styles.container, { height: bottomBar.height + insets.bottom }]}
       accessibilityRole="tablist"
     >
-      <BlurView intensity={material.blurRadius * 1.8} tint="dark" style={StyleSheet.absoluteFill} />
-      <View style={styles.tint} />
+      <BlurView intensity={bottomBar.blur} tint="dark" style={StyleSheet.absoluteFill} />
+      {/* O gradiente vertical do material, sobre o blur. Uma camada chapada
+          nao produz a mesma leitura: o topo precisa ser mais claro que a base
+          para a barra parecer vidro apoiado, e nao um retangulo pintado. */}
+      <LinearGradient
+        colors={[bottomBar.materialTop, bottomBar.materialBottom]}
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+      />
+      {/* A linha de luz de 1 px no topo. No React Native nao existe
+          `inset box-shadow`, entao ela e uma View de 1 px — mesmo resultado
+          visual, tecnica diferente. */}
+      <View style={styles.topHighlight} pointerEvents="none" />
 
       <View style={[styles.row, { paddingBottom: insets.bottom }]}>
         {LEFT_TABS.map((def) => (
@@ -118,6 +132,11 @@ export function BottomNav({
           />
         ))}
       </View>
+
+      {/* Home indicator. Desenhado quando o aparelho nao reserva a faixa —
+          num iPhone com gesto o sistema ja desenha o dele, e dois seria
+          esquisito. */}
+      {insets.bottom === 0 ? <View style={styles.homeIndicator} pointerEvents="none" /> : null}
     </View>
   );
 }
@@ -129,19 +148,29 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 80,
-    ...shadowStyle('bar'),
+    overflow: 'hidden',
+    shadowColor: bottomBar.shadow.color,
+    shadowOffset: { width: 0, height: bottomBar.shadow.offsetY },
+    shadowOpacity: 1,
+    shadowRadius: bottomBar.shadow.blur,
+    elevation: 8,
   },
-  // Gradiente do design aproximado por uma camada plana sobre o blur; um
-  // gradiente real exigiria expo-linear-gradient sem ganho perceptivel aqui.
-  tint: {
+  topHighlight: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(11,11,14,.72)',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: 'rgba(255,255,255,.09)',
+    height: 1,
+    backgroundColor: bottomBar.topHighlight,
+  },
+  homeIndicator: {
+    position: 'absolute',
+    alignSelf: 'center',
+    bottom: bottomBar.homeIndicator.bottom,
+    width: bottomBar.homeIndicator.width,
+    height: bottomBar.homeIndicator.height,
+    borderRadius: bottomBar.homeIndicator.radius,
+    backgroundColor: 'rgba(245,245,247,.3)',
   },
   row: {
     flexDirection: 'row',

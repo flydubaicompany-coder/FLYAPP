@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { Pressable, StyleSheet, View } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
-import { centralButton, glow, palette, shadowStyle, touchTarget } from '@/theme';
+import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
+import { bottomBar, centralButton, palette, touchTarget } from '@/theme';
 import { Text } from '@/ui';
 import wing from '../../assets/brand/fly-wing.png';
 
@@ -83,11 +83,47 @@ export function CentralTripButton({
         ) : null}
 
         <View style={[styles.core, focused && styles.coreFocused]}>
+          {/* O gradiente radial de 118% ancorado no topo. E ele que da volume
+              ao circulo; um cinza chapado deixa o botao com cara de disco. */}
+          <Svg
+            width={centralButton.core}
+            height={centralButton.core}
+            style={StyleSheet.absoluteFill}
+          >
+            <Defs>
+              <RadialGradient id="nucleo" cx="50%" cy="0%" r="118%">
+                {centralButton.coreGradient.map((parada) => (
+                  <Stop key={parada.offset} offset={parada.offset} stopColor={parada.color} />
+                ))}
+              </RadialGradient>
+            </Defs>
+            <Circle
+              cx={centralButton.core / 2}
+              cy={centralButton.core / 2}
+              r={centralButton.core / 2}
+              fill="url(#nucleo)"
+            />
+          </Svg>
+
+          {/* Linha de luz de 1 px no topo. `inset box-shadow` nao existe no
+              React Native; a View entrega o mesmo resultado. */}
+          <View style={styles.innerHighlight} pointerEvents="none" />
+
           <Image
             source={wing}
-            style={styles.wing}
+            style={[
+              styles.wing,
+              {
+                opacity: focused
+                  ? centralButton.wingOpacitySelected
+                  : centralButton.wingOpacityRest,
+              },
+            ]}
             contentFit="contain"
-            tintColor={focused ? palette.gold : palette.textMuted}
+            // A asa e **sempre** dourada — o que muda com a selecao e so a
+            // opacidade. Antes ela ficava cinza fora do foco, o que apagava a
+            // unica marca da Fly na barra.
+            tintColor={palette.gold}
             accessible={false}
           />
         </View>
@@ -97,9 +133,8 @@ export function CentralTripButton({
 
       <Text
         variant="tabLabel"
-        tone={focused ? 'gold' : 'faint'}
         numberOfLines={1}
-        style={styles.label}
+        style={[styles.label, { color: focused ? bottomBar.labelActive : bottomBar.labelInactive }]}
       >
         {label}
       </Text>
@@ -119,9 +154,14 @@ const styles = StyleSheet.create({
     borderRadius: RING_SIZE / 2,
     alignItems: 'center',
     justifyContent: 'center',
-    // O anel escuro que separa o botao da barra.
-    backgroundColor: 'rgba(9,9,11,.94)',
-    ...shadowStyle('floating'),
+    // Sombra 1 da ordem do design: o recorte que separa o botao da barra.
+    backgroundColor: centralButton.cutout,
+    // Sombra 2: a elevacao.
+    shadowColor: centralButton.dropShadow.color,
+    shadowOffset: { width: 0, height: centralButton.dropShadow.offsetY },
+    shadowOpacity: 1,
+    shadowRadius: centralButton.dropShadow.blur,
+    elevation: 12,
   },
   pressed: {
     transform: [{ scale: 0.94 }],
@@ -135,18 +175,26 @@ const styles = StyleSheet.create({
     borderRadius: centralButton.core / 2,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(223,201,138,.28)',
-    backgroundColor: '#16161A',
-    shadowColor: glow.subtle.color,
+    borderColor: centralButton.borderRest,
+    // Sombra 4: o brilho dourado difuso.
+    shadowColor: centralButton.goldGlow.color,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
-    shadowRadius: glow.subtle.blur,
+    shadowRadius: centralButton.goldGlow.blur,
   },
   coreFocused: {
-    borderColor: palette.goldBorder,
-    shadowColor: glow.strong.color,
-    shadowRadius: glow.strong.blur,
+    borderColor: centralButton.borderSelected,
+  },
+  // Sombra 3 da ordem: a linha de luz interna, no topo do nucleo.
+  innerHighlight: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: centralButton.innerHighlight,
   },
   wing: {
     width: centralButton.iconWidth,
