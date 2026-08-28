@@ -1,0 +1,341 @@
+data-screen-label="Home"
+                data-fly-scroll
+                style="position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; background: #08080a; padding: 56px 0 118px;"
+              >
+                <div
+                  style="display: flex; align-items: center; justify-content: space-between; padding: 10px 20px 0;"
+                >
+                  <img
+                    src="assets/fly-wordmark.png"
+                    alt="Fly"
+                    style="height: 14px; width: auto; display: block; opacity: 0.95"
+                  />
+                  <button
+                    onClick="{{ noop }}"
+                    style="position: relative; width: 38px; height: 38px; border-radius: 19px; border: 1px solid rgba(255, 255, 255, 0.085); background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(18px) saturate(160%); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; transition: transform 0.18s;"
+                    style-active="transform:scale(.9)"
+                  >
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="rgba(245,245,247,.8)"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M18 15.2v-4.6a6 6 0 1 0-12 0v4.6L4.4 17.8h15.2z"></path>
+                      <path d="M9.7 20.4a2.5 2.5 0 0 0 4.6 0"></path>
+                    </svg>
+                    <span
+                      style="position: absolute; top: 8px; right: 9px; width: 6px; height: 6px; border-radius: 3px; background: #dfc98a; box-shadow: 0 0 7px rgba(223, 201, 138, 0.85);"
+                    ></span>
+                  </button>
+                </div>
+                <div style="padding: 12px 20px 12px">
+                  <div
+                    style="font-size: 25px; line-height: 1.1; font-weight: 600; letter-spacing: -0.03em; color: #f5f5f7;"
+                  >
+                    Boa noite, Rafael
+                  </div>
+                  <div
+                    style="margin-top: 6px; font-size: 13.5px; letter-spacing: -0.005em; color: rgba(245, 245, 247, 0.45);"
+                  >
+                    Dubai · 32°C · dia 3 de 7
+                  </div>
+                </div>
+                <div
+                  onPointerDown="{{ dragStart }}"
+                  onPointerMove="{{ dragMove }}"
+                  onPointerUp="{{ dragEnd }}"
+                  onPointerCancel="{{ dragEnd }}"
+                  style="position: relative; margin: 0 16px; height: 340px; border-radius: 30px; overflow: hidden; background: #101013; touch-action: pan-y; cursor: grab; box-shadow: 0 32px 62px -30px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.07);"
+                >
+                  <div
+                    style="display:flex;width:300%;height:100%;will-change:transform;transition:{{ trackTr }};transform:{{ trackX }}"
+                  >
+                    <div style="position: relative; width: 33.3333%; height: 100%; flex: none">
+                      <div
+                        style="position: absolute; inset: 0; background-image: url(assets/opt-burj-khalifa-noite.jpg); background-size: cover; background-position: 52% 34%;"
+                      ></div>
+                      <div
+                        style="position: absolute; inset: 0; background: linear-gradient( 180deg, rgba(4, 4, 6, 0.55) 0%, rgba(4, 4, 6, 0.04) 30%, rgba(4, 4, 6, 0.5) 64%, rgba(4, 4, 6, 0.95) 100% );"
+                      ></div>
+                      <div style="position: absolute; left: 22px; right: 22px; bottom: 66px">
+                        <div
+                          style="font-size: 10px; font-weight: 700; letter-spacing: 0.145em; color: #dfc98a;"
+                        >
+                          12 – 14 SET · JUMEIRAH GOLF ESTATES
+                        </div>
+                        <div
+                          style="margin-top: 9px; font-size: 31px; line-height: 1.02; font-weight: 700; letter-spacing: -0.036em; color: #fff;"
+                        >
+                          Fly Cup 2026
+                        </div>
+                        <div
+                          style="margin-top: 8px; font-size: 13.5px; letter-spacing: -0.008em; color: rgba(255, 255, 255, 0.68);"
+                        >
+                          72 convidados · 3 dias de torneio
+                        </div>
+                      </div>
+                    </div>
+                    <div style="position: relative; width: 33.3333%; height: 100%; flex: none">
+                      <div
+                        style="position: absolute; inset: 0; background-image: url(assets/opt-downtown-crepusculo.jpg); background-size: cover; background-position: 56% 42%;"
+                      ></div>
+                      <div
+                        style="position: absolute; inset: 0; background: linear-gradient( 180deg, rgba(4, 4, 6, 0.5) 0%, rgba(4, 4, 6, 0.06) 28%, rgba(4, 4, 6, 0.58) 62%, rgba(4, 4, 6, 0.96) 100% );"
+                      ></div>
+                      <div style="position: absolute; left: 22px; right: 22px; bottom: 66px">
+                        <div
+                          style="font-size: 10px; font-weight: 700; letter-spacing: 0.145em; color: #dfc98a;"
+                        >
+                          07 – 09 NOV · DUBAI SPORTS CITY
+                        </div>
+                        <div
+                          style="margin-top: 9px; font-size: 31px; line-height: 1.02; font-weight: 700; letter-spacing: -0.036em; color: #fff;"
+                        >
+                          Legends Dubai Cup
+                        </div>
+                        <div
+                          style="margin-top: 8px; font-size: 13.5px; letter-spacing: -0.008em; color: rgba(255, 255, 255, 0.68);"
+                        >
+                          Craques convidados · jantar de gala
+                        </div>
+                      </div>
+                    </div>
+                    <div style="position: relative; width: 33.3333%; height: 100%; flex: none">
+                      <div
+                        style="position: absolute; inset: 0; background-image: url(assets/opt-burj-al-arab-mar.jpg); background-size: cover; background-position: 44% 46%;"
+                      ></div>
+                      <div
+                        style="position: absolute; inset: 0; background: linear-gradient( 180deg, rgba(4, 4, 6, 0.42) 0%, rgba(4, 4, 6, 0.04) 26%, rgba(4, 4, 6, 0.6) 60%, rgba(4, 4, 6, 0.96) 100% );"
+                      ></div>
+                      <div style="position: absolute; left: 22px; right: 22px; bottom: 66px">
+                        <div
+                          style="font-size: 10px; font-weight: 700; letter-spacing: 0.145em; color: #dfc98a;"
+                        >
+                          26 FEV 2027 · MUSEUM OF THE FUTURE
+                        </div>
+                        <div
+                          style="margin-top: 9px; font-size: 31px; line-height: 1.02; font-weight: 700; letter-spacing: -0.036em; color: #fff;"
+                        >
+                          Fly Summit
+                        </div>
+                        <div
+                          style="margin-top: 8px; font-size: 13.5px; letter-spacing: -0.008em; color: rgba(255, 255, 255, 0.68);"
+                        >
+                          Encontro anual Black e Billionaire
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    style="position: absolute; top: 18px; left: 20px; display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 12px; border-radius: 14px; background: rgba(10, 10, 13, 0.4); border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(18px) saturate(180%);"
+                  >
+                    <img
+                      src="assets/fly-wing-gold.png"
+                      alt=""
+                      style="height: 7px; width: auto; display: block"
+                    />
+                    <span
+                      style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; color: rgba(255, 255, 255, 0.9);"
+                      >EVENTOS FLY</span
+                    >
+                  </div>
+                  <div
+                    style="position: absolute; left: 22px; right: 22px; bottom: 20px; display: flex; align-items: center; justify-content: space-between;"
+                  >
+                    <button
+                      onClick="{{ noop }}"
+                      style="display: flex; align-items: center; gap: 7px; height: 34px; padding: 0 15px; border-radius: 17px; background: rgba(255, 255, 255, 0.13); border: 1px solid rgba(255, 255, 255, 0.24); backdrop-filter: blur(20px) saturate(180%); color: #fff; font-size: 13px; font-weight: 600; letter-spacing: -0.012em; cursor: pointer; transition: transform 0.18s;"
+                      style-active="transform:scale(.95)"
+                    >
+                      Ver detalhes<svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.4"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M9 5l7 7-7 7"></path>
+                      </svg>
+                    </button>
+                    <div style="position: relative; display: flex; gap: 6px; align-items: center">
+                      <div
+                        style="width: 18px; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, 0.26);"
+                      ></div>
+                      <div
+                        style="width: 18px; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, 0.26);"
+                      ></div>
+                      <div
+                        style="width: 18px; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, 0.26);"
+                      ></div>
+                      <div
+                        style="position:absolute;top:0;left:0;width:18px;height:5px;border-radius:3px;background:#DFC98A;box-shadow:0 0 9px rgba(223,201,138,.7);transition:transform .55s cubic-bezier(.22,1,.36,1);transform:{{ dotX }}"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+                <div style="margin: 16px 16px 0">
+                  <button
+                    onClick="{{ noop }}"
+                    style="width: 100%; display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 24px; background: linear-gradient( 180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.032) ); border: 1px solid rgba(255, 255, 255, 0.085); backdrop-filter: blur(22px) saturate(170%); cursor: pointer; text-align: left; transition: transform 0.18s;"
+                    style-active="transform:scale(.985)"
+                  >
+                    <span
+                      style="flex: none; width: 42px; height: 42px; border-radius: 15px; background: rgba(223, 201, 138, 0.11); border: 1px solid rgba(223, 201, 138, 0.26); display: flex; align-items: center; justify-content: center;"
+                    >
+                      <svg
+                        width="19"
+                        height="19"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#DFC98A"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path d="M21.3 3.2L2.9 10.7l6.5 2.6 2.6 6.5z"></path>
+                        <path d="M21.3 3.2L9.4 13.3"></path>
+                      </svg>
+                    </span>
+                    <span style="flex: 1; min-width: 0; display: block">
+                      <span
+                        style="display: block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.15em; color: #dfc98a;"
+                        >PRÓXIMA AÇÃO</span
+                      >
+                      <span
+                        style="display: block; margin-top: 5px; font-size: 15.5px; font-weight: 600; letter-spacing: -0.018em; color: #f5f5f7;"
+                        >Check-in Emirates EK262</span
+                      >
+                      <span
+                        style="display: block; margin-top: 3px; font-size: 12.5px; letter-spacing: -0.005em; color: rgba(245, 245, 247, 0.44);"
+                        >Abre em 4h 12min · Terminal 3</span
+                      >
+                    </span>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="rgba(245,245,247,.3)"
+                      stroke-width="2.2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      style="flex: none"
+                    >
+                      <path d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </button>
+                </div>
+                <div style="margin: 8px 16px 0">
+                  <button
+                    onClick="{{ noop }}"
+                    style="width: 100%; display: flex; align-items: center; gap: 13px; padding: 11px 16px; border-radius: 22px; background: rgba(233, 162, 59, 0.07); border: 1px solid rgba(233, 162, 59, 0.22); cursor: pointer; text-align: left; transition: transform 0.18s;"
+                    style-active="transform:scale(.985)"
+                  >
+                    <svg
+                      width="19"
+                      height="19"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#E9A23B"
+                      stroke-width="1.7"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      style="flex: none"
+                    >
+                      <path d="M12 4.4l8.6 15.2H3.4z"></path>
+                      <path d="M12 9.9v4.2"></path>
+                      <path d="M12 16.9h.01"></path>
+                    </svg>
+                    <span style="flex: 1; min-width: 0; display: block">
+                      <span
+                        style="display: block; font-size: 14px; font-weight: 600; letter-spacing: -0.012em; color: #f2e7d6;"
+                        >Visto de trânsito pendente</span
+                      >
+                      <span
+                        style="display: block; margin-top: 2px; font-size: 12.5px; letter-spacing: -0.005em; color: rgba(233, 162, 59, 0.72);"
+                        >Envie o comprovante até 25/08</span
+                      >
+                    </span>
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="rgba(233,162,59,.55)"
+                      stroke-width="2.2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      style="flex: none"
+                    >
+                      <path d="M9 5l7 7-7 7"></path>
+                    </svg>
+                  </button>
+                </div>
+                <div
+                  style="display: flex; margin: 12px 16px 0; border-radius: 22px; overflow: hidden; background: linear-gradient( 165deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.028) ); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(20px) saturate(160%);"
+                >
+                  <div style="flex: 1; min-width: 0; padding: 12px 15px 11px">
+                    <div
+                      style="font-size: 9px; font-weight: 700; letter-spacing: 0.15em; color: rgba(245, 245, 247, 0.4);"
+                    >
+                      FLY STATUS
+                    </div>
+                    <div style="margin-top: 6px; display: flex; align-items: baseline; gap: 6px">
+                      <span
+                        style="font-size: 19px; line-height: 1; font-weight: 700; letter-spacing: -0.03em; color: #f5f5f7;"
+                        >Black</span
+                      >
+                      <span
+                        style="font-size: 10.5px; letter-spacing: -0.005em; color: rgba(245, 245, 247, 0.36); white-space: nowrap;"
+                        >para <span style="color: #dfc98a">Billionaire</span></span
+                      >
+                    </div>
+                    <div
+                      style="margin-top: 8px; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.1); overflow: hidden;"
+                    >
+                      <div
+                        style="width: 68%; height: 100%; border-radius: 2px; background: linear-gradient(90deg, #c9a96b, #dfc98a); box-shadow: 0 0 9px rgba(223, 201, 138, 0.55);"
+                      ></div>
+                    </div>
+                  </div>
+                  <div style="flex: none; width: 1px; background: rgba(255, 255, 255, 0.09)"></div>
+                  <div style="flex: 1; min-width: 0; padding: 12px 15px 11px">
+                    <div
+                      style="font-size: 9px; font-weight: 700; letter-spacing: 0.15em; color: rgba(245, 245, 247, 0.4);"
+                    >
+                      FLY POINTS
+                    </div>
+                    <div style="margin-top: 6px; display: flex; align-items: baseline; gap: 6px">
+                      <span
+                        style="font-size: 19px; line-height: 1; font-weight: 700; letter-spacing: -0.03em; color: #f5f5f7; font-variant-numeric: tabular-nums;"
+                        >48.250</span
+                      >
+                      <span
+                        style="font-size: 10.5px; letter-spacing: -0.005em; color: #dfc98a; white-space: nowrap;"
+                        >+1.200</span
+                      >
+                    </div>
+                    <div
+                      style="margin-top: 8px; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.1); overflow: hidden;"
+                    >
+                      <div
+                        style="width: 41%; height: 100%; border-radius: 2px; background: rgba(245, 245, 247, 0.55);"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+                <div style="height: 10px"></div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ isPasseios }}" hint-placeholder-val="{{ false }}">
+              <div style="position: absolute; inset: 0">
+                <div
+                  

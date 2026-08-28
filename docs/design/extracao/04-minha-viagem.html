@@ -1,0 +1,710 @@
+data-screen-label="Minha Viagem"
+                data-fly-scroll
+                style="position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; background: #08080a; padding: 56px 0 122px;"
+              >
+                <div
+                  style="display: flex; align-items: flex-end; justify-content: space-between; padding: 14px 20px 0;"
+                >
+                  <h1
+                    style="margin: 0; font-size: 33px; line-height: 1.04; font-weight: 700; letter-spacing: -0.038em; color: #f5f5f7;"
+                  >
+                    Minha Viagem
+                  </h1>
+                  <button
+                    onClick="{{ noop }}"
+                    style="flex: none; width: 36px; height: 36px; margin-bottom: 3px; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.085); background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(18px) saturate(160%); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; transition: transform 0.18s;"
+                    style-active="transform:scale(.9)"
+                  >
+                    <svg
+                      width="17"
+                      height="17"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="rgba(245,245,247,.8)"
+                      stroke-width="1.7"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path
+                        d="M12 21c4.6-4.4 6.9-7.9 6.9-10.6a6.9 6.9 0 0 0-13.8 0C5.1 13.1 7.4 16.6 12 21z"
+                      ></path>
+                      <circle cx="12" cy="10.2" r="2.4"></circle>
+                    </svg>
+                  </button>
+                </div>
+                <div
+                  style="position: relative; margin: 20px 16px 0; height: 196px; border-radius: 30px; overflow: hidden; background: #101013; box-shadow: 0 26px 50px -26px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.07);"
+                >
+                  <div
+                    style="position: absolute; inset: 0; background-image: url(assets/opt-downtown-crepusculo.jpg); background-size: cover; background-position: 56% 38%;"
+                  ></div>
+                  <div
+                    style="position: absolute; inset: 0; background: linear-gradient( 180deg, rgba(4, 4, 6, 0.5) 0%, rgba(4, 4, 6, 0.12) 34%, rgba(4, 4, 6, 0.72) 72%, rgba(4, 4, 6, 0.97) 100% );"
+                  ></div>
+                  <div
+                    style="position: absolute; top: 17px; left: 18px; display: flex; align-items: center; gap: 7px; height: 26px; padding: 0 11px; border-radius: 13px; background: rgba(223, 201, 138, 0.15); border: 1px solid rgba(223, 201, 138, 0.42); backdrop-filter: blur(16px) saturate(180%);"
+                  >
+                    <span
+                      style="width: 5px; height: 5px; border-radius: 3px; background: #dfc98a; box-shadow: 0 0 8px rgba(223, 201, 138, 0.9);"
+                    ></span>
+                    <span
+                      style="font-size: 9px; font-weight: 700; letter-spacing: 0.13em; color: #dfc98a;"
+                      >VIAGEM EM CURSO</span
+                    >
+                  </div>
+                  <div style="position: absolute; left: 20px; right: 20px; bottom: 17px">
+                    <div
+                      style="font-size: 27px; line-height: 1.04; font-weight: 700; letter-spacing: -0.034em; color: #fff;"
+                    >
+                      Dubai
+                    </div>
+                    <div
+                      style="margin-top: 6px; font-size: 13px; letter-spacing: -0.008em; color: rgba(255, 255, 255, 0.66);"
+                    >
+                      25 – 31 ago · Atlantis The Royal · 2 pessoas
+                    </div>
+                    <div style="margin-top: 13px; display: flex; align-items: center; gap: 10px">
+                      <div
+                        style="flex: 1; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, 0.22); overflow: hidden;"
+                      >
+                        <div
+                          style="width: 43%; height: 100%; border-radius: 2px; background: #dfc98a; box-shadow: 0 0 9px rgba(223, 201, 138, 0.7);"
+                        ></div>
+                      </div>
+                      <span
+                        style="flex: none; font-size: 11px; font-weight: 600; letter-spacing: 0.02em; color: rgba(255, 255, 255, 0.78);"
+                        >dia 3 de 7</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div
+                  data-fly-row
+                  style="margin-top: 16px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 2px 16px 4px;"
+                >
+                  <button
+                    onClick="{{ setD25 }}"
+                    style="flex:none;width:52px;padding:9px 0 10px;border-radius:19px;cursor:pointer;text-align:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.075);transition:background-color .25s,border-color .25s,color .25s;background-color:{{ days.d25.bg }};border-color:{{ days.d25.bd }};color:{{ days.d25.c }}"
+                  >
+                    <span
+                      style="display: block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.6;"
+                      >SEX</span
+                    >
+                    <span
+                      style="display: block; margin-top: 4px; font-size: 16.5px; font-weight: 700; letter-spacing: -0.02em;"
+                      >25</span
+                    >
+                  </button>
+                  <button
+                    onClick="{{ setD26 }}"
+                    style="flex:none;width:52px;padding:9px 0 10px;border-radius:19px;cursor:pointer;text-align:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.075);transition:background-color .25s,border-color .25s,color .25s;background-color:{{ days.d26.bg }};border-color:{{ days.d26.bd }};color:{{ days.d26.c }}"
+                  >
+                    <span
+                      style="display: block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.6;"
+                      >SÁB</span
+                    >
+                    <span
+                      style="display: block; margin-top: 4px; font-size: 16.5px; font-weight: 700; letter-spacing: -0.02em;"
+                      >26</span
+                    >
+                  </button>
+                  <button
+                    onClick="{{ setD27 }}"
+                    style="flex:none;width:52px;padding:9px 0 10px;border-radius:19px;cursor:pointer;text-align:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.075);transition:background-color .25s,border-color .25s,color .25s;background-color:{{ days.d27.bg }};border-color:{{ days.d27.bd }};color:{{ days.d27.c }}"
+                  >
+                    <span
+                      style="display: block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.6;"
+                      >DOM</span
+                    >
+                    <span
+                      style="display: block; margin-top: 4px; font-size: 16.5px; font-weight: 700; letter-spacing: -0.02em;"
+                      >27</span
+                    >
+                  </button>
+                  <button
+                    onClick="{{ setD28 }}"
+                    style="flex:none;width:52px;padding:9px 0 10px;border-radius:19px;cursor:pointer;text-align:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.075);transition:background-color .25s,border-color .25s,color .25s;background-color:{{ days.d28.bg }};border-color:{{ days.d28.bd }};color:{{ days.d28.c }}"
+                  >
+                    <span
+                      style="display: block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.6;"
+                      >SEG</span
+                    >
+                    <span
+                      style="display: block; margin-top: 4px; font-size: 16.5px; font-weight: 700; letter-spacing: -0.02em;"
+                      >28</span
+                    >
+                  </button>
+                  <button
+                    onClick="{{ setD29 }}"
+                    style="flex:none;width:52px;padding:9px 0 10px;border-radius:19px;cursor:pointer;text-align:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.075);transition:background-color .25s,border-color .25s,color .25s;background-color:{{ days.d29.bg }};border-color:{{ days.d29.bd }};color:{{ days.d29.c }}"
+                  >
+                    <span
+                      style="display: block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.6;"
+                      >TER</span
+                    >
+                    <span
+                      style="display: block; margin-top: 4px; font-size: 16.5px; font-weight: 700; letter-spacing: -0.02em;"
+                      >29</span
+                    >
+                  </button>
+                  <button
+                    onClick="{{ setD30 }}"
+                    style="flex:none;width:52px;padding:9px 0 10px;border-radius:19px;cursor:pointer;text-align:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.075);transition:background-color .25s,border-color .25s,color .25s;background-color:{{ days.d30.bg }};border-color:{{ days.d30.bd }};color:{{ days.d30.c }}"
+                  >
+                    <span
+                      style="display: block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.6;"
+                      >QUA</span
+                    >
+                    <span
+                      style="display: block; margin-top: 4px; font-size: 16.5px; font-weight: 700; letter-spacing: -0.02em;"
+                      >30</span
+                    >
+                  </button>
+                  <button
+                    onClick="{{ setD31 }}"
+                    style="flex:none;width:52px;padding:9px 0 10px;border-radius:19px;cursor:pointer;text-align:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.075);transition:background-color .25s,border-color .25s,color .25s;background-color:{{ days.d31.bg }};border-color:{{ days.d31.bd }};color:{{ days.d31.c }}"
+                  >
+                    <span
+                      style="display: block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.6;"
+                      >QUI</span
+                    >
+                    <span
+                      style="display: block; margin-top: 4px; font-size: 16.5px; font-weight: 700; letter-spacing: -0.02em;"
+                      >31</span
+                    >
+                  </button>
+                </div>
+                <div
+                  style="display: flex; align-items: baseline; justify-content: space-between; margin: 24px 20px 14px;"
+                >
+                  <h2
+                    style="margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.028em; color: #f5f5f7;"
+                  >
+                    {{ dayTitle }}
+                  </h2>
+                  <span
+                    style="font-size: 12.5px; letter-spacing: -0.005em; color: rgba(245, 245, 247, 0.36);"
+                    >{{ dayCount }}</span
+                  >
+                </div>
+                <div style="display:{{ dayD.d25 }};padding:0 16px">
+                  <div style="display: flex; gap: 13px">
+                    <div
+                      style="flex: none; width: 8px; display: flex; flex-direction: column; align-items: center; padding-top: 19px;"
+                    >
+                      <span
+                        style="width: 8px; height: 8px; border-radius: 5px; background: rgba(245, 245, 247, 0.28);"
+                      ></span>
+                      <span
+                        style="flex: 1; width: 1.5px; background: linear-gradient( 180deg, rgba(245, 245, 247, 0.16), rgba(245, 245, 247, 0.06) );"
+                      ></span>
+                    </div>
+                    <div style="flex: 1; min-width: 0; padding-bottom: 12px">
+                      <div style="display: flex; align-items: baseline; gap: 9px">
+                        <span
+                          style="font-size: 12.5px; font-weight: 700; letter-spacing: 0.02em; color: rgba(245, 245, 247, 0.42); font-variant-numeric: tabular-nums;"
+                          >08:00</span
+                        ><span
+                          style="font-size: 11px; letter-spacing: 0.08em; color: rgba(245, 245, 247, 0.28);"
+                          >CONCLUÍDO</span
+                        >
+                      </div>
+                      <div
+                        style="margin-top: 5px; font-size: 15px; font-weight: 600; letter-spacing: -0.018em; color: rgba(245, 245, 247, 0.6);"
+                      >
+                        Café da manhã no hotel
+                      </div>
+                      <div
+                        style="margin-top: 3px; font-size: 12.5px; letter-spacing: -0.005em; color: rgba(245, 245, 247, 0.3);"
+                      >
+                        Atlantis The Royal
+                      </div>
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 13px">
+                    <div
+                      style="flex: none; width: 8px; display: flex; flex-direction: column; align-items: center; padding-top: 19px;"
+                    >
+                      <span
+                        style="width: 8px; height: 8px; border-radius: 5px; background: rgba(245, 245, 247, 0.28);"
+                      ></span>
+                      <span
+                        style="flex: 1; width: 1.5px; background: linear-gradient( 180deg, rgba(245, 245, 247, 0.12), rgba(223, 201, 138, 0.4) );"
+                      ></span>
+                    </div>
+                    <div style="flex: 1; min-width: 0; padding-bottom: 12px">
+                      <div style="display: flex; align-items: baseline; gap: 9px">
+                        <span
+                          style="font-size: 12.5px; font-weight: 700; letter-spacing: 0.02em; color: rgba(245, 245, 247, 0.42); font-variant-numeric: tabular-nums;"
+                          >14:30</span
+                        ><span
+                          style="font-size: 11px; letter-spacing: 0.08em; color: rgba(245, 245, 247, 0.28);"
+                          >CONFIRMADO</span
+                        >
+                      </div>
+                      <div
+                        style="margin-top: 5px; font-size: 15px; font-weight: 600; letter-spacing: -0.018em; color: #f5f5f7;"
+                      >
+                        Traslado privativo
+                      </div>
+                      <div
+                        style="margin-top: 3px; font-size: 12.5px; letter-spacing: -0.005em; color: rgba(245, 245, 247, 0.38);"
+                      >
+                        Motorista Fly · placa DXB 4102
+                      </div>
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 13px">
+                    <div
+                      style="flex: none; width: 8px; display: flex; flex-direction: column; align-items: center; padding-top: 19px;"
+                    >
+                      <span
+                        style="position: relative; width: 8px; height: 8px; border-radius: 5px; background: #dfc98a; box-shadow: 0 0 12px rgba(223, 201, 138, 0.9);"
+                        ><span
+                          style="position: absolute; inset: -3px; border-radius: 8px; border: 1.5px solid rgba(223, 201, 138, 0.5); animation: flyPulse 2.6s ease-out infinite;"
+                        ></span
+                      ></span>
+                      <span
+                        style="flex: 1; width: 1.5px; background: linear-gradient( 180deg, rgba(223, 201, 138, 0.4), rgba(245, 245, 247, 0.1) );"
+                      ></span>
+                    </div>
+                    <div style="flex: 1; min-width: 0; padding-bottom: 12px">
+                      <div style="display: flex; align-items: baseline; gap: 9px">
+                        <span
+                          style="font-size: 12.5px; font-weight: 700; letter-spacing: 0.02em; color: #dfc98a; font-variant-numeric: tabular-nums;"
+                          >18:30</span
+                        ><span
+                          style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #dfc98a;"
+                          >EM 4H 12MIN</span
+                        >
+                      </div>
+                      <div
+                        style="margin-top: 8px; border-radius: 22px; overflow: hidden; background: linear-gradient( 180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.032) ); border: 1px solid rgba(223, 201, 138, 0.28); backdrop-filter: blur(20px) saturate(170%);"
+                      >
+                        <div style="display: flex; align-items: center; gap: 12px; padding: 12px">
+                          <span
+                            style="flex: none; width: 52px; height: 52px; border-radius: 16px; background-image: url(assets/opt-burj-khalifa-noite.jpg); background-size: cover; background-position: 52% 26%;"
+                          ></span>
+                          <span style="flex: 1; min-width: 0; display: block">
+                            <span
+                              style="display: block; font-size: 15px; font-weight: 600; letter-spacing: -0.018em; color: #f5f5f7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                              >At The Top · Burj Khalifa</span
+                            >
+                            <span
+                              style="display: block; margin-top: 3px; font-size: 12.5px; letter-spacing: -0.005em; color: rgba(245, 245, 247, 0.4);"
+                              >2h 30 · nível 148 · 2 ingressos</span
+                            >
+                          </span>
+                        </div>
+                        <div style="display: flex; gap: 1px; background: rgba(255, 255, 255, 0.08)">
+                          <button
+                            onClick="{{ noop }}"
+                            style="flex: 1; height: 42px; background: rgba(255, 255, 255, 0.03); border: 0; cursor: pointer; font-size: 13.5px; font-weight: 600; letter-spacing: -0.012em; color: #dfc98a; transition: background-color 0.2s;"
+                            style-hover="background-color:rgba(223,201,138,.1)"
+                          >
+                            Ingressos
+                          </button>
+                          <button
+                            onClick="{{ noop }}"
+                            style="flex: 1; height: 42px; background: rgba(255, 255, 255, 0.03); border: 0; cursor: pointer; font-size: 13.5px; font-weight: 600; letter-spacing: -0.012em; color: rgba(245, 245, 247, 0.7); transition: background-color 0.2s;"
+                            style-hover="background-color:rgba(255,255,255,.07)"
+                          >
+                            Rota
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 13px">
+                    <div
+                      style="flex: none; width: 8px; display: flex; flex-direction: column; align-items: center; padding-top: 19px;"
+                    >
+                      <span
+                        style="width: 8px; height: 8px; border-radius: 5px; background: rgba(245, 245, 247, 0.28);"
+                      ></span>
+                    </div>
+                    <div style="flex: 1; min-width: 0">
+                      <div style="display: flex; align-items: baseline; gap: 9px">
+                        <span
+                          style="font-size: 12.5px; font-weight: 700; letter-spacing: 0.02em; color: rgba(245, 245, 247, 0.42); font-variant-numeric: tabular-nums;"
+                          >21:00</span
+                        ><span
+                          style="font-size: 11px; letter-spacing: 0.08em; color: rgba(245, 245, 247, 0.28);"
+                          >RESERVA CONFIRMADA</span
+                        >
+                      </div>
+                      <div
+                        style="margin-top: 5px; font-size: 15px; font-weight: 600; letter-spacing: -0.018em; color: #f5f5f7;"
+                      >
+                        Jantar no CÉ LA VI
+                      </div>
+                      <div
+                        style="margin-top: 3px; font-size: 12.5px; letter-spacing: -0.005em; color: rgba(245, 245, 247, 0.38);"
+                      >
+                        Mesa 12 · terraço
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div style="display:{{ dayD.d27 }};padding:0 16px">
+                  <div style="display: flex; gap: 13px">
+                    <div
+                      style="flex: none; width: 8px; display: flex; flex-direction: column; align-items: center; padding-top: 19px;"
+                    >
+                      <span
+                        style="width: 8px; height: 8px; border-radius: 5px; background: rgba(245, 245, 247, 0.28);"
+                      ></span>
+                      <span
+                        style="flex: 1; width: 1.5px; background: linear-gradient( 180deg, rgba(245, 245, 247, 0.14), rgba(245, 245, 247, 0.1) );"
+                      ></span>
+                    </div>
+                    <div style="flex: 1; min-width: 0; padding-bottom: 12px">
+                      <div style="display: flex; align-items: baseline; gap: 9px">
+                        <span
+                          style="font-size: 12.5px; font-weight: 700; letter-spacing: 0.02em; color: rgba(245, 245, 247, 0.42); font-variant-numeric: tabular-nums;"
+                          >13:30</span
+                        ><span
+                          style="font-size: 11px; letter-spacing: 0.08em; color: rgba(245, 245, 247, 0.28);"
+                          >CONFIRMADO</span
+                        >
+                      </div>
+                      <div
+                        style="margin-top: 5px; font-size: 15px; font-weight: 600; letter-spacing: -0.018em; color: #f5f5f7;"
+                      >
+                        Traslado ao Burj Al Arab
+                      </div>
+                      <div
+                        style="margin-top: 3px; font-size: 12.5px; letter-spacing: -0.005em; color: rgba(245, 245, 247, 0.38);"
+                      >
+                        Motorista Fly
+                      </div>
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 13px">
+                    <div
+                      style="flex: none; width: 8px; display: flex; flex-direction: column; align-items: center; padding-top: 19px;"
+                    >
+                      <span
+                        style="width: 8px; height: 8px; border-radius: 5px; background: #dfc98a; box-shadow: 0 0 10px rgba(223, 201, 138, 0.8);"
+                      ></span>
+                      <span
+                        style="flex: 1; width: 1.5px; background: linear-gradient( 180deg, rgba(223, 201, 138, 0.34), rgba(245, 245, 247, 0.1) );"
+                      ></span>
+                    </div>
+                    <div style="flex: 1; min-width: 0; padding-bottom: 12px">
+                      <div style="display: flex; align-items: baseline; gap: 9px">
+                        <span
+                          style="font-size: 12.5px; font-weight: 700; letter-spacing: 0.02em; color: #dfc98a; font-variant-numeric: tabular-nums;"
+                          >15:00</span
+                        ><span
+                          style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: #dfc98a;"
+                          >EXCLUSIVO FLY</span
+                        >
+                      </div>
+                      <div
+                        style="margin-top: 8px; display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 22px; background: linear-gradient( 180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.032) ); border: 1px solid rgba(255, 255, 255, 0.085); backdrop-filter: blur(20px) saturate(170%);"
+                      >
+                        <span
+                          style="flex: none; width: 52px; height: 52px; border-radius: 16px; background-image: url(assets/opt-burj-al-arab-mar.jpg); background-size: cover; background-position: 46% 44%;"
+                        ></span>
+                        <span style="flex: 1; min-width: 0; display: block">
+                          <span
+                            style="display: block; font-size: 15px; font-weight: 600; letter-spacing: -0.018em; color: #f5f5f7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                            >Chá da Tarde no Burj Al Arab</span
+                          >
+                          <span
+                            style="display: block; margin-top: 3px; font-size: 12.5px; letter-spacing: -0.005em; color: rgba(245, 245, 247, 0.4);"
+                            >2h · Skyview Bar · dress code</span
+                          >
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 13px">
+                    <div
+                      style="flex: none; width: 8px; display: flex; flex-direction: column; align-items: center; padding-top: 19px;"
+                    >
+                      <span
+                        style="width: 8px; height: 8px; border-radius: 5px; background: rgba(245, 245, 247, 0.28);"
+                      ></span>
+                    </div>
+                    <div style="flex: 1; min-width: 0">
+                      <div style="display: flex; align-items: baseline; gap: 9px">
+                        <span
+                          style="font-size: 12.5px; font-weight: 700; letter-spacing: 0.02em; color: rgba(245, 245, 247, 0.42); font-variant-numeric: tabular-nums;"
+                          >19:00</span
+                        ><span
+                          style="font-size: 11px; letter-spacing: 0.08em; color: rgba(245, 245, 247, 0.28);"
+                          >TEMPO LIVRE</span
+                        >
+                      </div>
+                      <div
+                        style="margin-top: 5px; font-size: 15px; font-weight: 600; letter-spacing: -0.018em; color: #f5f5f7;"
+                      >
+                        Souk Madinat Jumeirah
+                      </div>
+                      <div
+                        style="margin-top: 3px; font-size: 12.5px; letter-spacing: -0.005em; color: rgba(245, 245, 247, 0.38);"
+                      >
+                        Sugestão da Fly · 10 min do hotel
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div style="display:{{ dayD.d29 }};padding:0 16px">
+                  <div style="display: flex; gap: 13px">
+                    <div
+                      style="flex: none; width: 8px; display: flex; flex-direction: column; align-items: center; padding-top: 19px;"
+                    >
+                      <span
+                        style="width: 8px; height: 8px; border-radius: 5px; background: #e9a23b; box-shadow: 0 0 10px rgba(233, 162, 59, 0.7);"
+                      ></span>
+                      <span
+                        style="flex: 1; width: 1.5px; background: linear-gradient( 180deg, rgba(233, 162, 59, 0.3), rgba(245, 245, 247, 0.1) );"
+                      ></span>
+                    </div>
+                    <div style="flex: 1; min-width: 0; padding-bottom: 12px">
+                      <div style="display: flex; align-items: baseline; gap: 9px">
+                        <span
+                          style="font-size: 12.5px; font-weight: 700; letter-spacing: 0.02em; color: rgba(233, 162, 59, 0.9); font-variant-numeric: tabular-nums;"
+                          >09:00</span
+                        ><span
+                          style="font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: rgba(233, 162, 59, 0.9);"
+                          >AGUARDANDO GUIA</span
+                        >
+                      </div>
+                      <div
+                        style="margin-top: 8px; display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 22px; background: rgba(233, 162, 59, 0.07); border: 1px solid rgba(233, 162, 59, 0.22);"
+                      >
+                        <span
+                          style="flex: none; width: 52px; height: 52px; border-radius: 16px; background-image: url(assets/opt-dubai-frame.jpg); background-size: cover; background-position: 50% 40%;"
+                        ></span>
+                        <span style="flex: 1; min-width: 0; display: block">
+                          <span
+                            style="display: block; font-size: 15px; font-weight: 600; letter-spacing: -0.018em; color: #f5f5f7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                            >Dubai Frame & Old Dubai</span
+                          >
+                          <span
+                            style="display: block; margin-top: 3px; font-size: 12.5px; letter-spacing: -0.005em; color: rgba(233, 162, 59, 0.72);"
+                            >Confirmamos o guia até 28 ago</span
+                          >
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 13px">
+                    <div
+                      style="flex: none; width: 8px; display: flex; flex-direction: column; align-items: center; padding-top: 19px;"
+                    >
+                      <span
+                        style="width: 8px; height: 8px; border-radius: 5px; background: rgba(245, 245, 247, 0.28);"
+                      ></span>
+                      <span
+                        style="flex: 1; width: 1.5px; background: rgba(245, 245, 247, 0.12)"
+                      ></span>
+                    </div>
+                    <div style="flex: 1; min-width: 0; padding-bottom: 12px">
+                      <div style="display: flex; align-items: baseline; gap: 9px">
+                        <span
+                          style="font-size: 12.5px; font-weight: 700; letter-spacing: 0.02em; color: rgba(245, 245, 247, 0.42); font-variant-numeric: tabular-nums;"
+                          >13:00</span
+                        ><span
+                          style="font-size: 11px; letter-spacing: 0.08em; color: rgba(245, 245, 247, 0.28);"
+                          >RESERVA CONFIRMADA</span
+                        >
+                      </div>
+                      <div
+                        style="margin-top: 5px; font-size: 15px; font-weight: 600; letter-spacing: -0.018em; color: #f5f5f7;"
+                      >
+                        Almoço no Al Fanar
+                      </div>
+                      <div
+                        style="margin-top: 3px; font-size: 12.5px; letter-spacing: -0.005em; color: rgba(245, 245, 247, 0.38);"
+                      >
+                        Cozinha emiradense
+                      </div>
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 13px">
+                    <div
+                      style="flex: none; width: 8px; display: flex; flex-direction: column; align-items: center; padding-top: 19px;"
+                    >
+                      <span
+                        style="width: 8px; height: 8px; border-radius: 5px; background: rgba(245, 245, 247, 0.28);"
+                      ></span>
+                    </div>
+                    <div style="flex: 1; min-width: 0">
+                      <div style="display: flex; align-items: baseline; gap: 9px">
+                        <span
+                          style="font-size: 12.5px; font-weight: 700; letter-spacing: 0.02em; color: rgba(245, 245, 247, 0.42); font-variant-numeric: tabular-nums;"
+                          >16:00</span
+                        ><span
+                          style="font-size: 11px; letter-spacing: 0.08em; color: rgba(245, 245, 247, 0.28);"
+                          >TEMPO LIVRE</span
+                        >
+                      </div>
+                      <div
+                        style="margin-top: 5px; font-size: 15px; font-weight: 600; letter-spacing: -0.018em; color: #f5f5f7;"
+                      >
+                        Dubai Mall
+                      </div>
+                      <div
+                        style="margin-top: 3px; font-size: 12.5px; letter-spacing: -0.005em; color: rgba(245, 245, 247, 0.38);"
+                      >
+                        Personal shopper Fly disponível
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="display:{{ dayD.livre }};margin:0 16px;padding:38px 26px;border-radius:30px;border:1px dashed rgba(255,255,255,.13);background:rgba(255,255,255,.02);text-align:center"
+                >
+                  <img
+                    src="assets/fly-wing-dim.png"
+                    alt=""
+                    style="height: 14px; width: auto; display: block; margin: 0 auto; opacity: 0.75"
+                  />
+                  <div
+                    style="margin-top: 17px; font-size: 15.5px; font-weight: 600; letter-spacing: -0.018em; color: rgba(245, 245, 247, 0.8);"
+                  >
+                    Dia livre
+                  </div>
+                  <div
+                    style="margin-top: 6px; font-size: 13px; line-height: 1.5; letter-spacing: -0.005em; color: rgba(245, 245, 247, 0.4); text-wrap: pretty;"
+                  >
+                    Sem compromissos marcados. Posso sugerir experiências perto do hotel.
+                  </div>
+                  <button
+                    onClick="{{ goPasseios }}"
+                    style="margin-top: 18px; height: 36px; padding: 0 18px; border-radius: 18px; background: rgba(223, 201, 138, 0.11); border: 1px solid rgba(223, 201, 138, 0.34); color: #dfc98a; font-size: 13px; font-weight: 600; letter-spacing: -0.01em; cursor: pointer; transition: transform 0.18s;"
+                    style-active="transform:scale(.96)"
+                  >
+                    Ver Passeios
+                  </button>
+                </div>
+                <div style="height: 14px"></div>
+              </div>
+              <div style="position: absolute; left: 20px; bottom: 104px; z-index: 55">
+                <sc-if value="{{ sos }}" hint-placeholder-val="{{ false }}">
+                  <div
+                    style="position: absolute; bottom: 62px; left: 0; width: 242px; padding: 7px; border-radius: 24px; background: rgba(22, 22, 26, 0.84); border: 1px solid rgba(255, 255, 255, 0.13); backdrop-filter: blur(34px) saturate(180%); box-shadow: 0 26px 52px -14px rgba(0, 0, 0, 0.92); animation: flyPop 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;"
+                  >
+                    <div style="padding: 9px 12px 10px">
+                      <div
+                        style="font-size: 9.5px; font-weight: 700; letter-spacing: 0.15em; color: #dfc98a;"
+                      >
+                        FLY ASSIST
+                      </div>
+                      <div
+                        style="margin-top: 4px; font-size: 12.5px; letter-spacing: -0.005em; color: rgba(245, 245, 247, 0.46);"
+                      >
+                        Concierge 24h em português
+                      </div>
+                    </div>
+                    <button
+                      onClick="{{ noop }}"
+                      style="width: 100%; display: flex; align-items: center; gap: 11px; padding: 11px 12px; border-radius: 17px; background: rgba(255, 255, 255, 0.06); border: 0; cursor: pointer; text-align: left; transition: background-color 0.2s;"
+                      style-hover="background-color:rgba(255,255,255,.11)"
+                    >
+                      <svg
+                        width="17"
+                        height="17"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#F5F5F7"
+                        stroke-width="1.7"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        style="flex: none"
+                      >
+                        <path
+                          d="M15.6 13.4l-1.9 1.9a13.6 13.6 0 0 1-5-5l1.9-1.9-2.7-4.6-2.7 1a2 2 0 0 0-1.1 2.2 18.8 18.8 0 0 0 14.9 11.9 2 2 0 0 0 2-1.2l1-2.6z"
+                        ></path>
+                      </svg>
+                      <span
+                        style="flex: 1; font-size: 13.5px; font-weight: 500; letter-spacing: -0.012em; color: #f5f5f7;"
+                        >Ligar para o concierge</span
+                      >
+                    </button>
+                    <button
+                      onClick="{{ noop }}"
+                      style="width: 100%; display: flex; align-items: center; gap: 11px; padding: 11px 12px; margin-top: 4px; border-radius: 17px; background: rgba(255, 255, 255, 0.06); border: 0; cursor: pointer; text-align: left; transition: background-color 0.2s;"
+                      style-hover="background-color:rgba(255,255,255,.11)"
+                    >
+                      <svg
+                        width="17"
+                        height="17"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#F5F5F7"
+                        stroke-width="1.7"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        style="flex: none"
+                      >
+                        <path
+                          d="M20.4 12.2a7.9 7.9 0 0 1-8.4 7.9 9 9 0 0 1-2.6-.4L4.6 21l1.4-4.2a7.6 7.6 0 0 1-1.4-4.6A7.9 7.9 0 0 1 12.4 4.3a7.9 7.9 0 0 1 8 7.9z"
+                        ></path>
+                      </svg>
+                      <span
+                        style="flex: 1; font-size: 13.5px; font-weight: 500; letter-spacing: -0.012em; color: #f5f5f7;"
+                        >Chat com a Fly</span
+                      >
+                    </button>
+                    <button
+                      onClick="{{ noop }}"
+                      style="width: 100%; display: flex; align-items: center; gap: 11px; padding: 11px 12px; margin-top: 4px; border-radius: 17px; background: rgba(233, 162, 59, 0.1); border: 0; cursor: pointer; text-align: left; transition: background-color 0.2s;"
+                      style-hover="background-color:rgba(233,162,59,.17)"
+                    >
+                      <svg
+                        width="17"
+                        height="17"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#E9A23B"
+                        stroke-width="1.7"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        style="flex: none"
+                      >
+                        <path d="M12 4.4l8.6 15.2H3.4z"></path>
+                        <path d="M12 9.9v4.2"></path>
+                        <path d="M12 16.9h.01"></path>
+                      </svg>
+                      <span
+                        style="flex: 1; font-size: 13.5px; font-weight: 600; letter-spacing: -0.012em; color: #e9a23b;"
+                        >Emergência · 999</span
+                      >
+                    </button>
+                  </div>
+                </sc-if>
+                <button
+                  onClick="{{ toggleSos }}"
+                  style="position: relative; width: 50px; height: 50px; border-radius: 25px; background: #f2f2f5; border: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.75), inset 0 -1px 2px rgba(0, 0, 0, 0.15); transition: transform 0.2s;"
+                  style-active="transform:scale(.9)"
+                >
+                  <span
+                    style="position: absolute; inset: 0; border-radius: 25px; border: 1.5px solid rgba(242, 242, 245, 0.5); animation: flyPulse 2.8s ease-out infinite; pointer-events: none;"
+                  ></span>
+                  <svg
+                    width="23"
+                    height="23"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#101013"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                  >
+                    <circle cx="12" cy="12" r="8.6"></circle>
+                    <circle cx="12" cy="12" r="3.4"></circle>
+                    <path d="M6 6l3.6 3.6"></path>
+                    <path d="M18 6l-3.6 3.6"></path>
+                    <path d="M18 18l-3.6-3.6"></path>
+                    <path d="M6 18l3.6-3.6"></path>
+                  </svg>
+                </button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ isCarteira }}" hint-placeholder-val="{{ false }}">
+              <div
+                

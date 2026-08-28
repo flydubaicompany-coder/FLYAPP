@@ -25,6 +25,62 @@ Functions — elas não são workspace do npm e ficavam fora do `typecheck`.
 
 ---
 
+## ⚠️ LEIA ISTO PRIMEIRO — por que o redesenho não ficou idêntico
+
+Atualizado em 28/08/2026, no fim de uma sessão longa. **Este bloco é o handoff.**
+
+### O erro, nomeado
+
+O handoff do Claude Design tem dois arquivos, e eles não valem a mesma coisa:
+
+| Arquivo                                    | O que é                                                                                                                     |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| `design_handoff_fly_app/README.md`         | Resumo **em prosa**. Descreve as medidas por escrito                                                                        |
+| `design_handoff_fly_app/Fly Phone.dc.html` | **A especificação.** 118 KB, **636 blocos de `style=`** com o valor exato de cada elemento, e os caminhos SVG de cada ícone |
+
+**Construí a tab bar, os flutuantes e a Início a partir do README.** Nunca abri
+o HTML. O resultado tem as medidas certas e a estrutura errada — e ícones que
+não são os do design, porque reaproveitei os antigos do projeto.
+
+Exemplo medido: o ícone de Passeios do design é `<circle r="8.5">` mais o
+ponteiro `M15.4 8.6l-2.1 4.7-4.7 2.1 2.1-4.7z`. O do app é outro desenho. A asa
+do botão central é `fly-wing-gold.png`, não a branca tingida de dourado.
+
+O `ESTADO.md` já avisava disso em 27/08: _"Antes de mexer em tela, leia o
+canvas. Não implemente de memória nem do print."_ Repeti o erro que o próprio
+projeto tinha documentado.
+
+### O que fazer na sessão nova
+
+**1. A verdade está extraída, tela por tela, em `docs/design/extracao/`.**
+Oito arquivos, um por tela, sem base64 e com os estilos legíveis:
+
+```
+01-home.html  02-passeios.html  03-meus-passeios.html  04-minha-viagem.html
+05-carteira.html  06-perfil.html  08-meus-passeios-sheet.html
+```
+
+Abra o da tela que for construir e **copie os valores de lá**. O README serve
+para entender a intenção; o HTML é o que manda.
+
+**2. Compare lado a lado, não de memória.** O protótipo roda: sirva
+`design_handoff_fly_app/` por HTTP e abra `Fly Phone.dc.html` a 393×852 ao lado
+do app no mesmo tamanho. Sem isso, "parecido" é opinião.
+
+**3. Capture no Simulador, não no navegador.** A plataforma é iOS (registrado
+em `apps/fly-mobile/PRODUCT.md`). Toda a verificação desta sessão foi feita na
+web do Expo, que esconde diferença de fonte, de blur e de sombra.
+
+**4. Um componente por vez, não uma tela por vez.** Ícones, chips, cards e
+badges se repetem entre as telas. Acertar o átomo conserta cinco telas.
+
+### O que já está certo e não precisa refazer
+
+Infraestrutura, dados e as decisões de produto. O que precisa de revisão contra
+o HTML é **só o visual** de: tab bar, flutuantes, banner e blocos da Início.
+
+---
+
 ## Infraestrutura — trocada em 27/08/2026, e é a atual
 
 O Fly App saiu de uma infraestrutura compartilhada para uma dedicada. Nada de
