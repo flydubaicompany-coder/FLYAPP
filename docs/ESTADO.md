@@ -37,9 +37,15 @@ funcionalidade mudou; o código foi transplantado inteiro. Detalhe e motivo em
 | Supabase             | `ptmifjnfskwipjjxauns`, ca-central-1, Postgres 17.6.1.166 |
 | Organização Supabase | `hwvwzmukubznorgbkkwn` — Supabase nativa, **não** Vercel  |
 | Conta                | `flydubaicompany@gmail.com`                               |
-| Vercel               | **não definida** — nenhum projeto existe                  |
+| Vercel               | time **`app fly`** — 3 projetos no ar (abaixo)            |
 | Expo / EAS           | **não vinculado** — sem `owner`, sem `eas.json`           |
 | Cloudinary           | **não existe** — nenhuma referência no monorepo           |
+
+| Aplicação | URL                                  |
+| --------- | ------------------------------------ |
+| Fly Ops   | `https://flyapp-fly-ops.vercel.app`  |
+| Fly App   | `https://flyapp-cliente.vercel.app`  |
+| Fly Crew  | `https://flyapp-fly-crew.vercel.app` |
 
 **O projeto antigo (`ewgbseesocekvhiiscnb`) não foi tocado** e continua no ar
 servindo o site IMMORTALS FLY. A P39 está fechada — não por alteração naquele
@@ -255,21 +261,11 @@ No painel do projeto `ptmifjnfskwipjjxauns`:
 
 Depois disso o Fly Ops abre, e dele saem os convites para todo o resto.
 
-### 2. Definir `FLY_PAYMENTS_WEBHOOK_SECRET`
+### 2. ~~Definir `FLY_PAYMENTS_WEBHOOK_SECRET`~~ — feito em 28/08/2026
 
-As quatro Edge Functions já estão publicadas e ACTIVE no projeto novo, mas o
-webhook responde `503` de propósito: sem segredo não há como distinguir evento
-do provedor de evento forjado. Um comando, na raiz do repositório:
-
-```
-./node_modules/.bin/supabase secrets set \
-  FLY_PAYMENTS_WEBHOOK_SECRET="$(openssl rand -hex 32)"
-```
-
-O projeto já está vinculado (`supabase link` feito), então não precisa de
-`--project-ref`. Depois disso, ligar `payments.checkout` e pôr
-`payments.provider` em `"sandbox"` fecha o critério "pagamento sandbox gera um
-pedido". **A flag nasce desligada de propósito.**
+O segredo está no projeto. Falta só, quando quiser exercitar o checkout:
+ligar a flag `payments.checkout` e pôr `app_config['payments.provider']` em
+`"sandbox"`. **A flag nasce desligada de propósito.**
 
 ### 3. Subir as cinco fotos
 
@@ -281,16 +277,15 @@ Antes disso é preciso recriar o catálogo de passeios: os 7 passeios e 40
 horários do projeto antigo eram dados de teste criados pelo painel, não vêm de
 seed nem de migration. Fly Ops → Catálogo.
 
-### 4. Decidir Vercel, Expo/EAS e Cloudinary
+### 4. Decidir Expo/EAS e Cloudinary
 
-Nenhum dos três tinha vínculo com o Fly App nem antes da troca — não são
-regressão, são lacunas antigas que ficaram visíveis.
+A Vercel foi resolvida em 28/08/2026. Os dois abaixo continuam sem vínculo —
+e nunca tiveram, nem antes da troca.
 
-| O quê      | O que falta                                                                                                                                                     |
-| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Vercel     | Qual conta. A antiga está ligada a **outra** conta GitHub e não enxerga o `FLYAPP`. Passo a passo em [operations/DEPLOY_VERCEL.md](operations/DEPLOY_VERCEL.md) |
-| Expo / EAS | Qual conta. Hoje não há `owner`, `projectId` nem `eas.json`. Sem isso não existe build nativo                                                                   |
-| Cloudinary | Qual conta e qual responsabilidade. Recomendação registrada: catálogo e vitrine no Cloudinary; **passaporte e cofre continuam no Storage privado**              |
+| O quê      | O que falta                                                                                                                                        |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Expo / EAS | Qual conta. Hoje não há `owner`, `projectId` nem `eas.json`. Sem isso não existe build nativo                                                      |
+| Cloudinary | Qual conta e qual responsabilidade. Recomendação registrada: catálogo e vitrine no Cloudinary; **passaporte e cofre continuam no Storage privado** |
 
 ### 5. Leaked Password Protection
 
@@ -405,6 +400,18 @@ decision log. O resumo:
 - **`npx skills add` e `npx impeccable install` põem código de terceiro em
   `.claude/skills`, `.agents`, `.codex` e `.github`.** O ESLint passou a acusar
   8.052 problemas até esses caminhos entrarem no ignore.
+- **O Metro não popula `process.env` — ele substitui no código.** Passar
+  `process.env` inteiro para uma função que indexa por chave montada em tempo
+  de execução funciona no servidor de desenvolvimento e **falha no bundle de
+  produção**, onde nada é inlinado e o app sobe sem ambiente. Leia cada
+  `EXPO_PUBLIC_*` por referência estática. No Vite não acontece:
+  `import.meta.env` é objeto de verdade. Custou o primeiro deploy da web.
+- **Root Directory da Vercel fica VAZIO** nos três projetos. Apontar para
+  `apps/<app>` faz o `npm install` rodar sem enxergar `packages/`, e o build
+  morre com `Cannot find module '@fly/design-tokens'` — os packages são
+  TypeScript cru. Quem separa os projetos é o Build Command e o Output
+  Directory. E sem `vercel.json` com rewrite na raiz, **toda rota interna dá
+  404**.
 - **`config.toml` precisa declarar `verify_jwt` de TODA Edge Function.** O que
   não está lá sobe com JWT obrigatório no deploy pela CLI. `aceitar-convite`
   roda sem JWT por decisão (D30) e não estava declarada — a ativação de convite
