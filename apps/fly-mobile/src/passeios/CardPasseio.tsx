@@ -92,54 +92,57 @@ export function CardPasseio({ passeio, aoAdicionar }: CardPasseioProps) {
         <Pressable
           accessibilityRole="link"
           accessibilityLabel={rotulo}
-          style={({ pressed }) => [styles.card, pressed && styles.pressionado]}
           testID={`passeio-${passeio.slug}`}
         >
-          <Image
-            source={{ uri: foto }}
-            style={StyleSheet.absoluteFill}
-            contentFit="cover"
-            transition={220}
-          />
+          {({ pressed }) => (
+            <View style={[styles.card, pressed && styles.pressionado]}>
+              <Image
+                source={{ uri: foto }}
+                style={StyleSheet.absoluteFill}
+                contentFit="cover"
+                transition={220}
+              />
 
-          {/* Degradê em quatro paradas, como o canvas: escurece o topo o
-              bastante para o selo, some no meio e fecha embaixo no texto. */}
-          <View style={styles.veu} pointerEvents="none">
-            <View style={[styles.veuFaixa, styles.veuTopo]} />
-            <View style={[styles.veuFaixa, styles.veuBaixo]} />
-          </View>
+              {/* Degradê em quatro paradas, como o canvas: escurece o topo o
+                  bastante para o selo, some no meio e fecha embaixo no texto. */}
+              <View style={styles.veu} pointerEvents="none">
+                <View style={[styles.veuFaixa, styles.veuTopo]} />
+                <View style={[styles.veuFaixa, styles.veuBaixo]} />
+              </View>
 
-          {selo ? (
-            <View style={styles.selo}>
-              <Image source={wing} style={styles.asa} contentFit="contain" />
-              <Text variant="caption" tone="gold" style={styles.seloTexto}>
-                {selo}
-              </Text>
-            </View>
-          ) : null}
-
-          <View style={styles.rodape}>
-            <Text variant="section" style={styles.titulo} numberOfLines={2}>
-              {passeio.titulo}
-            </Text>
-            <View style={styles.linha}>
-              {tempo ? (
-                <View style={styles.tempo}>
-                  <Relogio />
-                  <Text variant="body" style={styles.tempoTexto}>
-                    {tempo}
+              {selo ? (
+                <View style={styles.selo}>
+                  <Image source={wing} style={styles.asa} contentFit="contain" />
+                  <Text variant="caption" tone="gold" style={styles.seloTexto}>
+                    {selo}
                   </Text>
                 </View>
-              ) : (
-                <View />
-              )}
-              {preco ? (
-                <Text variant="body" style={styles.preco}>
-                  {preco}
-                </Text>
               ) : null}
+
+              <View style={styles.rodape}>
+                <Text variant="section" style={styles.titulo} numberOfLines={2}>
+                  {passeio.titulo}
+                </Text>
+                <View style={styles.linha}>
+                  {tempo ? (
+                    <View style={styles.tempo}>
+                      <Relogio />
+                      <Text variant="body" style={styles.tempoTexto}>
+                        {tempo}
+                      </Text>
+                    </View>
+                  ) : (
+                    <View />
+                  )}
+                  {preco ? (
+                    <Text variant="body" style={styles.preco}>
+                      {preco}
+                    </Text>
+                  ) : null}
+                </View>
+              </View>
             </View>
-          </View>
+          )}
         </Pressable>
       </Link>
 
@@ -178,28 +181,31 @@ function CardSemFoto({
       <Pressable
         accessibilityRole="link"
         accessibilityLabel={rotulo}
-        style={({ pressed }) => [styles.compacto, pressed && styles.pressionado]}
         testID={`passeio-${passeio.slug}`}
       >
-        {passeio.selo ? (
-          <Text variant="caption" tone="gold">
-            {ROTULO_SELO[passeio.selo] ?? passeio.selo}
-          </Text>
-        ) : null}
-        <Text variant="section" numberOfLines={2}>
-          {passeio.titulo}
-        </Text>
-        {passeio.resumo ? (
-          <Text variant="body" tone="muted" numberOfLines={2}>
-            {passeio.resumo}
-          </Text>
-        ) : null}
-        <View style={styles.linha}>
-          <Text variant="body" tone="faint">
-            {[tempo, passeio.cidade].filter(Boolean).join(' · ')}
-          </Text>
-          {preco ? <Text variant="body">{preco}</Text> : null}
-        </View>
+        {({ pressed }) => (
+          <View style={[styles.compacto, pressed && styles.pressionado]}>
+            {passeio.selo ? (
+              <Text variant="caption" tone="gold">
+                {ROTULO_SELO[passeio.selo] ?? passeio.selo}
+              </Text>
+            ) : null}
+            <Text variant="section" numberOfLines={2}>
+              {passeio.titulo}
+            </Text>
+            {passeio.resumo ? (
+              <Text variant="body" tone="muted" numberOfLines={2}>
+                {passeio.resumo}
+              </Text>
+            ) : null}
+            <View style={styles.linha}>
+              <Text variant="body" tone="faint">
+                {[tempo, passeio.cidade].filter(Boolean).join(' · ')}
+              </Text>
+              {preco ? <Text variant="body">{preco}</Text> : null}
+            </View>
+          </View>
+        )}
       </Pressable>
     </Link>
   );
