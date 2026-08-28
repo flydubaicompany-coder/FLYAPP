@@ -41,14 +41,19 @@ describe('prioridade do operacional (§5.4)', () => {
   // cabecalho, nao secao de conteudo: o que a §5.4 protege e que o
   // **operacional** venha antes de qualquer outra coisa, e isso continua
   // valendo — o teste passou a afirmar exatamente isso, em vez do indice zero.
-  it('durante a viagem, a proxima acao e o primeiro bloco de conteudo', () => {
-    const chaves = sectionKindsFor('during_trip').filter((k) => k !== 'greeting');
-    expect(chaves[0]).toBe('nextAction');
+  // Em 28/08/2026 o dono pediu "banner sempre topo", seguindo o handoff. A
+  // saudacao e o banner passam a vir antes do operacional. O que a §5.4
+  // protege continua valendo e continua testado logo abaixo: o operacional vem
+  // antes de qualquer **promocao**, e o alerta critico vem antes do resto do
+  // conteudo operacional.
+  it('durante a viagem, so a saudacao e o banner vem antes da proxima acao', () => {
+    const chaves = sectionKindsFor('during_trip');
+    expect(chaves.slice(0, chaves.indexOf('nextAction'))).toEqual(['greeting', 'events']);
   });
 
-  it('durante a viagem, so a saudacao pode vir antes da proxima acao', () => {
-    const chaves = sectionKindsFor('during_trip');
-    expect(chaves.slice(0, chaves.indexOf('nextAction'))).toEqual(['greeting']);
+  it('durante a viagem, a proxima acao abre o operacional', () => {
+    const chaves = sectionKindsFor('during_trip').filter((k) => k !== 'greeting' && k !== 'events');
+    expect(chaves[0]).toBe('nextAction');
   });
 
   it('durante a viagem, alerta critico vem antes de qualquer promocao', () => {
@@ -82,9 +87,14 @@ describe('prioridade do operacional (§5.4)', () => {
     expect(sectionKindsFor('pre_trip')).not.toContain('trendingTours');
   });
 
-  it('durante a viagem, Acontece na Fly fica abaixo do roteiro do dia', () => {
-    const chaves = sectionKindsFor('during_trip');
-    expect(chaves.indexOf('todayTimeline')).toBeLessThan(chaves.indexOf('events'));
+  // ~~'Acontece na Fly fica abaixo do roteiro do dia'~~ — a §5.4 mandava isso
+  // e o dono reverteu em 28/08/2026: o banner vai para o topo, em todos os
+  // estados. O teste foi trocado por este, que afirma a regra nova.
+  it('o banner de eventos vem logo depois da saudacao, em todos os estados', () => {
+    for (const estado of ['no_trip', 'pre_trip', 'during_trip', 'post_trip'] as const) {
+      const chaves = sectionKindsFor(estado);
+      expect(chaves.indexOf('events')).toBe(chaves.indexOf('greeting') + 1);
+    }
   });
 });
 

@@ -56,9 +56,9 @@ function s(kind: SectionKind, order: number, operational = false): Section {
  */
 const SEM_VIAGEM: readonly Section[] = [
   s('greeting', 10),
+  s('events', 15),
   s('statusPoints', 20),
   s('nextAction', 30),
-  s('events', 40),
   s('benefits', 50),
   s('trendingTours', 60),
   s('gallery', 70),
@@ -73,19 +73,23 @@ const SEM_VIAGEM: readonly Section[] = [
  */
 const PRE_VIAGEM: readonly Section[] = [
   s('greeting', 10),
+  s('events', 15),
   s('countdown', 20, true),
   s('checklist', 30, true),
   s('nextAction', 40, true),
   s('criticalAlerts', 50, true),
   s('talks', 60),
-  s('events', 70),
   s('support', 80, true),
 ];
 
 /**
  * §5.4 — durante a viagem.
- * "Agora na sua jornada" no topo, alertas críticos logo abaixo, e "Acontece na
- * Fly em espaço menor". Esta é a tela que alguém abre andando na rua.
+ * "Agora na sua jornada" no topo, alertas críticos logo abaixo.
+ *
+ * **Divergência da §5.4, decidida pelo dono em 28/08/2026:** a §5.4 mandava
+ * "Acontece na Fly em espaço menor" durante a viagem, e por isso os eventos
+ * ficavam no fim. O handoff põe o banner logo abaixo da saudação, e o dono
+ * pediu "banner sempre topo" — em todos os estados. Ver D114.
  */
 const DURANTE: readonly Section[] = [
   // A §5.4 nao listava saudacao aqui — ela abria direto no operacional. O
@@ -93,13 +97,13 @@ const DURANTE: readonly Section[] = [
   // durante a viagem, e elas nao competem com nada: sao cabecalho, e o
   // "Agora na sua jornada" continua sendo o primeiro bloco de conteudo.
   s('greeting', 5),
+  s('events', 7),
   s('nextAction', 10, true),
   s('criticalAlerts', 20, true),
   s('todayTimeline', 30, true),
   s('chapterProgress', 40),
   s('memory', 50),
   s('trendingTours', 60),
-  s('events', 70),
   s('support', 80, true),
 ];
 
@@ -109,13 +113,13 @@ const DURANTE: readonly Section[] = [
  */
 const POS_VIAGEM: readonly Section[] = [
   s('greeting', 10),
+  s('events', 15),
   s('recap', 20),
   s('gallery', 30),
   s('statusPoints', 40),
   s('feedback', 50),
   s('trendingTours', 60),
   s('referral', 70),
-  s('events', 80),
 ];
 
 const POR_ESTADO: Record<HomeState, readonly Section[]> = {

@@ -17,7 +17,14 @@ import { useSession } from '@/auth/session';
 import { useHome, useUnreadCount, type HomeContext, type HomeEvent } from '@/home/useHome';
 import { EventCard } from '@/home/EventCard';
 import { EventBanner } from '@/home/EventBanner';
-import { HomeHeader, NextActionCard, PackagePointsBand } from '@/home/HomeBlocks';
+import {
+  DayTimeline,
+  HomeHeader,
+  NextActionCard,
+  PackagePointsBand,
+  PendingAlert,
+} from '@/home/HomeBlocks';
+import { useHoje } from '@/home/useHoje';
 import Svg, { Path } from 'react-native-svg';
 import {
   countdownLabel,
@@ -75,6 +82,11 @@ function GlifoEnvio() {
       />
     </Svg>
   );
+}
+
+/** "18:30" no fuso do aparelho. O roteiro completo mostra o fuso do destino. */
+function horaCurta(iso: string): string {
+  return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 }
 
 function ProximaAcao({ contexto }: { contexto: HomeContext }) {
@@ -190,6 +202,7 @@ export default function HomeScreen() {
   const { state: sessao } = useSession();
   const { data, reload } = useHome();
   const naoLidas = useUnreadCount();
+  const hoje = useHoje(data.kind === 'ready' ? data.context.tripId : null);
   const analytics = useAnalytics();
 
   // Só conta como Home vista quando ela de fato montou com dados. Registrar
@@ -287,37 +300,51 @@ export default function HomeScreen() {
           />
         );
 
-      case 'criticalAlerts':
+      case 'criticalAlerts': {
+        if (hoje.kind !== 'ready' || hoje.alertas.length === 0) return null;
+        const a = hoje.alertas[0]!;
         return (
-          <SecaoPendente
+          <PendingAlert
             key={kind}
-            titulo="Alertas"
-            fase={4}
-            resumo="Mudança de roteiro, ponto de encontro e horário aparecem aqui, acima de qualquer promoção."
-            itens={[
-              'Alteração de roteiro com confirmação de leitura',
-              'Ponto de encontro',
-              'Voo e transfer',
-            ]}
-            ref_="§5.4"
+            titulo={`${a.titulo} mudou de horário`}
+            apoio={a.notaDaAlteracao ?? 'Confira o roteiro e confirme que você viu.'}
+            onPress={() => router.push('/viagem/roteiro')}
           />
         );
+      }
 
-      case 'todayTimeline':
+      case 'todayTimeline': {
+        if (hoje.kind !== 'ready' || hoje.itens.length === 0) return null;
+        // O "ativo" e o proximo compromisso ainda por vir — e a bolinha dourada
+        // do design. Passado nao pulsa.
+        const agora = Date.now();
+        const proximo = hoje.itens.find((i) => i.comecaEm && Date.parse(i.comecaEm) >= agora);
+
         return (
-          <SecaoPendente
-            key={kind}
-            titulo="Seu dia"
-            fase={4}
-            resumo="Linha do tempo resumida do dia, com o que vem a seguir."
-            itens={[
-              'Compromissos do dia',
-              'Ponto de encontro e rota',
-              'Estou pronto e estou atrasado',
-            ]}
-            ref_="§7.3"
-          />
+          <View key={kind} style={styles.secao}>
+            <View style={styles.secaoTopo}>
+              <Kicker>Seu dia</Kicker>
+              <Link href="/viagem/roteiro" asChild>
+                <Pressable accessibilityRole="link" accessibilityLabel="Ver o roteiro completo">
+                  <Text variant="body" tone="gold">
+                    Ver tudo
+                  </Text>
+                </Pressable>
+              </Link>
+            </View>
+            <DayTimeline
+              itens={hoje.itens.map((i) => ({
+                id: i.id,
+                titulo: i.titulo,
+                hora: i.comecaEm ? horaCurta(i.comecaEm) : null,
+                local: i.pontoDeEncontro,
+                ativo: proximo?.id === i.id,
+                pendente: i.alteradaEm !== null,
+              }))}
+            />
+          </View>
         );
+      }
 
       case 'support':
         return (

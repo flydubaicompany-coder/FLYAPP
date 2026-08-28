@@ -384,6 +384,30 @@ const styles = StyleSheet.create({
   faixaKicker: { fontSize: 9, fontWeight: '700', letterSpacing: 1.35 },
   faixaValor: { fontSize: 19, fontWeight: '700', letterSpacing: -0.57 },
   faixaNota: { fontSize: 11.5 },
+  timeline: { marginTop: 12, marginHorizontal: 16, gap: 0 },
+  linhaItem: { flexDirection: 'row', gap: 13 },
+  rail: { width: 8, alignItems: 'center' },
+  bolinha: {
+    width: 8,
+    height: 8,
+    borderRadius: 5,
+    marginTop: 5,
+    backgroundColor: 'rgba(245,245,247,.28)',
+  },
+  bolinhaAtiva: {
+    backgroundColor: '#DFC98A',
+    shadowColor: 'rgba(223,201,138,.9)',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 12,
+  },
+  bolinhaPendente: { backgroundColor: '#E9A23B' },
+  fioTimeline: { flex: 1, width: 1.5, backgroundColor: 'rgba(245,245,247,.12)', marginVertical: 4 },
+  itemTexto: { flex: 1, minWidth: 0, paddingBottom: 18, gap: 1 },
+  hora: { fontSize: 12.5, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  itemTitulo: { fontSize: 15, fontWeight: '600', letterSpacing: -0.27 },
+  itemLocal: { fontSize: 12.5 },
+
   trilho: {
     height: 3,
     borderRadius: 2,
@@ -400,3 +424,63 @@ const styles = StyleSheet.create({
     shadowRadius: 9,
   },
 });
+
+// -----------------------------------------------------------------------------
+// 5. Linha do tempo do dia
+// -----------------------------------------------------------------------------
+
+export interface ItemTimeline {
+  id: string;
+  titulo: string;
+  hora: string | null;
+  local: string | null;
+  ativo: boolean;
+  pendente: boolean;
+}
+
+/**
+ * A timeline do handoff (secao 5, item 4): um rail de 8 px com bolinha e fio,
+ * e o conteudo a direita.
+ *
+ * Bolinha padrao apagada; o **proximo item** e dourado com brilho; item
+ * pendente e ambar. Sao os tres estados que o design desenha, e o dourado da
+ * bolinha ativa e o mesmo "progresso" que a regra ja permitia.
+ */
+export function DayTimeline({ itens }: { itens: readonly ItemTimeline[] }) {
+  if (itens.length === 0) return null;
+
+  return (
+    <View style={styles.timeline}>
+      {itens.map((it, n) => (
+        <View key={it.id} style={styles.linhaItem}>
+          <View style={styles.rail}>
+            <View
+              style={[
+                styles.bolinha,
+                it.ativo && styles.bolinhaAtiva,
+                it.pendente && styles.bolinhaPendente,
+              ]}
+            />
+            {n < itens.length - 1 ? <View style={styles.fioTimeline} /> : null}
+          </View>
+
+          <View style={styles.itemTexto}>
+            {it.hora ? (
+              <Text variant="body" tone="muted" style={styles.hora}>
+                {it.hora}
+              </Text>
+            ) : null}
+            <Text variant="body" numberOfLines={2} style={styles.itemTitulo}>
+              {it.titulo}
+            </Text>
+            {it.local ? (
+              <Text variant="body" tone="faint" numberOfLines={1} style={styles.itemLocal}>
+                {it.local}
+              </Text>
+            ) : null}
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
