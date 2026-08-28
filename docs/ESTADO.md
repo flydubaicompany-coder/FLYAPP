@@ -191,10 +191,31 @@ marcador e leia o que sobra.
 | Busca               | campo de 44 px com lupa                                    | `TextInput` solto                 |
 | Seção               | título + "Ver tudo" dourado                                | só título                         |
 
-**Já feito:** a tela Passeios (`(tabs)/passeios.tsx`), o `CardPasseio.tsx` e o
-`useMeusPasseios.ts`.
+**Já feito:** Passeios, Início, Minha Viagem, Meus Passeios (folha e página)
+e **Perfil** — as seis telas cujas fases estão entregues.
 
-**Falta:** Início, Meus Passeios, Carteira e Perfil.
+**Falta só a Carteira, e ela está bloqueada de propósito.** A Carteira é a
+**Fase 6, que não foi iniciada**. Redesenhá-la exigiria inventar saldo, pontos
+e nível — exatamente o que a §33 proíbe. Ela continua com a casca honesta até
+o dono abrir a fase.
+
+#### O Perfil não copiou o design inteiro, e isso foi decidido
+
+Três coisas do `06-perfil.html` ficaram de fora, cada uma registrada:
+
+- **A faixa "FLY STATUS"** (barra Standard → Black → Billionaire, "faltam
+  8.400 pontos") — mistura pacote com nível de pontos, que a D95 separou, e
+  depende da Fase 6. Não há coluna de pacote nem de pontos no banco. **D115.**
+- **O interruptor de Notificações** — as preferências são por categoria e um
+  gatilho no banco proíbe desligar as críticas (§26). Um liga/desliga único
+  falharia calado. Virou linha para `/notificacoes`. **D116.**
+- **O "24h" do Fly Assist** — promessa de nível de serviço, que a §33 proíbe
+  inventar. **D117.**
+
+E o contrário também: o design tem sete linhas, o app tem catorze rotas reais.
+**As catorze ficaram** — copiar a contagem apagaria consentimento, ranking,
+acompanhantes e o ambiente interno. O que foi adotado é a linguagem visual.
+**D114.**
 
 ### O que trava a aparência agora
 
