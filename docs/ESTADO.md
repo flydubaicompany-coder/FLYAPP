@@ -267,15 +267,15 @@ O segredo está no projeto. Falta só, quando quiser exercitar o checkout:
 ligar a flag `payments.checkout` e pôr `app_config['payments.provider']` em
 `"sandbox"`. **A flag nasce desligada de propósito.**
 
-### 3. Subir as cinco fotos
+### 3. ~~Subir as cinco fotos~~ — feito em 28/08/2026
 
-Pelo Fly Ops → Catálogo → Mídia, **depois do item 1**. Sem elas o card de
-passeio cai no formato compacto, que é a cara que o dono reprovou. Arquivos e
-pareamento na seção do redesenho, acima.
+As cinco fotos estao no bucket `passeios` e o catalogo de demonstracao esta
+publicado: 5 passeios, 140 horarios, vitrine com Trend e A Fly recomenda. O
+preco foi decidido pelo dono (199 no Burj Khalifa, 250 nos outros); o resto e
+placeholder marcado. Ver D104 e a P41.
 
-Antes disso é preciso recriar o catálogo de passeios: os 7 passeios e 40
-horários do projeto antigo eram dados de teste criados pelo painel, não vêm de
-seed nem de migration. Fly Ops → Catálogo.
+**Isso destravou um bug que estava escondido** — ver D103 e a armadilha do
+`Link asChild`, abaixo.
 
 ### 4. Decidir Expo/EAS e Cloudinary
 
@@ -400,6 +400,12 @@ decision log. O resumo:
 - **`npx skills add` e `npx impeccable install` põem código de terceiro em
   `.claude/skills`, `.agents`, `.codex` e `.github`.** O ESLint passou a acusar
   8.052 problemas até esses caminhos entrarem no ignore.
+- **`<Link asChild>` do expo-router nao repassa o `style` do `Pressable`.** O
+  elemento do link recebe `css-view`, `r-cursor` e `r-touchAction` e mais nada:
+  some altura, raio, fundo e borda. Com altura fixa, o card colapsa para zero e
+  a tela vira pilha de texto sobreposto. Ponha o estilo num `View` interno, via
+  funcao-filho `{({ pressed }) => ...}`. Ficou escondido meses porque sem foto
+  o codigo caia noutro componente.
 - **O Metro não popula `process.env` — ele substitui no código.** Passar
   `process.env` inteiro para uma função que indexa por chave montada em tempo
   de execução funciona no servidor de desenvolvimento e **falha no bundle de
