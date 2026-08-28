@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { palette, radius, space, touchTarget } from '@/theme';
 import {
@@ -17,6 +17,8 @@ import { useSession } from '@/auth/session';
 import { useHome, useUnreadCount, type HomeContext, type HomeEvent } from '@/home/useHome';
 import { EventCard } from '@/home/EventCard';
 import { EventBanner } from '@/home/EventBanner';
+import { HomeHeader, NextActionCard, PackagePointsBand } from '@/home/HomeBlocks';
+import Svg, { Path } from 'react-native-svg';
 import {
   countdownLabel,
   dayLabel,
@@ -40,25 +42,6 @@ import { useAnalytics } from '@/analytics/provider';
  * — operacional antes de promoção — está escrita e testada.
  */
 
-function Sino({ naoLidas }: { naoLidas: number }) {
-  return (
-    <Link href="/notificacoes" asChild>
-      <Pressable
-        accessibilityRole="link"
-        accessibilityLabel={naoLidas > 0 ? `Notificações, ${naoLidas} não lidas` : 'Notificações'}
-        style={styles.sino}
-        testID="home-sino"
-      >
-        <Text variant="section" tone={naoLidas > 0 ? 'gold' : 'faint'}>
-          ◎
-        </Text>
-        {naoLidas > 0 ? <View style={styles.sinoPonto} /> : null}
-      </Pressable>
-    </Link>
-  );
-}
-
-/** Cabeçalho de seção que ainda não tem conteúdo próprio nesta fase. */
 function SecaoPendente({
   titulo,
   fase,
@@ -80,52 +63,55 @@ function SecaoPendente({
   );
 }
 
+/** Glifo de envio do quadrado dourado, 19 px, como o design. */
+function GlifoEnvio() {
+  return (
+    <Svg width={19} height={19} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M21 3 10.5 13.5M21 3l-6.8 18-3.7-7.5L3 9.8 21 3Z"
+        stroke={palette.gold}
+        strokeWidth={1.7}
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 function ProximaAcao({ contexto }: { contexto: HomeContext }) {
   if (contexto.state === 'no_trip') {
     return (
-      <Card>
-        <View style={styles.bloco}>
-          <Kicker>Próxima experiência</Kicker>
-          <Text variant="section">Sua próxima viagem começa aqui</Text>
-          <Text variant="body" tone="muted">
-            Quando a Fly montar sua viagem, ela aparece neste espaço com tudo o que você precisa
-            saber.
-          </Text>
-        </View>
-      </Card>
+      <NextActionCard
+        kicker="PRÓXIMA EXPERIÊNCIA"
+        titulo="Sua próxima viagem começa aqui"
+        apoio="Quando a Fly montar sua viagem, ela aparece neste espaço com tudo o que você precisa saber."
+        icone={<GlifoEnvio />}
+      />
     );
   }
 
   if (contexto.state === 'during_trip' && contexto.dayNumber && contexto.totalDays) {
     return (
-      <Card>
-        <View style={styles.bloco}>
-          <Kicker>Agora na sua jornada</Kicker>
-          <Text variant="largeTitle">{dayLabel(contexto.dayNumber, contexto.totalDays)}</Text>
-          <Text variant="body" tone="muted">
-            {contexto.destinationName}
-          </Text>
-          <Text variant="body" tone="faint">
-            O compromisso de agora, o ponto de encontro e a contagem regressiva chegam na Fase 4.
-          </Text>
-        </View>
-      </Card>
+      <NextActionCard
+        kicker="AGORA NA SUA JORNADA"
+        titulo={dayLabel(contexto.dayNumber, contexto.totalDays)}
+        apoio={contexto.destinationName}
+        icone={<GlifoEnvio />}
+      />
     );
   }
 
   if (contexto.state === 'post_trip') {
     return (
-      <Card>
-        <View style={styles.bloco}>
-          <Kicker>Sua viagem</Kicker>
-          <Text variant="section">{contexto.tripName}</Text>
-          <Text variant="body" tone="muted">
-            {contexto.daysSince === 0
-              ? 'Terminou hoje.'
-              : `Terminou há ${contexto.daysSince} ${contexto.daysSince === 1 ? 'dia' : 'dias'}.`}
-          </Text>
-        </View>
-      </Card>
+      <NextActionCard
+        kicker="SUA VIAGEM"
+        titulo={contexto.tripName ?? 'Viagem concluída'}
+        apoio={
+          contexto.daysSince === 0
+            ? 'Terminou hoje.'
+            : `Terminou há ${contexto.daysSince} ${contexto.daysSince === 1 ? 'dia' : 'dias'}.`
+        }
+        icone={<GlifoEnvio />}
+      />
     );
   }
 
@@ -190,34 +176,14 @@ function Eventos({ eventos }: { eventos: HomeEvent[] }) {
   );
 }
 
+/**
+ * Faixa de pacote e pontos.
+ *
+ * Sem dado ainda: pacote e saldo vivem na Carteira, que e a Fase 6. A faixa
+ * mostra a forma do design com o vazio honesto, e nao um numero inventado.
+ */
 function StatusPontos() {
-  return (
-    <Card>
-      <View style={styles.linha}>
-        <View style={styles.blocoCurto}>
-          <Text variant="body" tone="muted">
-            Fly Status
-          </Text>
-          {/* Placeholder contratual, como a §38.3 pede: o espaço existe, o
-              valor não é inventado. Níveis e fórmula vêm do painel. */}
-          <Text variant="section" tone="faint">
-            —
-          </Text>
-        </View>
-        <View style={styles.blocoCurto}>
-          <Text variant="body" tone="muted">
-            Fly Points
-          </Text>
-          <Text variant="section" tone="faint">
-            —
-          </Text>
-        </View>
-      </View>
-      <Text variant="body" tone="faint" style={styles.nota}>
-        Níveis e pontuação são definidos pela Fly e aparecem quando a Carteira entrar.
-      </Text>
-    </Card>
-  );
+  return <PackagePointsBand />;
 }
 
 export default function HomeScreen() {
@@ -276,15 +242,26 @@ export default function HomeScreen() {
 
   function renderizar(kind: SectionKind) {
     switch (kind) {
-      case 'greeting':
+      case 'greeting': {
+        // Linha de contexto do design: "Dubai · dia 3 de 7". Sem o clima —
+        // nao ha integracao de tempo no projeto, e a §33 proibe inventar.
+        const partes = [
+          context.destinationName,
+          context.dayNumber && context.totalDays
+            ? dayLabel(context.dayNumber, context.totalDays).toLowerCase()
+            : null,
+        ].filter(Boolean);
+
         return (
-          <AppHeader
+          <HomeHeader
             key={kind}
-            kicker="Início"
-            title={`${greetingFor()}, ${nome}`}
-            trailing={<Sino naoLidas={naoLidas} />}
+            saudacao={`${greetingFor()}, ${nome}`}
+            contexto={partes.length > 0 ? partes.join(' · ') : null}
+            naoLidas={naoLidas}
+            onAbrirNotificacoes={() => router.push('/notificacoes')}
           />
         );
+      }
 
       case 'countdown':
         return <Contagem key={kind} contexto={context} />;

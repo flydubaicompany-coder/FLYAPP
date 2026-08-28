@@ -70,7 +70,7 @@ enabled = true
 # Supports glob patterns relative to supabase directory: "./seeds/*.sql"
 # A ordem importa: `seed.sql` cria configuracao e flags, `seed_fase3.sql`
 # depende dos catalogos e insere os eventos.
-sql_paths = ["./seed.sql", "./seed_fase3.sql", "./seed_fase4.sql", "./seed_catalogo_teste.sql", "./seed_eventos_teste.sql"]
+sql_paths = ["./seed.sql", "./seed_fase3.sql", "./seed_fase4.sql", "./seed_catalogo_teste.sql", "./seed_eventos_teste.sql", "./seed_demo.sql", "./seed_fase4_demo.sql"]
 
 [db.network_restrictions]
 # Enable management of network restrictions.

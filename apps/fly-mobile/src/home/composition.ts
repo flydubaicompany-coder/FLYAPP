@@ -88,6 +88,11 @@ const PRE_VIAGEM: readonly Section[] = [
  * Fly em espaço menor". Esta é a tela que alguém abre andando na rua.
  */
 const DURANTE: readonly Section[] = [
+  // A §5.4 nao listava saudacao aqui — ela abria direto no operacional. O
+  // handoff de 28/08 mostra a barra de identidade e a saudacao no topo tambem
+  // durante a viagem, e elas nao competem com nada: sao cabecalho, e o
+  // "Agora na sua jornada" continua sendo o primeiro bloco de conteudo.
+  s('greeting', 5),
   s('nextAction', 10, true),
   s('criticalAlerts', 20, true),
   s('todayTimeline', 30, true),

@@ -37,8 +37,18 @@ describe('composicao da Home', () => {
 });
 
 describe('prioridade do operacional (§5.4)', () => {
-  it('durante a viagem, a proxima acao vem primeiro', () => {
-    expect(sectionKindsFor('during_trip')[0]).toBe('nextAction');
+  // A saudacao entrou no topo em 28/08/2026, seguindo o handoff. Ela e
+  // cabecalho, nao secao de conteudo: o que a §5.4 protege e que o
+  // **operacional** venha antes de qualquer outra coisa, e isso continua
+  // valendo — o teste passou a afirmar exatamente isso, em vez do indice zero.
+  it('durante a viagem, a proxima acao e o primeiro bloco de conteudo', () => {
+    const chaves = sectionKindsFor('during_trip').filter((k) => k !== 'greeting');
+    expect(chaves[0]).toBe('nextAction');
+  });
+
+  it('durante a viagem, so a saudacao pode vir antes da proxima acao', () => {
+    const chaves = sectionKindsFor('during_trip');
+    expect(chaves.slice(0, chaves.indexOf('nextAction'))).toEqual(['greeting']);
   });
 
   it('durante a viagem, alerta critico vem antes de qualquer promocao', () => {

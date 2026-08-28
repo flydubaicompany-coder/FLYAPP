@@ -111,9 +111,9 @@ export function AssistIcon({ color, size = 22 }: TabIconProps) {
 export function ScopeIcon({ color, size = 22 }: TabIconProps) {
   return (
     <Frame color={color} size={size}>
-      <Path d="M12 4.4a7.6 7.6 0 1 1 0 15.2 7.6 7.6 0 0 1 0-15.2Z" />
-      <Path d="M12 1.9v3.4M12 18.7v3.4M1.9 12h3.4M18.7 12h3.4" />
-      <Path d="M12 10.6a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8Z" />
+      <Path d="M12 5.6a6.4 6.4 0 1 1 0 12.8 6.4 6.4 0 0 1 0-12.8Z" />
+      <Path d="M12 3.4v2.6M12 18v2.6M3.4 12h2.6M18 12h2.6" />
+      <Path d="M12 10.7a1.3 1.3 0 1 1 0 2.6 1.3 1.3 0 0 1 0-2.6Z" />
     </Frame>
   );
 }

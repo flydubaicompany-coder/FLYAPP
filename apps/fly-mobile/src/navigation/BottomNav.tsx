@@ -90,19 +90,21 @@ export function BottomNav({
       style={[styles.container, { height: bottomBar.height + insets.bottom }]}
       accessibilityRole="tablist"
     >
-      <BlurView intensity={bottomBar.blur} tint="dark" style={StyleSheet.absoluteFill} />
-      {/* O gradiente vertical do material, sobre o blur. Uma camada chapada
+      <View style={styles.material} pointerEvents="none">
+        <BlurView intensity={bottomBar.blur} tint="dark" style={StyleSheet.absoluteFill} />
+        {/* O gradiente vertical do material, sobre o blur. Uma camada chapada
           nao produz a mesma leitura: o topo precisa ser mais claro que a base
           para a barra parecer vidro apoiado, e nao um retangulo pintado. */}
-      <LinearGradient
-        colors={[bottomBar.materialTop, bottomBar.materialBottom]}
-        style={StyleSheet.absoluteFill}
-        pointerEvents="none"
-      />
-      {/* A linha de luz de 1 px no topo. No React Native nao existe
+        <LinearGradient
+          colors={[bottomBar.materialTop, bottomBar.materialBottom]}
+          style={StyleSheet.absoluteFill}
+          pointerEvents="none"
+        />
+        {/* A linha de luz de 1 px no topo. No React Native nao existe
           `inset box-shadow`, entao ela e uma View de 1 px — mesmo resultado
           visual, tecnica diferente. */}
-      <View style={styles.topHighlight} pointerEvents="none" />
+        <View style={styles.topHighlight} />
+      </View>
 
       <View style={[styles.row, { paddingBottom: insets.bottom }]}>
         {LEFT_TABS.map((def) => (
@@ -148,12 +150,22 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 80,
-    overflow: 'hidden',
+    // NUNCA `overflow: 'hidden'` aqui: o botao central sobe 30 dp para fora da
+    // barra, e o clip corta ele pela metade. O material fica numa camada
+    // propria, abaixo.
     shadowColor: bottomBar.shadow.color,
     shadowOffset: { width: 0, height: bottomBar.shadow.offsetY },
     shadowOpacity: 1,
     shadowRadius: bottomBar.shadow.blur,
     elevation: 8,
+  },
+  material: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    overflow: 'hidden',
   },
   topHighlight: {
     position: 'absolute',
