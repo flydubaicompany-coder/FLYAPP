@@ -13,7 +13,8 @@ import {
   Text,
 } from '@/ui';
 import { useViagem, type Viagem } from '@/viagem/useViagem';
-import { faltam, hora, saidaEminente } from '@/viagem/tempo';
+import { CartaoDaViagem } from '@/viagem/CartaoDaViagem';
+import { dataCurta, faltam, hora, saidaEminente } from '@/viagem/tempo';
 import { itensAbertos, itensPendentes } from '@/viagem/hub';
 
 /**
@@ -212,8 +213,24 @@ export default function TripScreen() {
   const { viagem } = data;
 
   return (
-    <Screen testID="screen-viagem">
-      <AppHeader kicker={viagem.destino} title={viagem.nome} />
+    <Screen bleed testID="screen-viagem">
+      <View style={styles.cabecalho}>
+        <Text variant="largeTitle" style={styles.tituloTela}>
+          Minha Viagem
+        </Text>
+      </View>
+
+      {/* Cartao da viagem, com as medidas do handoff. Substitui o cabecalho de
+          texto que havia aqui: o design abre com a foto do destino. */}
+      <CartaoDaViagem
+        destino={viagem.destino}
+        subtitulo={[dataCurta(viagem.comecaEm, viagem.timezone), viagem.nome]
+          .filter(Boolean)
+          .join(' · ')}
+        diaAtual={viagem.diaAtual}
+        totalDias={viagem.totalDias}
+        foto="eventos/burj-khalifa.jpg"
+      />
 
       {/* Alteração de roteiro vem antes de tudo. É a §5.4 aplicada aqui:
           informação operacional acima de qualquer outra coisa. */}
@@ -239,6 +256,8 @@ export default function TripScreen() {
 }
 
 const styles = StyleSheet.create({
+  cabecalho: { paddingHorizontal: 20, paddingTop: 4 },
+  tituloTela: { fontSize: 33, fontWeight: '700', letterSpacing: -1.25 },
   bloco: { gap: space.sm },
   linhaEntre: { flexDirection: 'row', justifyContent: 'space-between', gap: space.md },
   secao: { gap: space.md, marginTop: space.section },
