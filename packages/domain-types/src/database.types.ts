@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.17"
+  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -601,6 +606,30 @@ export type Database = {
           redemptions?: number
           valid_from?: string | null
           valid_until?: string | null
+        }
+        Relationships: []
+      }
+      customer_packages: {
+        Row: {
+          granted_at: string
+          granted_by: string | null
+          note: string | null
+          package: Database["public"]["Enums"]["fly_package"]
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          granted_by?: string | null
+          note?: string | null
+          package: Database["public"]["Enums"]["fly_package"]
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          granted_by?: string | null
+          note?: string | null
+          package?: Database["public"]["Enums"]["fly_package"]
+          user_id?: string
         }
         Relationships: []
       }
@@ -1775,6 +1804,65 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      points_ledger: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          expires_on: string | null
+          id: string
+          idempotency_key: string
+          kind: Database["public"]["Enums"]["points_entry_kind"]
+          occurred_at: string
+          reason: string | null
+          reference: string | null
+          reverses_id: string | null
+          rule_version: string | null
+          source: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          expires_on?: string | null
+          id?: string
+          idempotency_key: string
+          kind: Database["public"]["Enums"]["points_entry_kind"]
+          occurred_at?: string
+          reason?: string | null
+          reference?: string | null
+          reverses_id?: string | null
+          rule_version?: string | null
+          source: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          expires_on?: string | null
+          id?: string
+          idempotency_key?: string
+          kind?: Database["public"]["Enums"]["points_entry_kind"]
+          occurred_at?: string
+          reason?: string | null
+          reference?: string | null
+          reverses_id?: string | null
+          rule_version?: string | null
+          source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "points_ledger_reverses_id_fkey"
+            columns: ["reverses_id"]
+            isOneToOne: false
+            referencedRelation: "points_ledger"
             referencedColumns: ["id"]
           },
         ]
@@ -2967,6 +3055,15 @@ export type Database = {
           },
         ]
       }
+      points_balance: {
+        Row: {
+          balance: number | null
+          earned: number | null
+          last_entry_at: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       abrir_documento: {
@@ -3266,6 +3363,7 @@ export type Database = {
         | "open_fly_cup"
         | "want_dubai"
       event_status: "announced" | "registration_open" | "happening" | "finished"
+      fly_package: "standard" | "black" | "billionaire"
       fly_role:
         | "customer"
         | "family_lead"
@@ -3304,6 +3402,7 @@ export type Database = {
         | "failed"
         | "cancelled"
         | "refunded"
+      points_entry_kind: "earn" | "redeem" | "expire" | "adjust" | "reverse"
       proposal_status:
         | "requested"
         | "in_review"
@@ -3506,6 +3605,7 @@ export const Constants = {
         "want_dubai",
       ],
       event_status: ["announced", "registration_open", "happening", "finished"],
+      fly_package: ["standard", "black", "billionaire"],
       fly_role: [
         "customer",
         "family_lead",
@@ -3548,6 +3648,7 @@ export const Constants = {
         "cancelled",
         "refunded",
       ],
+      points_entry_kind: ["earn", "redeem", "expire", "adjust", "reverse"],
       proposal_status: [
         "requested",
         "in_review",
@@ -3600,4 +3701,3 @@ export const Constants = {
     },
   },
 } as const
-
