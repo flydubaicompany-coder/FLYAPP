@@ -16,6 +16,7 @@ import {
 import { useSession } from '@/auth/session';
 import { useHome, useUnreadCount, type HomeContext, type HomeEvent } from '@/home/useHome';
 import { EventCard } from '@/home/EventCard';
+import { EventBanner } from '@/home/EventBanner';
 import {
   countdownLabel,
   dayLabel,
@@ -151,6 +152,10 @@ function Contagem({ contexto }: { contexto: HomeContext }) {
 }
 
 function Eventos({ eventos }: { eventos: HomeEvent[] }) {
+  // O banner leva os eventos com foto; a lista abaixo continua mostrando o
+  // resto. Sem foto nenhuma, so a lista aparece — e o comportamento certo.
+  const comFoto = eventos.filter((e) => e.imagem);
+
   return (
     <View style={styles.secao}>
       <View style={styles.secaoTopo}>
@@ -172,11 +177,14 @@ function Eventos({ eventos }: { eventos: HomeEvent[] }) {
           </Text>
         </Card>
       ) : (
-        <View style={styles.lista}>
-          {eventos.map((e) => (
-            <EventCard key={e.id} event={e} />
-          ))}
-        </View>
+        <>
+          {comFoto.length > 0 ? <EventBanner eventos={comFoto} /> : null}
+          <View style={styles.lista}>
+            {eventos.map((e) => (
+              <EventCard key={e.id} event={e} />
+            ))}
+          </View>
+        </>
       )}
     </View>
   );

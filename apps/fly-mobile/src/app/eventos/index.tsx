@@ -35,6 +35,8 @@ export default function EventosScreen() {
             status: e.status,
             startsAt: e.starts_at,
             flyBenefit: e.fly_benefit,
+            // A listagem nao usa capa; o banner da Home usa.
+            imagem: null,
           })),
         );
       });
