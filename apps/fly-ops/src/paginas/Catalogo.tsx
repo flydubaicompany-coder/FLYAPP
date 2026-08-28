@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { Database } from '@fly/domain-types';
 import { supabase } from '../auth/client';
 import { MidiaEFornecedor } from '../componentes/MidiaEFornecedor';
+import { NovoPasseio } from '../componentes/NovoPasseio';
 
 /**
  * Catálogo de passeios (§6 e §40.13).
@@ -206,6 +207,13 @@ export function Catalogo() {
           {erro}
         </p>
       ) : null}
+
+      <NovoPasseio
+        aoCriar={(id) => {
+          void carregar();
+          setAberto(id);
+        }}
+      />
 
       <div className="tabela-envolvente">
         <table className="tabela">

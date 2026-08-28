@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Database } from '@fly/domain-types';
 import { supabase } from '../auth/client';
+import { NovaViagem } from '../componentes/NovaViagem';
+import { Viajantes } from '../componentes/Viajantes';
 
 /** Campos que este painel pode alterar numa atividade. */
 type CamposAtividade = Database['public']['Tables']['activities']['Update'];
@@ -289,6 +291,13 @@ export function Viagens() {
       ) : null}
       {recado ? <p className="muted">{recado}</p> : null}
 
+      <NovaViagem
+        aoCriar={(id) => {
+          void carregarViagens();
+          setAberta(id);
+        }}
+      />
+
       <div className="tabela-envolvente">
         <table className="tabela">
           <thead>
@@ -338,6 +347,8 @@ export function Viagens() {
               Horários no fuso <span className="mono">{timezone}</span>
             </p>
           </div>
+
+          <Viajantes viagemId={viagem.id} />
 
           <div className="acoes">
             <button
