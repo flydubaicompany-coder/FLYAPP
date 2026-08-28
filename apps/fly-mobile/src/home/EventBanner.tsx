@@ -112,7 +112,10 @@ export function EventBanner({ eventos }: EventBannerProps) {
     if (arrastando || slides.length < 2) return;
     const id = setTimeout(() => irPara(indiceRef.current + 1), AUTOPLAY_MS);
     return () => clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // `irPara` fica fora das dependencias de proposito: ela e recriada a cada
+    // render e entraria em laco. O projeto nao tem o plugin `react-hooks`, e
+    // um `eslint-disable` de regra inexistente e erro de lint — daqui o
+    // comentario em vez da diretiva.
   }, [indice, arrastando, slides.length, largura]);
 
   const pan = useRef(
