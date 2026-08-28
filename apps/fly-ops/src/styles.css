@@ -202,7 +202,12 @@ a:hover {
   margin-top: 2rem;
 }
 
+/* `display` e `gap` estavam faltando: a classe so trocava a direcao e contava
+   com o `.form` do mesmo elemento. Assim ela tambem funciona sozinha, dentro
+   de um `.form`, que e como um formulario com varias linhas se escreve. */
 .form--linha {
+  display: flex;
+  gap: 1.25rem;
   flex-direction: row;
   align-items: flex-end;
   flex-wrap: wrap;
