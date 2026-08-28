@@ -18,6 +18,7 @@ import { supabase } from '@/auth/client';
 import { formatar, type Moeda } from '@/passeios/dinheiro';
 import { usePagamento } from '@/passeios/usePagamento';
 import { dataCurta, hora } from '@/viagem/tempo';
+import { useViagem } from '@/viagem/useViagem';
 
 /**
  * Pedido (§6.5, passo 7).
@@ -59,6 +60,8 @@ interface Reembolso {
 
 interface Pedido {
   id: string;
+  /** Viagem a que o pedido esta ligado, se houver (D90). */
+  viagemId: string | null;
   /** Soma das vagas dos itens. Define quantos nomes a lista comporta. */
   pessoas: number;
   referencia: string;
@@ -91,6 +94,8 @@ export default function PedidoScreen() {
   const [pedido, setPedido] = useState<Pedido | null | 'nao-encontrado'>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [cancelando, setCancelando] = useState(false);
+  const [mexendoNaViagem, setMexendoNaViagem] = useState(false);
+  const { data: dadosDaViagem } = useViagem();
   // Falha de leitura nao pode ser contada como "pedido inexistente". Numa tela
   // de pagamento essa confusao e a pior possivel: quem acabou de pagar leria
   // que o pedido dele nao existe.
@@ -103,7 +108,7 @@ export default function PedidoScreen() {
     const { data, error } = await supabase()
       .from('orders')
       .select(
-        'id, reference, status, subtotal_cents, discount_cents, total_cents, currency, coupon_code, placed_at, cancellation_policy_label, cancellation_policy_text, cancellation_policy_version, order_items(tour_title, variant_label, starts_at, timezone, people, line_total_cents, currency), refunds(id, amount_cents, currency, reason, created_at)',
+        'id, trip_id, reference, status, subtotal_cents, discount_cents, total_cents, currency, coupon_code, placed_at, cancellation_policy_label, cancellation_policy_text, cancellation_policy_version, order_items(tour_title, variant_label, starts_at, timezone, people, line_total_cents, currency), refunds(id, amount_cents, currency, reason, created_at)',
       )
       .eq('id', id)
       .maybeSingle();
@@ -114,6 +119,7 @@ export default function PedidoScreen() {
     const moeda = data.currency as Moeda;
     setPedido({
       id: data.id,
+      viagemId: data.trip_id,
       referencia: data.reference,
       status: data.status,
       pessoas: (data.order_items ?? []).reduce((soma, i) => soma + i.people, 0),
@@ -224,6 +230,35 @@ export default function PedidoScreen() {
   }
 
   const podeCancelar = ['pending_payment', 'paid', 'confirmed'].includes(pedido.status);
+  const viagemAtiva = dadosDaViagem.kind === 'ready' ? dadosDaViagem.viagem : null;
+
+  async function alternarNaViagem() {
+    if (!viagemAtiva || pedido === null || pedido === 'nao-encontrado') return;
+    setMexendoNaViagem(true);
+    setAviso(null);
+
+    // Omitir `p_trip` desliga. `exactOptionalPropertyTypes` recusa passar
+    // `undefined` explicito, entao a chave some do objeto.
+    const { data, error } = await supabase().rpc('incluir_pedido_na_viagem', {
+      p_order: pedido.id,
+      ...(pedido.viagemId ? {} : { p_trip: viagemAtiva.id }),
+    });
+
+    setMexendoNaViagem(false);
+    const linha = Array.isArray(data) ? data[0] : data;
+
+    if (error || !linha?.ok) {
+      setAviso(linha?.motivo ?? 'Não consegui alterar agora.');
+      return;
+    }
+
+    setAviso(
+      pedido.viagemId
+        ? 'Tirado do roteiro. O pedido continua seu — só não aparece em Minha Viagem.'
+        : `Adicionado a ${viagemAtiva.nome}. Aparece no roteiro, no dia do passeio.`,
+    );
+    await carregar();
+  }
 
   return (
     <Screen withBottomNav={false} testID="screen-pedido">
@@ -388,6 +423,22 @@ export default function PedidoScreen() {
           <Text variant="body" tone="faint">
             O reembolso segue a política acima e é avaliado pela Fly.
           </Text>
+        </View>
+      ) : null}
+
+      {/* Incluir o pedido no roteiro (D90). Estava na lista de Meus Passeios,
+          que o handoff reduziu a linhas sem acao — a funcao veio para ca, que e
+          onde o design manda a linha navegar. */}
+      {viagemAtiva && !['cancelled', 'refunded', 'failed'].includes(pedido.status) ? (
+        <View style={styles.secao}>
+          <Botao
+            rotulo={pedido.viagemId ? 'Tirar de Minha Viagem' : `Adicionar a ${viagemAtiva.nome}`}
+            variante="fantasma"
+            ocupado={mexendoNaViagem}
+            onPress={() => {
+              void alternarNaViagem();
+            }}
+          />
         </View>
       ) : null}
 

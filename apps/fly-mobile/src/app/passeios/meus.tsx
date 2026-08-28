@@ -1,22 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'expo-router';
+import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { palette, radius, space, touchTarget } from '@/theme';
-import {
-  AlertBanner,
-  AppHeader,
-  Botao,
-  EmptyState,
-  ErrorState,
-  Kicker,
-  LoadingSkeleton,
-  Screen,
-  Text,
-} from '@/ui';
+import { AlertBanner, EmptyState, ErrorState, LoadingSkeleton, Screen, Text } from '@/ui';
+import Svg, { Path } from 'react-native-svg';
 import { supabase } from '@/auth/client';
-import { formatar, type Moeda } from '@/passeios/dinheiro';
-import { dataCurta, hora } from '@/viagem/tempo';
-import { useViagem } from '@/viagem/useViagem';
+import { LinhaDoPedido, Segmentado } from '@/passeios/LinhaDoPedido';
+import type { Moeda } from '@/passeios/dinheiro';
 
 /**
  * Meus Passeios (§6.1).
@@ -32,6 +22,8 @@ import { useViagem } from '@/viagem/useViagem';
  */
 
 interface Pedido {
+  /** Capa do passeio, para a miniatura de 72. */
+  capa?: string | null;
   id: string;
   referencia: string;
   status: string;
@@ -47,9 +39,6 @@ interface Pedido {
     pessoas: number;
   }[];
 }
-
-/** O que acabou não entra em roteiro: o roteiro fala do que vai acontecer. */
-const FORA_DO_ROTEIRO = ['cancelled', 'refunded', 'failed'];
 
 const ROTULO_STATUS: Record<string, string> = {
   pending_payment: 'Aguardando pagamento',
@@ -74,25 +63,41 @@ function grupoDe(p: Pedido): 'proximos' | 'pendentes' | 'concluidos' | 'encerrad
 export default function MeusPasseios() {
   const [pedidos, setPedidos] = useState<Pedido[] | null>(null);
   const [erro, setErro] = useState<string | null>(null);
-  const [aviso, setAviso] = useState<string | null>(null);
-  const [mexendo, setMexendo] = useState<string | null>(null);
-  const { data: viagemData } = useViagem();
-
-  const viagem = viagemData.kind === 'ready' ? viagemData.viagem : null;
+  const [aviso] = useState<string | null>(null);
+  const [aba, setAba] = useState<'conf' | 'hist'>('conf');
 
   const carregar = useCallback(async () => {
     const { data, error } = await supabase()
       .from('orders')
       .select(
-        'id, reference, status, trip_id, total_cents, currency, placed_at, order_items(tour_title, variant_label, starts_at, timezone, people)',
+        'id, reference, status, trip_id, total_cents, currency, placed_at, order_items(tour_id, tour_title, variant_label, starts_at, timezone, people)',
       )
       .order('placed_at', { ascending: false });
 
     if (error) return setErro(error.message);
 
+    // A capa da miniatura vem do catalogo: o pedido guarda o titulo, nao a foto
+    // — e de proposito, para o pedido nao mudar quando a vitrine muda.
+    const idsDePasseio = [
+      ...new Set(
+        (data ?? []).flatMap((o) => (o.order_items ?? []).map((i) => i.tour_id).filter(Boolean)),
+      ),
+    ] as string[];
+    const capas = new Map<string, string>();
+    if (idsDePasseio.length > 0) {
+      const { data: midias } = await supabase()
+        .from('tour_media')
+        .select('tour_id, storage_path, sort_order')
+        .in('tour_id', idsDePasseio)
+        .eq('kind', 'image')
+        .order('sort_order');
+      for (const m of midias ?? []) if (!capas.has(m.tour_id)) capas.set(m.tour_id, m.storage_path);
+    }
+
     setPedidos(
       (data ?? []).map((o) => ({
         id: o.id,
+        capa: capas.get((o.order_items ?? [])[0]?.tour_id ?? '') ?? null,
         referencia: o.reference,
         status: o.status,
         viagemId: o.trip_id,
@@ -119,33 +124,6 @@ export default function MeusPasseios() {
    * Quem confere se a viagem é sua é `incluir_pedido_na_viagem()` — o cliente
    * não tem `update` em `orders`, e a tela só repete o motivo que voltar.
    */
-  async function alternarNaViagem(p: Pedido) {
-    if (!viagem) return;
-    setMexendo(p.id);
-    setAviso(null);
-
-    // Omitir `p_trip` desliga. `exactOptionalPropertyTypes` recusa passar
-    // `undefined` explícito, então a chave some do objeto.
-    const { data, error } = await supabase().rpc('incluir_pedido_na_viagem', {
-      p_order: p.id,
-      ...(p.viagemId ? {} : { p_trip: viagem.id }),
-    });
-
-    setMexendo(null);
-    const linha = Array.isArray(data) ? data[0] : data;
-
-    if (error || !linha?.ok) {
-      setAviso(linha?.motivo ?? 'Não consegui alterar agora.');
-      return;
-    }
-
-    setAviso(
-      p.viagemId
-        ? 'Tirado do roteiro. O pedido continua seu — só não aparece em Minha Viagem.'
-        : `Adicionado a ${viagem.nome}. Aparece no roteiro, no dia do passeio.`,
-    );
-    await carregar();
-  }
 
   if (erro) {
     return (
@@ -163,16 +141,56 @@ export default function MeusPasseios() {
     );
   }
 
-  const grupos: [string, Pedido[]][] = [
-    ['Próximos', pedidos.filter((p) => grupoDe(p) === 'proximos')],
-    ['Aguardando confirmação', pedidos.filter((p) => grupoDe(p) === 'pendentes')],
-    ['Concluídos', pedidos.filter((p) => grupoDe(p) === 'concluidos')],
-    ['Cancelados e reembolsados', pedidos.filter((p) => grupoDe(p) === 'encerrados')],
-  ];
+  // Duas abas, como o design: **Confirmados** e **Histórico**. Os quatro
+  // grupos antigos ("Próximos", "Aguardando", "Concluídos", "Cancelados")
+  // viravam quatro títulos numa tela de três linhas.
+  const confirmados = pedidos.filter((p) => ['proximos', 'pendentes'].includes(grupoDe(p)));
+  const historico = pedidos.filter((p) => ['concluidos', 'encerrados'].includes(grupoDe(p)));
+  const lista = aba === 'conf' ? confirmados : historico;
+
+  const pessoas = pedidos[0]?.itens[0]?.pessoas ?? null;
+  const resumo = [
+    `${pedidos.length} ${pedidos.length === 1 ? 'experiência' : 'experiências'}`,
+    pessoas ? `${pessoas} ${pessoas === 1 ? 'pessoa' : 'pessoas'}` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
-    <Screen withBottomNav={false} testID="screen-meus-passeios">
-      <AppHeader kicker="Passeios" title="Meus passeios" />
+    <Screen bleed withBottomNav={false} testID="screen-meus-passeios">
+      <View style={styles.navBar}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Voltar para Passeios"
+          onPress={() => router.back()}
+          style={styles.voltar}
+          testID="voltar-passeios"
+        >
+          <Svg width={19} height={19} viewBox="0 0 24 24" fill="none">
+            <Path
+              d="M15 5l-7 7 7 7"
+              stroke={palette.gold}
+              strokeWidth={2.3}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </Svg>
+          <Text variant="body" tone="gold" style={styles.voltarTexto}>
+            Passeios
+          </Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.tituloArea}>
+        <Text variant="largeTitle" style={styles.titulo}>
+          Meus Passeios
+        </Text>
+        {resumo ? (
+          <Text variant="body" style={styles.resumo}>
+            {resumo}
+          </Text>
+        ) : null}
+      </View>
 
       {aviso ? <AlertBanner title={aviso} /> : null}
 
@@ -182,82 +200,77 @@ export default function MeusPasseios() {
           description="O que você reservar aparece aqui, com ingresso e QR quando houver."
         />
       ) : (
-        grupos
-          .filter(([, lista]) => lista.length > 0)
-          .map(([titulo, lista]) => (
-            <View key={titulo} style={styles.secao}>
-              <Kicker>{titulo}</Kicker>
-              {lista.map((p) => (
-                <View key={p.id} style={styles.bloco}>
-                  <Link href={`/passeios/pedido/${p.id}`} asChild>
-                    <Pressable
-                      accessibilityRole="link"
-                      accessibilityLabel={`Pedido ${p.referencia}, ${ROTULO_STATUS[p.status] ?? p.status}`}
-                      testID={`pedido-${p.referencia}`}
-                    >
-                      {({ pressed }) => (
-                        <View style={[styles.pedido, pressed && styles.pressed]}>
-                          <View style={styles.bloco}>
-                            <View style={styles.linhaTopo}>
-                              <Text variant="body" style={styles.titulo}>
-                                {p.itens[0]?.titulo ?? 'Pedido'}
-                                {p.itens.length > 1 ? ` +${p.itens.length - 1}` : ''}
-                              </Text>
-                              <Text
-                                variant="body"
-                                tone={
-                                  p.status === 'confirmed'
-                                    ? 'ok'
-                                    : p.status === 'pending_payment'
-                                      ? 'warning'
-                                      : 'faint'
-                                }
-                              >
-                                {ROTULO_STATUS[p.status] ?? p.status}
-                              </Text>
-                            </View>
+        <>
+          <Segmentado
+            opcoes={[
+              { chave: 'conf', rotulo: 'Confirmados' },
+              { chave: 'hist', rotulo: 'Histórico' },
+            ]}
+            selecionado={aba}
+            aoEscolher={(c) => setAba(c as 'conf' | 'hist')}
+          />
 
-                            {p.itens[0]?.comeca ? (
-                              <Text variant="body" tone="muted">
-                                {dataCurta(p.itens[0].comeca, p.itens[0].timezone ?? 'UTC')} ·{' '}
-                                {hora(p.itens[0].comeca, p.itens[0].timezone ?? 'UTC')}
-                              </Text>
-                            ) : null}
-
-                            <View style={styles.linhaTopo}>
-                              <Text variant="body" tone="faint" style={styles.mono}>
-                                {p.referencia}
-                              </Text>
-                              <Text variant="body">{formatar(p.total)}</Text>
-                            </View>
-                          </View>
-                        </View>
-                      )}
-                    </Pressable>
-                  </Link>
-
-                  {/* §6.1: "botão para adicionar à Minha Viagem quando
-                    permitido". Permitido é: existe viagem, e o pedido não
-                    está encerrado — o que acabou não entra em roteiro. */}
-                  {viagem && !FORA_DO_ROTEIRO.includes(p.status) ? (
-                    <Botao
-                      rotulo={p.viagemId ? 'Tirar de Minha Viagem' : 'Adicionar a Minha Viagem'}
-                      variante="fantasma"
-                      ocupado={mexendo === p.id}
-                      onPress={() => void alternarNaViagem(p)}
-                      testID={`viagem-${p.referencia}`}
-                    />
-                  ) : null}
-                </View>
-              ))}
-            </View>
-          ))
+          <View style={styles.lista}>
+            {lista.length === 0 ? (
+              <Text variant="body" tone="muted" style={styles.vazio}>
+                {aba === 'conf' ? 'Nada confirmado no momento.' : 'Nada no histórico ainda.'}
+              </Text>
+            ) : (
+              lista.map((p) => {
+                const item = p.itens[0];
+                const grupo = grupoDe(p);
+                return (
+                  <LinhaDoPedido
+                    key={p.id}
+                    quando={quandoDe(item?.comeca ?? null, item?.timezone ?? null)}
+                    titulo={item?.titulo ?? p.referencia}
+                    situacao={
+                      grupo === 'pendentes'
+                        ? 'aguardando'
+                        : grupo === 'proximos'
+                          ? 'confirmado'
+                          : 'concluido'
+                    }
+                    rotuloSituacao={ROTULO_STATUS[p.status] ?? p.status}
+                    pessoas={
+                      item ? `${item.pessoas} ${item.pessoas === 1 ? 'pessoa' : 'pessoas'}` : null
+                    }
+                    foto={p.capa ?? null}
+                    aoAbrir={() => router.push(`/passeios/pedido/${p.id}`)}
+                    testID={`pedido-${p.referencia}`}
+                  />
+                );
+              })
+            )}
+          </View>
+        </>
       )}
     </Screen>
   );
 }
 
+/** "SEX, 25 AGO · 18:30", como o kicker do design. */
+function quandoDe(iso: string | null, timezone: string | null): string | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  const opcoes: Intl.DateTimeFormatOptions = timezone ? { timeZone: timezone } : {};
+  const dia = d
+    .toLocaleDateString('pt-BR', { ...opcoes, weekday: 'short', day: '2-digit', month: 'short' })
+    .replace(/\./g, '')
+    .toUpperCase();
+  const hora = d.toLocaleTimeString('pt-BR', { ...opcoes, hour: '2-digit', minute: '2-digit' });
+  return `${dia} · ${hora}`;
+}
+
 const styles = StyleSheet.create({
+  navBar: { height: 44, justifyContent: 'center', paddingHorizontal: 12 },
+  voltar: { flexDirection: 'row', alignItems: 'center', height: 36, paddingHorizontal: 8 },
+  voltarTexto: { fontSize: 15, fontWeight: '500', letterSpacing: -0.21 },
+  tituloArea: { paddingTop: 6, paddingHorizontal: 20 },
+  titulo: { fontSize: 33, lineHeight: 34, fontWeight: '700', letterSpacing: -1.25 },
+  resumo: { marginTop: 7, fontSize: 13.5, letterSpacing: -0.11, color: 'rgba(245,245,247,.45)' },
+  lista: { marginTop: 18, marginHorizontal: 16, gap: 12 },
+  vazio: { paddingVertical: 24, textAlign: 'center' },
   bloco: { gap: space.xs },
   secao: { gap: space.md, marginTop: space.section },
   pedido: {
@@ -274,7 +287,6 @@ const styles = StyleSheet.create({
     alignItems: 'baseline',
     gap: space.md,
   },
-  titulo: { fontWeight: '600', flexShrink: 1 },
   mono: { fontVariant: ['tabular-nums'] },
   pressed: { opacity: 0.8 },
 });

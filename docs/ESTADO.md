@@ -81,6 +81,33 @@ o HTML é **só o visual** de: tab bar, flutuantes, banner e blocos da Início.
 
 ---
 
+## Como apagar a demonstração quando o app for para valer
+
+Pergunta do dono em 28/08/2026, e a resposta é curta: **tudo que é falso está
+em arquivos isolados.** Nada de dado de demonstração vive no código.
+
+| Arquivo                                          | O que cria                                   |
+| ------------------------------------------------ | -------------------------------------------- |
+| `supabase/seed_catalogo_teste.sql`               | 5 passeios, preços, horários, fotos, vitrine |
+| `supabase/seed_eventos_teste.sql`                | 3 eventos publicados com capa                |
+| `supabase/seed_demo.sql`                         | Rafael Mendes, a viagem, o voo, notificações |
+| `supabase/seed_fase4_demo.sql`                   | roteiro, inclusões, hotel, transfers         |
+| `supabase/seed_demo_alerta.sql` e `_alerta2.sql` | a alteração de roteiro                       |
+| `supabase/seed_demo_pedidos3.sql`                | 3 pedidos comprados                          |
+
+Para zerar: apagar os arquivos, tirá-los de `sql_paths` no `config.toml`, e
+limpar as tabelas no projeto (`orders`, `tours`, `trips`, `events` publicados,
+`profiles.display_name`). O schema, as regras e os testes não dependem de nada
+disso.
+
+**O que falta para o dono operar sozinho:** não existe tela no Fly Ops para
+**cadastrar passeio** nem **criar viagem** — o painel lista e edita o que já
+existe. Tudo foi inserido por SQL. Sem esses dois formulários, cada viajante
+novo continua dependendo de alguém escrever SQL. É a **P42**, e ela precisa ser
+resolvida antes de o app ir para cliente real.
+
+---
+
 ## Infraestrutura — trocada em 27/08/2026, e é a atual
 
 O Fly App saiu de uma infraestrutura compartilhada para uma dedicada. Nada de
