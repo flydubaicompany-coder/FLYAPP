@@ -18,6 +18,7 @@ import {
   Scanner,
   Viagens,
   Vitrine,
+  Fidelidade,
 } from './paginas';
 
 /**
@@ -41,6 +42,7 @@ const ABAS = [
   { para: '/catalogo', rotulo: 'Catálogo' },
   { para: '/vitrine', rotulo: 'Vitrine' },
   { para: '/pedidos', rotulo: 'Pedidos' },
+  { para: '/fidelidade', rotulo: 'Fidelidade' },
   { para: '/eventos', rotulo: 'Eventos' },
   { para: '/consentimentos', rotulo: 'Consentimentos' },
 ] as const;
@@ -228,6 +230,14 @@ function Rotas() {
         element={
           <Protegido>
             <Pedidos />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/fidelidade"
+        element={
+          <Protegido>
+            <Fidelidade />
           </Protegido>
         }
       />

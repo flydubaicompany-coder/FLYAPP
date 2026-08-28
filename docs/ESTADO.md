@@ -98,9 +98,12 @@ estorna proporcional. Nenhum lançamento é inserido à mão.
 | Botão "Resgatar"                                                              | Resgate é a entrega 4 da Fase 6, não feita. **D131**                                                  |
 | Link "Ver tudo"                                                               | Não há tela de extrato completo. **D131**                                                             |
 
+**O dono opera a Carteira** pela aba **Fidelidade** do Fly Ops: concede
+pacote, ajusta pontos com motivo obrigatório, liga e desliga benefício, e vê a
+regra em vigor.
+
 Falta da Fase 6: vouchers e cupons na Carteira, pagamentos tokenizados,
-ranking opt-in, premiação, scanner de nota e tax-free, e o Fly Ops para
-operar tudo isso.
+ranking opt-in, premiação, scanner de nota e tax-free.
 
 **A regra de pontos (D129):** 10 pontos por unidade de moeda, 2.000 por
 check-in em evento, 5.000 por indicação. Prime 25.000, elite 100.000, validade
