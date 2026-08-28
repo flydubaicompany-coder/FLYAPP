@@ -100,6 +100,9 @@ const DURANTE: readonly Section[] = [
   s('events', 7),
   s('nextAction', 10, true),
   s('criticalAlerts', 20, true),
+  // O design mostra a faixa de pacote e pontos tambem durante a viagem. A
+  // §5.4 nao a listava aqui.
+  s('statusPoints', 25),
   s('todayTimeline', 30, true),
   s('chapterProgress', 40),
   s('memory', 50),

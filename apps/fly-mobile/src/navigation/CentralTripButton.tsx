@@ -3,7 +3,9 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { bottomBar, centralButton, palette, touchTarget } from '@/theme';
 import { Text } from '@/ui';
-import wing from '../../assets/brand/fly-wing.png';
+// O design usa o PNG dourado direto, e nao a asa branca tingida: o degrade
+// interno da arte se perde no tint.
+import wing from '../../assets/brand/fly-wing-gold.png';
 
 /**
  * O botao Minha Viagem (spec §4.1).
@@ -120,10 +122,6 @@ export function CentralTripButton({
               },
             ]}
             contentFit="contain"
-            // A asa e **sempre** dourada — o que muda com a selecao e so a
-            // opacidade. Antes ela ficava cinza fora do foco, o que apagava a
-            // unica marca da Fly na barra.
-            tintColor={palette.gold}
             accessible={false}
           />
         </View>

@@ -5,10 +5,10 @@ import { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
+  type LayoutChangeEvent,
   PanResponder,
   Pressable,
   StyleSheet,
-  useWindowDimensions,
   View,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
@@ -77,8 +77,17 @@ export interface EventBannerProps {
 }
 
 export function EventBanner({ eventos }: EventBannerProps) {
-  const { width: larguraTela } = useWindowDimensions();
-  const largura = larguraTela - MARGEM * 2;
+  // A largura vem do **onLayout do proprio cartao**, nunca da janela. Calcular
+  // `janela - margem` erra sempre que algo acima adiciona padding: o slide fica
+  // mais largo que o cartao e o proximo aparece pela lateral — foi exatamente
+  // o que aconteceu, e o banner mostrava duas fotos ao mesmo tempo.
+  const [largura, setLargura] = useState(0);
+  function medir(e: LayoutChangeEvent) {
+    // Sem arredondar: 1 px de erro no slide vira uma tira do slide anterior
+    // visivel na borda, e o erro se acumula a cada indice.
+    const w = e.nativeEvent.layout.width;
+    if (w > 0 && Math.abs(w - largura) > 0.5) setLargura(w);
+  }
 
   // Evento sem foto fica de fora: o slide e uma foto com texto por cima.
   const slides = eventos.filter((e) => e.imagem).slice(0, 3);
@@ -138,15 +147,17 @@ export function EventBanner({ eventos }: EventBannerProps) {
   if (slides.length === 0) return null;
 
   return (
-    <View style={[styles.moldura, { height: ALTURA }]} {...pan.panHandlers}>
+    <View style={[styles.moldura, { height: ALTURA }]} onLayout={medir} {...pan.panHandlers}>
       <Animated.View
         style={[
           styles.trilho,
-          { width: largura * slides.length, transform: [{ translateX: desloc }] },
+          largura > 0
+            ? { width: largura * slides.length, transform: [{ translateX: desloc }] }
+            : { width: '100%' },
         ]}
       >
         {slides.map((evento) => (
-          <View key={evento.id} style={[styles.slide, { width: largura }]}>
+          <View key={evento.id} style={[styles.slide, largura > 0 ? { width: largura } : null]}>
             <Image
               source={{ uri: urlDaImagem(evento.imagem) ?? undefined }}
               style={StyleSheet.absoluteFill}

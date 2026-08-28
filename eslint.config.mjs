@@ -12,7 +12,8 @@ export default tseslint.config(
       '**/build/**',
       '**/.expo/**',
       '**/coverage/**',
-      'docs/design/canvas/**', // artefatos do Claude Design — nao sao codigo do app
+      'docs/design/canvas/**',
+      'docs/design/extracao/**', // fragmentos do prototipo, extraidos para consulta // artefatos do Claude Design — nao sao codigo do app
       'design_handoff_fly_app/**', // handoff do Claude Design: `support.js` e o runtime do prototipo, nao do produto
       // Skills instaladas por `npx skills add` e `npx impeccable install`.
       // Sao ferramenta de terceiro, versionada para o time inteiro ter a

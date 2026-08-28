@@ -15,7 +15,6 @@ import {
 } from '@/ui';
 import { useSession } from '@/auth/session';
 import { useHome, useUnreadCount, type HomeContext, type HomeEvent } from '@/home/useHome';
-import { EventCard } from '@/home/EventCard';
 import { EventBanner } from '@/home/EventBanner';
 import {
   DayTimeline,
@@ -108,6 +107,8 @@ function ProximaAcao({ contexto }: { contexto: HomeContext }) {
         titulo={dayLabel(contexto.dayNumber, contexto.totalDays)}
         apoio={contexto.destinationName}
         icone={<GlifoEnvio />}
+        onPress={() => router.push('/viagem')}
+        testID="home-proxima-acao"
       />
     );
   }
@@ -149,43 +150,21 @@ function Contagem({ contexto }: { contexto: HomeContext }) {
   );
 }
 
+/**
+ * Eventos na Home = **o banner, e so ele**.
+ *
+ * O design nao poe cabecalho de secao nem lista acima ou abaixo: o banner ja
+ * se apresenta, com a pilula "EVENTOS FLY" dentro. O cabecalho "Acontece na
+ * Fly" com "Ver todos" era invencao minha — conferido no arquivo do
+ * prototipo, que nao tem nenhum dos dois.
+ *
+ * Sem evento com foto o bloco some. A listagem completa continua em
+ * `/eventos`, alcancavel pelo detalhe do evento.
+ */
 function Eventos({ eventos }: { eventos: HomeEvent[] }) {
-  // O banner leva os eventos com foto; a lista abaixo continua mostrando o
-  // resto. Sem foto nenhuma, so a lista aparece — e o comportamento certo.
   const comFoto = eventos.filter((e) => e.imagem);
-
-  return (
-    <View style={styles.secao}>
-      <View style={styles.secaoTopo}>
-        <Kicker>Acontece na Fly</Kicker>
-        <Link href="/eventos" asChild>
-          <Pressable accessibilityRole="link" accessibilityLabel="Ver todos os eventos">
-            <Text variant="body" tone="gold">
-              Ver todos
-            </Text>
-          </Pressable>
-        </Link>
-      </View>
-
-      {eventos.length === 0 ? (
-        <Card>
-          <Text variant="body" tone="muted">
-            Nada em destaque agora. O que a Fly publicar aparece aqui, sem você precisar atualizar o
-            app.
-          </Text>
-        </Card>
-      ) : (
-        <>
-          {comFoto.length > 0 ? <EventBanner eventos={comFoto} /> : null}
-          <View style={styles.lista}>
-            {eventos.map((e) => (
-              <EventCard key={e.id} event={e} />
-            ))}
-          </View>
-        </>
-      )}
-    </View>
-  );
+  if (comFoto.length === 0) return null;
+  return <EventBanner eventos={comFoto} />;
 }
 
 /**
@@ -221,7 +200,7 @@ export default function HomeScreen() {
 
   if (sessao.kind === 'signedOut') {
     return (
-      <Screen testID="screen-inicio">
+      <Screen bleed testID="screen-inicio">
         <AppHeader kicker="Início" title="Bem-vindo à Fly" />
         <EmptyState
           title="A Fly é por convite"
@@ -233,7 +212,7 @@ export default function HomeScreen() {
 
   if (data.kind === 'loading') {
     return (
-      <Screen testID="screen-inicio">
+      <Screen bleed testID="screen-inicio">
         <LoadingSkeleton label="Preparando sua Home" />
       </Screen>
     );
@@ -241,7 +220,7 @@ export default function HomeScreen() {
 
   if (data.kind === 'error') {
     return (
-      <Screen testID="screen-inicio">
+      <Screen bleed testID="screen-inicio">
         <ErrorState description={data.message} onRetry={() => void reload()} />
       </Screen>
     );
@@ -306,7 +285,7 @@ export default function HomeScreen() {
         return (
           <PendingAlert
             key={kind}
-            titulo={`${a.titulo} mudou de horário`}
+            titulo={a.titulo}
             apoio={a.notaDaAlteracao ?? 'Confira o roteiro e confirme que você viu.'}
             onPress={() => router.push('/viagem/roteiro')}
           />
@@ -363,7 +342,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <Screen testID="screen-inicio">
+    <Screen bleed testID="screen-inicio">
       {sectionsFor(context.state).map((secao) => renderizar(secao.kind))}
     </Screen>
   );

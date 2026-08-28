@@ -16,6 +16,14 @@ export interface ScreenProps {
   scroll?: boolean;
   /** Desconta a barra inferior. Ligado dentro das abas. */
   withBottomNav?: boolean;
+  /**
+   * Remove o respiro lateral da tela e deixa cada bloco definir a propria
+   * margem — que e como o design trabalha: o container tem
+   * `padding: 56px 0 118px`, zero na horizontal, e cada bloco poe 16 (cartao)
+   * ou 20 (titulo e texto corrido). Com o padding da tela somando por cima, um
+   * cartao de margem 16 acabava a 40 px da borda.
+   */
+  bleed?: boolean;
   style?: ViewStyle;
   testID?: string;
 }
@@ -24,12 +32,14 @@ export function Screen({
   children,
   scroll = true,
   withBottomNav = true,
+  bleed = false,
   style,
   testID,
 }: ScreenProps) {
   const insets = useSafeAreaInsets();
 
   const padding: ViewStyle = {
+    paddingHorizontal: bleed ? 0 : screenPadding,
     paddingTop: insets.top + space.lg,
     paddingBottom: withBottomNav
       ? bottomBar.height + Math.abs(centralButton.offsetTop) + insets.bottom + space.lg
@@ -62,6 +72,5 @@ const styles = StyleSheet.create({
   base: {
     flex: 1,
     backgroundColor: palette.background,
-    paddingHorizontal: screenPadding,
   },
 });

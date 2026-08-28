@@ -5,6 +5,7 @@ build/
 coverage/
 package-lock.json
 docs/design/canvas/
+docs/design/extracao/
 design_handoff_fly_app/
 docs/product/FLY_APP_MASTER_SPEC.md
 

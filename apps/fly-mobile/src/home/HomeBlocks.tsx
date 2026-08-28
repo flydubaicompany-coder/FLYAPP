@@ -179,6 +179,7 @@ export function PendingAlert({ titulo, apoio, onPress }: PendingAlertProps) {
           </Text>
         ) : null}
       </View>
+      {onPress ? <Chevron /> : null}
     </View>
   );
 
