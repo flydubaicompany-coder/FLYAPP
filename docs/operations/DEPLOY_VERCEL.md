@@ -3,7 +3,35 @@
 Dois projetos, um repositório. O monorepo é `flydubaicompany-coder/FLYAPP`, e
 cada aplicação vira um projeto Vercel apontando para uma pasta diferente.
 
-> **Estado em 27/08/2026: nada disto existe ainda.** A conta Vercel do Fly App
+> **Estado em 28/08/2026: os tres projetos existem e estao no ar.**
+>
+> | Projeto           | Aplicacao | URL                                  |
+> | ----------------- | --------- | ------------------------------------ |
+> | `flyapp-fly-ops`  | Fly Ops   | `https://flyapp-fly-ops.vercel.app`  |
+> | `flyapp-cliente`  | Fly App   | `https://flyapp-cliente.vercel.app`  |
+> | `flyapp-fly-crew` | Fly Crew  | `https://flyapp-fly-crew.vercel.app` |
+>
+> Time Vercel **`app fly`**, conta `flydubaicompany-coder` — separada da conta
+> antiga, que hospeda outros produtos e nem enxerga este repositorio.
+>
+> **Duas coisas que fazem esta configuracao funcionar, e sem as quais ela
+> quebra:**
+>
+> 1. **Root Directory fica VAZIO** (a raiz do repositorio), e nao
+>    `apps/<app>`. Os packages sao consumidos como TypeScript cru
+>    (`"main": "./src/index.ts"`), entao o build precisa enxergar `packages/`.
+>    Com Root Directory apontando para a pasta do app, o `npm install` roda la
+>    dentro e o build morre com `Cannot find module '@fly/design-tokens'` —
+>    foi exatamente o que aconteceu na primeira tentativa. Quem separa os tres
+>    projetos e o **Build Command** e o **Output Directory**, nao o root.
+> 2. **`vercel.json` na raiz**, com `rewrites` de `/(.*)` para `/index.html`.
+>    Sem ele a home abre e **toda rota interna devolve 404** — as tres
+>    aplicacoes tem roteamento no cliente. Medido antes e depois.
+>
+> O passo a passo manual abaixo fica como referencia para criar um projeto
+> novo. Ver [ADR 0010](../architecture/adr/0010-infraestrutura-dedicada.md).
+
+> **Historico: em 27/08/2026 nada disto existia.** A conta Vercel do Fly App
 > não foi definida, e a conta antiga (`adrianmatheusampc-codes-projects`) está
 > ligada a **outra** conta GitHub — ela não enxerga o `FLYAPP`. Este documento
 > descreve o que fazer, não o que está no ar. Ver [ADR 0010](../architecture/adr/0010-infraestrutura-dedicada.md).
