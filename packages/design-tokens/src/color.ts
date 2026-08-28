@@ -81,6 +81,10 @@ export const GOLD_ALLOWED_USES = [
   'billionaire-progress',
   'central-button-ring',
   'fly-black-card-detail',
+  // Fase 6: o cartao de Fly Points da Carteira. O canvas o desenha com fundo
+  // e borda douradas, e ele e o unico bloco dourado da tela — o que mantem o
+  // dourado como sinal, e nao como cor de fundo.
+  'fly-points-card',
 ] as const;
 
 export type GoldUse = (typeof GOLD_ALLOWED_USES)[number];

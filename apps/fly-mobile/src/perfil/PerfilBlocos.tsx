@@ -5,6 +5,8 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { palette } from '@/theme';
 import { Text } from '@/ui';
+import type { FlyPackage } from '@fly/design-tokens';
+import { SeloDoPacote } from '@/carteira/CarteiraBlocos';
 import asaDim from '../../assets/brand/fly-wing-dim.png';
 import { ChevronIcon } from './PerfilIcons';
 
@@ -63,13 +65,14 @@ export interface CartaoDeIdentidadeProps {
   /** E-mail da sessao. Nao ha campo de e-mail no perfil — vem do Fly ID. */
   contato?: string | null;
   /**
-   * Pacote adquirido (Standard, Black, Billionaire).
+   * Pacote adquirido, com a cor do pacote (D120): Standard **azul**, Black
+   * **branco**, Billionaire **dourado**. Vem de `customer_packages`, tabela
+   * que so operador escreve.
    *
-   * Fica `null` ate a Fase 6: **nao existe coluna de pacote no banco**. O
-   * design mostra "FLY BLACK" com dado de demonstracao, e escrever isso fixo
-   * seria inventar o que o cliente comprou. O selo simplesmente nao aparece.
+   * `null` = a Fly ainda nao registrou. O selo simplesmente nao aparece, em
+   * vez de afirmar um pacote que o cliente talvez nao tenha.
    */
-  pacote?: string | null;
+  pacote?: FlyPackage | null;
 }
 
 /** Iniciais do nome: primeira e ultima palavra, no maximo duas letras. */
@@ -118,11 +121,8 @@ export function CartaoDeIdentidade({ nome, contato, pacote }: CartaoDeIdentidade
           </Text>
         ) : null}
         {pacote ? (
-          <View style={styles.selo}>
-            <View style={styles.seloPonto} />
-            <Text variant="caption" style={styles.seloTexto}>
-              {pacote.toUpperCase()}
-            </Text>
+          <View style={styles.seloArea}>
+            <SeloDoPacote pacote={pacote} />
           </View>
         ) : null}
       </View>
@@ -308,21 +308,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.06,
     color: 'rgba(245,245,247,.42)',
   },
-  selo: {
-    marginTop: 9,
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    gap: 7,
-    height: 22,
-    paddingHorizontal: 10,
-    borderRadius: 11,
-    backgroundColor: 'rgba(255,255,255,.09)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,.2)',
-  },
-  seloPonto: { width: 5, height: 5, borderRadius: 3, backgroundColor: '#F5F5F7' },
-  seloTexto: { fontSize: 10, fontWeight: '700', letterSpacing: 1.3, color: '#fff' },
+  seloArea: { marginTop: 9, alignSelf: 'flex-start' },
 
   tituloSecao: {
     marginTop: 24,

@@ -5,6 +5,10 @@ import { StyleSheet, View } from 'react-native';
 import { palette } from '@/theme';
 import { AppHeader, EmptyState, ErrorState, FlyQR, LoadingSkeleton, Screen, Text } from '@/ui';
 import { useSession } from '@/auth/session';
+import { CartaoDePontos } from '@/carteira/CarteiraBlocos';
+import { ehPacote } from '@/carteira/pacote';
+import { progressoDoSaldo } from '@/carteira/nivel';
+import { useCarteira } from '@/carteira/useCarteira';
 import {
   BotaoSair,
   CabecalhoDoPerfil,
@@ -82,6 +86,11 @@ export default function ProfileScreen() {
   const router = useRouter();
   const ir = (href: Href) => () => router.push(href);
 
+  // O Perfil mostra pacote e nivel, e as duas coisas moram na Carteira. E o
+  // mesmo cartao de `CarteiraBlocos`, de proposito: duas implementacoes da
+  // mesma barra de progresso viram duas contas diferentes com o tempo.
+  const carteira = useCarteira(state.kind === 'signedIn' ? state.profile.id : null);
+
   if (state.kind === 'loading') {
     return (
       <Screen testID="screen-perfil">
@@ -130,9 +139,24 @@ export default function ProfileScreen() {
       <CartaoDeIdentidade
         nome={nome}
         contato={session.user.email ?? null}
-        // Fase 6: nao ha pacote no banco. O selo fica oculto ate existir.
-        pacote={null}
+        pacote={
+          carteira.kind === 'ready' && ehPacote(carteira.carteira.pacote)
+            ? carteira.carteira.pacote
+            : null
+        }
       />
+
+      {/* A faixa de Fly Points (D120). O canvas rotula esta barra de
+          "Standard/Black/Billionaire", misturando as duas escalas que a D95
+          separou — aqui ela e basic → prime → ELITE, que e o que de fato se
+          conquista acumulando. O pacote fica no selo acima, na cor dele. */}
+      {carteira.kind === 'ready' ? (
+        <CartaoDePontos
+          saldo={carteira.carteira.saldo}
+          progresso={progressoDoSaldo(carteira.carteira.saldo, carteira.carteira.limiares)}
+          validadeMeses={carteira.carteira.validadeMeses}
+        />
+      ) : null}
 
       <View style={styles.flyId}>
         <Text variant="caption" style={styles.flyIdKicker}>

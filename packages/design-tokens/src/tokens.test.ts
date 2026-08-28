@@ -48,8 +48,10 @@ describe('cores derivadas do design', () => {
 });
 
 describe('regra do dourado', () => {
-  it('declara exatamente os sete usos permitidos', () => {
-    expect(GOLD_ALLOWED_USES).toHaveLength(7);
+  it('declara exatamente os oito usos permitidos', () => {
+    // O oitavo e o cartao de Fly Points da Carteira (D129). Subir este numero
+    // sem decisao registrada e o que a regra existe para impedir.
+    expect(GOLD_ALLOWED_USES).toHaveLength(8);
   });
 
   // A aba selecionada era dourada no codigo e nunca esteve na lista. O handoff

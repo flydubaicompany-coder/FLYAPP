@@ -17,7 +17,7 @@ reler a conversa anterior. **Mantenha-o ao fim de cada fase.**
 | 3     | Home dinâmica, eventos, notificações, push, analytics | ✅ concluída                   |
 | 4     | Minha Viagem: roteiro, cofre, QR, presença            | ✅ concluída                   |
 | **5** | **Passeios, carrinho e pedidos**                      | 🟢 **entregue — uma ressalva** |
-| 6     | Carteira e fidelidade (§41)                           | não iniciada                   |
+| **6** | **Carteira e fidelidade (§41)**                       | 🟡 **fundação entregue**       |
 
 Prova: `npm run verify` (**310 testes**) e a suíte pgTAP na esteira (**262
 asserções**, 10 arquivos). A esteira agora também roda `deno check` nas Edge
@@ -78,6 +78,29 @@ badges se repetem entre as telas. Acertar o átomo conserta cinco telas.
 
 Infraestrutura, dados e as decisões de produto. O que precisa de revisão contra
 o HTML é **só o visual** de: tab bar, flutuantes, banner e blocos da Início.
+
+---
+
+## Fase 6 — o que existe e o que não
+
+**Existe:** pacote do cliente, ledger de Fly Points append-only, saldo, nível
+(basic/prime/elite), progresso, extrato, e a faixa no Perfil.
+
+**Não existe, e é decisão registrada:**
+
+| O canvas mostra                                                               | Por que não foi feito                                                                                 |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| "SALDO DISPONÍVEL R$ 8.420,00", cartão `•••• 4102`, Adicionar/Transferir, Pix | §41: "saldo financeiro e Fly Card ficam desligados sem parceiro". Não há parceiro (P09/P38). **D126** |
+| "≈ R$ 2.412" convertendo ponto em real                                        | Taxa financeira está na lista do que a §33 proíbe inventar. **D126**                                  |
+| Botão "Resgatar"                                                              | Resgate é a entrega 4 da Fase 6, não feita. **D131**                                                  |
+| Link "Ver tudo"                                                               | Não há tela de extrato completo. **D131**                                                             |
+
+Falta da Fase 6: benefícios e resgate, vouchers, pagamentos tokenizados,
+ranking opt-in, premiação, scanner de nota e tax-free.
+
+**A regra de pontos (D129):** 10 pontos por unidade de moeda, 2.000 por
+check-in em evento, 5.000 por indicação. Prime 25.000, elite 100.000, validade
+24 meses. Tudo em `app_config` — **mudar limiar não exige release**.
 
 ---
 
