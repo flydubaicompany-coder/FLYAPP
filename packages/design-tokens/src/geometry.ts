@@ -107,6 +107,57 @@ export const bottomBar = {
   homeIndicator: { width: 140, height: 5, radius: 3, bottom: 9 },
 } as const;
 
+/**
+ * As duas acoes flutuantes (§4.2 da spec, secao 2 do handoff).
+ *
+ * O design pede que elas parecam **materiais opostos**, e por isso ficam em
+ * lados opostos da tela: o carrinho e vidro grafite a direita; o SOS e branco
+ * solido a esquerda. Ate 28/08/2026 as duas eram escuras e ficavam empilhadas
+ * do mesmo lado, o que apagava justamente a diferenca que a §4.2 exige.
+ */
+export const floating = {
+  cart: {
+    size: 56,
+    radius: 28,
+    right: 20,
+    bottom: 102,
+    /** Gradiente a 165 graus. */
+    gradient: ['rgba(40,40,45,.8)', 'rgba(13,13,15,.92)'],
+    border: 'rgba(223,201,138,.3)',
+    blur: 28,
+    shadow: { color: 'rgba(0,0,0,.88)', offsetY: 16, blur: 36 },
+    goldGlow: { color: 'rgba(223,201,138,.1)', blur: 24 },
+    innerHighlight: 'rgba(255,255,255,.1)',
+    badge: {
+      minWidth: 22,
+      height: 22,
+      radius: 11,
+      top: -3,
+      right: -3,
+      textColor: '#0A0A0B',
+      fontSize: 12,
+      /** O pulo ao somar item. Unico lugar que usa a curva `overshoot`. */
+      popScale: 1.22,
+      popMs: 380,
+    },
+  },
+  sos: {
+    size: 50,
+    radius: 25,
+    left: 20,
+    bottom: 104,
+    background: '#F2F2F5',
+    glyph: '#0A0A0B',
+    ringWidth: 1.5,
+    ringColor: 'rgba(242,242,245,.5)',
+    pulseMs: 2800,
+    pulseScale: 1.6,
+    pulseOpacity: 0.55,
+    shadow: { color: 'rgba(0,0,0,.75)', offsetY: 12, blur: 28 },
+    panel: { width: 242, radius: 24, background: 'rgba(22,22,26,.84)', blur: 34 },
+  },
+} as const;
+
 export const centralButton = {
   /** Diametro do circulo. */
   core: 62,
@@ -167,6 +218,7 @@ export const geometry = {
   touchTarget,
   safeArea,
   bottomBar,
+  floating,
   centralButton,
   centralButtonVisualSize,
   referenceDevice,

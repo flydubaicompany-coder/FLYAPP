@@ -22,13 +22,22 @@ export type DurationToken = keyof typeof duration;
 /**
  * Curvas em formato de bezier cubico. `[x1, y1, x2, y2]`.
  */
+/**
+ * Tres curvas, e **so** estas tres (regra 7 do handoff de 28/08/2026).
+ *
+ * As anteriores eram as do Material e nunca chegaram a ser usadas — a troca
+ * nao mexeu em nenhuma animacao existente.
+ *
+ * `overshoot` tem uso unico e declarado: o pulo do badge do carrinho. Nao e
+ * curva de proposito geral, e espalha-la deixa a interface saltitante.
+ */
 export const easing = {
-  /** Entrada de elemento: desacelera no fim. */
-  decelerate: [0, 0, 0.2, 1],
-  /** Saida de elemento: acelera no fim. */
-  accelerate: [0.4, 0, 1, 1],
-  /** Movimento de ida e volta na tela. */
-  standard: [0.4, 0, 0.2, 1],
+  /** Entradas e revelacoes. */
+  enter: [0.22, 1, 0.36, 1],
+  /** Movimento continuo: carrossel, knob de toggle, arraste. */
+  continuous: [0.32, 0.9, 0.28, 1],
+  /** So o pulo do badge do carrinho. */
+  overshoot: [0.34, 1.56, 0.64, 1],
 } as const satisfies Record<string, readonly [number, number, number, number]>;
 
 export type EasingToken = keyof typeof easing;

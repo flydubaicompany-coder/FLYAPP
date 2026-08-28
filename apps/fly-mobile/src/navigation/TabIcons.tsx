@@ -100,3 +100,20 @@ export function AssistIcon({ color, size = 22 }: TabIconProps) {
     </Frame>
   );
 }
+
+/**
+ * Mira do botao Fly Assist / SOS.
+ *
+ * O handoff pede "glifo escuro de mira" — equivalente ao `dot.scope` das SF
+ * Symbols. Substitui o fone de ouvido, que dizia "atendimento" quando o botao
+ * precisa dizer "socorro".
+ */
+export function ScopeIcon({ color, size = 22 }: TabIconProps) {
+  return (
+    <Frame color={color} size={size}>
+      <Path d="M12 4.4a7.6 7.6 0 1 1 0 15.2 7.6 7.6 0 0 1 0-15.2Z" />
+      <Path d="M12 1.9v3.4M12 18.7v3.4M1.9 12h3.4M18.7 12h3.4" />
+      <Path d="M12 10.6a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8Z" />
+    </Frame>
+  );
+}

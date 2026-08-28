@@ -92,6 +92,8 @@ export function shadowStyle(name: keyof typeof elevation.shadow): ViewStyle {
   };
 }
 
+export const floating = geometry.floating;
+export const easing = motion.easing;
 export const radius = geometry.radius;
 export const touchTarget = geometry.touchTarget;
 export const bottomBar = geometry.bottomBar;

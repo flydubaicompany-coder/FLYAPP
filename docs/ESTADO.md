@@ -400,6 +400,9 @@ decision log. O resumo:
 - **`npx skills add` e `npx impeccable install` põem código de terceiro em
   `.claude/skills`, `.agents`, `.codex` e `.github`.** O ESLint passou a acusar
   8.052 problemas até esses caminhos entrarem no ignore.
+- **No React Native Web, filho `position: absolute` pinta por cima de irmao
+  estatico**, mesmo vindo antes no JSX. O gradiente do botao de carrinho
+  cobriu o icone inteiro. Quem precisa ficar por cima leva `zIndex`.
 - **`<Link asChild>` do expo-router nao repassa o `style` do `Pressable`.** O
   elemento do link recebe `css-view`, `r-cursor` e `r-touchAction` e mais nada:
   some altura, raio, fundo e borda. Com altura fixa, o card colapsa para zero e

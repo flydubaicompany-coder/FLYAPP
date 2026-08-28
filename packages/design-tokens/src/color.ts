@@ -22,12 +22,19 @@ export const surface = {
 /** Texto. Hierarquia por opacidade, nunca por matiz. */
 export const text = {
   primary: '#F5F5F7',
-  /** Texto de apoio — 66% sobre `surface.base`. */
-  secondary: 'rgba(245,245,247,.66)',
-  /** Legendas e metadados — 42%. */
-  tertiary: 'rgba(245,245,247,.42)',
-  /** Texto desativado — 30%. */
-  disabled: 'rgba(245,245,247,.3)',
+  /**
+   * Subtitulos e metadados — 45%, **4,21:1** sobre `surface.base`.
+   *
+   * Abaixo dos 4,5:1 que a WCAG AA pede para texto normal. O valor vem do
+   * handoff de 28/08/2026 e foi mantido **por decisao explicita do dono**,
+   * que escolheu fidelidade ao design sobre o limiar de contraste depois de
+   * a medicao ser apresentada. Era `.66` (8,08:1) ate entao. Ver D111 e P44.
+   */
+  secondary: 'rgba(245,245,247,.45)',
+  /** Rotulos auxiliares — 36%, 3,06:1. So texto grande e UI. */
+  tertiary: 'rgba(245,245,247,.36)',
+  /** Chevrons e estados desligados — 28%, 2,28:1. So controle inativo. */
+  disabled: 'rgba(245,245,247,.28)',
 } as const;
 
 /**
@@ -170,9 +177,13 @@ export const fill = {
 export const textContrastUse = {
   /** 18.4:1 — livre para qualquer uso. */
   primary: ['normalText', 'largeText', 'uiComponent'],
-  /** 8.1:1 — livre para qualquer uso. */
-  secondary: ['normalText', 'largeText', 'uiComponent'],
-  /** 3.8:1 — SOMENTE texto grande (>=18pt) e elementos de UI. */
+  /**
+   * 4.21:1 — **NAO passa em texto normal.** O design pede este valor e o dono
+   * escolheu segui-lo (D111). O contrato diz a verdade sobre o que ele
+   * aguenta, em vez de fingir que passa: texto grande e elemento de UI.
+   */
+  secondary: ['largeText', 'uiComponent'],
+  /** 3.06:1 — SOMENTE texto grande (>=18pt) e elementos de UI. */
   tertiary: ['largeText', 'uiComponent'],
   /**
    * 2.5:1 — abaixo de qualquer limiar. Permitido apenas em controle

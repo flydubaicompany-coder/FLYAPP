@@ -73,7 +73,6 @@ describe('paleta sobre os fundos reais', () => {
   describe.each(FUNDOS)('sobre %s', (_nome, bg) => {
     it.each([
       ['text.primary', color.text.primary],
-      ['text.secondary', color.text.secondary],
       ['gold.base', color.gold.base],
       ['status.warning', color.status.warning],
       ['status.success', color.status.success],
@@ -82,6 +81,18 @@ describe('paleta sobre os fundos reais', () => {
       ['flyPackage.billionaire.label', color.flyPackage.billionaire.label],
     ])('%s passa AA para texto normal', (_token, fg) => {
       expect(contrastRatio(fg, bg)).toBeGreaterThanOrEqual(WCAG_AA.normalText);
+    });
+
+    // `text.secondary` mudou de .66 para .45 em 28/08/2026, seguindo o
+    // handoff. Deixou de passar em texto normal e o contrato foi atualizado
+    // junto — este teste existe para a queda ficar visivel, e nao silenciosa.
+    it('text.secondary NAO passa mais em texto normal — decisao registrada em D111', () => {
+      expect(meetsAA(color.text.secondary, bg, 'normalText')).toBe(false);
+      expect(textContrastUse.secondary).not.toContain('normalText');
+    });
+
+    it('text.secondary ainda passa para texto grande e UI', () => {
+      expect(contrastRatio(color.text.secondary, bg)).toBeGreaterThanOrEqual(WCAG_AA.largeText);
     });
 
     it('text.tertiary passa para texto grande e UI', () => {
