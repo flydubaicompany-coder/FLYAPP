@@ -17,7 +17,7 @@
 
 begin;
 
-select plan(21);
+select plan(29);
 
 insert into auth.users (id, instance_id, aud, role, email, encrypted_password, created_at, updated_at,
   confirmation_token, recovery_token, email_change, email_change_token_new,
@@ -198,6 +198,93 @@ select ok(
 select ok(
   not has_table_privilege('authenticated', 'public.points_ledger', 'UPDATE'),
   'nem authenticated tem privilegio de UPDATE no ledger: append-only tambem no GRANT');
+
+-- =============================================================================
+-- A compra rende pontos sozinha (§41, entrega 6).
+--
+-- Os tres criterios que estas asercoes fecham:
+--   "compra elegivel lanca pontos uma vez"
+--   "webhook repetido nao pontua duas vezes"
+--   "reembolso cria reversao"
+-- =============================================================================
+
+reset role;
+
+insert into public.destinations (id, slug, name, country, timezone)
+values ('dddd0000-0000-0000-0000-0000000000dd','carteira-dubai','Dubai','Emirados','Asia/Dubai')
+on conflict (slug) do nothing;
+
+-- Pedido de 500 unidades de moeda (50.000 centavos). A regra da 20260828020000
+-- da 10 pontos por unidade, entao o credito esperado e 5.000.
+insert into public.orders
+  (id, user_id, reference, status, currency, subtotal_cents, discount_cents, total_cents)
+values
+  ('0dd10000-0000-0000-0000-00000000dd10','cc220000-0000-0000-0000-0000000000c2',
+   'FLY-TESTE-1','pending_payment','AED',50000,0,50000);
+
+select is(
+  (select count(*)::int from public.points_ledger
+   where user_id = 'cc220000-0000-0000-0000-0000000000c2'),
+  0,
+  'pedido ainda nao pago nao rende ponto');
+
+update public.orders set status = 'confirmed'
+where id = '0dd10000-0000-0000-0000-00000000dd10';
+
+select is(
+  (select balance from public.points_balance where user_id = 'cc220000-0000-0000-0000-0000000000c2'),
+  5000,
+  'compra confirmada lanca pontos: 500 unidades x 10 = 5.000');
+
+select is(
+  (select rule_version from public.points_ledger
+   where user_id = 'cc220000-0000-0000-0000-0000000000c2' and kind = 'earn'),
+  'v1',
+  'o lancamento guarda a versao da regra, para o passado continuar explicavel');
+
+select isnt(
+  (select expires_on from public.points_ledger
+   where user_id = 'cc220000-0000-0000-0000-0000000000c2' and kind = 'earn'),
+  null,
+  'o lancamento nasce com data de vencimento (24 meses)');
+
+-- Webhook repetido: o mesmo update roda de novo.
+update public.orders set status = 'confirmed'
+where id = '0dd10000-0000-0000-0000-00000000dd10';
+update public.orders set status = 'paid'
+where id = '0dd10000-0000-0000-0000-00000000dd10';
+update public.orders set status = 'confirmed'
+where id = '0dd10000-0000-0000-0000-00000000dd10';
+
+select is(
+  (select count(*)::int from public.points_ledger
+   where user_id = 'cc220000-0000-0000-0000-0000000000c2' and kind = 'earn'),
+  1,
+  'webhook repetido NAO pontua duas vezes: a idempotency key segura');
+
+-- Reembolso de 40% (20.000 de 50.000) estorna 40% dos pontos.
+insert into public.refunds (order_id, amount_cents, currency, reason)
+values ('0dd10000-0000-0000-0000-00000000dd10', 20000, 'AED', 'Teste de estorno parcial');
+
+select is(
+  (select balance from public.points_balance where user_id = 'cc220000-0000-0000-0000-0000000000c2'),
+  3000,
+  'reembolso parcial estorna proporcional: 5.000 menos 40% = 3.000');
+
+-- O resto do reembolso nao pode estornar mais do que foi creditado.
+insert into public.refunds (order_id, amount_cents, currency, reason)
+values ('0dd10000-0000-0000-0000-00000000dd10', 30000, 'AED', 'Teste do restante');
+
+select is(
+  (select balance from public.points_balance where user_id = 'cc220000-0000-0000-0000-0000000000c2'),
+  0,
+  'reembolso total zera os pontos daquela compra, e nao passa disso');
+
+select is(
+  (select count(*)::int from public.points_ledger
+   where user_id = 'cc220000-0000-0000-0000-0000000000c2'),
+  3,
+  'o extrato mantem credito e os dois estornos: nada foi apagado');
 
 select * from finish();
 rollback;

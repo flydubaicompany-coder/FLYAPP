@@ -84,7 +84,9 @@ o HTML é **só o visual** de: tab bar, flutuantes, banner e blocos da Início.
 ## Fase 6 — o que existe e o que não
 
 **Existe:** pacote do cliente, ledger de Fly Points append-only, saldo, nível
-(basic/prime/elite), progresso, extrato, e a faixa no Perfil.
+(basic/prime/elite), progresso, extrato, a faixa no Perfil, e **o crédito
+automático**: a compra confirmada rende pontos por gatilho, e o reembolso
+estorna proporcional. Nenhum lançamento é inserido à mão.
 
 **Não existe, e é decisão registrada:**
 
