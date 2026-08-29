@@ -35,6 +35,31 @@ export interface Voucher {
   valeAte: string | null;
 }
 
+/**
+ * Uma linha do extrato.
+ *
+ * O canvas mistura os dois dominios numa lista so — "− R$ 1.240" ao lado de
+ * "+ 2.480 pts" — e esta e a leitura certa: o cliente quer ver **o que
+ * aconteceu**, em ordem, e nao dois extratos que ele precisa cruzar de cabeca.
+ *
+ * O que **nao** se mistura e a conta: dinheiro e pontos continuam em ledgers
+ * separados, com saldos separados. A juncao acontece so na hora de exibir.
+ */
+export interface Movimento {
+  id: string;
+  quando: string;
+  titulo: string;
+  detalhe: string;
+  /** `pontos` ou `dinheiro`. Decide o sufixo e a cor. */
+  dominio: 'pontos' | 'dinheiro';
+  /** Pontos, ou centavos. Assinado. */
+  valor: number;
+  moeda: string | null;
+  origem: string;
+  /** Estorno e vencimento aparecem apagados. */
+  apagado: boolean;
+}
+
 export interface Carteira {
   saldo: number;
   /** Pacote adquirido. `null` = a Fly ainda nao registrou. */
@@ -50,6 +75,8 @@ export interface Carteira {
   lancamentos: Lancamento[];
   /** Vouchers ainda nao usados. Usado some da Carteira. */
   vouchers: Voucher[];
+  /** Extrato unico, dinheiro e pontos em ordem cronologica. */
+  movimentos: Movimento[];
 }
 
 export type CarteiraData =
@@ -72,6 +99,38 @@ function descrever(
     return `${moeda} ${v} de desconto`;
   }
   return 'desconto';
+}
+
+const TITULO_PONTOS: Record<string, string> = {
+  order: 'Experiência comprada',
+  event: 'Check-in em evento Fly',
+  referral: 'Indicação',
+  checkin: 'Check-in',
+  challenge: 'Desafio',
+  ops: 'Ajuste da Fly',
+  benefit: 'Resgate de benefício',
+  system: 'Pontos vencidos',
+};
+
+function tituloDePontos(kind: string, source: string): string {
+  if (kind === 'earn') return TITULO_PONTOS[source] ?? 'Pontos creditados';
+  if (kind === 'redeem') return 'Resgate de benefício';
+  if (kind === 'expire') return 'Pontos vencidos';
+  if (kind === 'reverse') return 'Estorno de pontos';
+  return 'Ajuste da Fly';
+}
+
+const TITULO_DINHEIRO: Record<string, string> = {
+  credit: 'Crédito da Fly',
+  topup: 'Recarga da carteira',
+  debit: 'Pago com a carteira',
+  refund: 'Reembolso em crédito',
+  adjust: 'Ajuste da Fly',
+  reverse: 'Estorno',
+};
+
+function tituloDeDinheiro(kind: string): string {
+  return TITULO_DINHEIRO[kind] ?? 'Movimentação';
 }
 
 /** Le um numero de `app_config`, aceitando nulo como "ainda nao decidido". */
@@ -104,7 +163,7 @@ export function useCarteira(userId: string | null): CarteiraHook {
     if (!userId) return setData({ kind: 'loading' });
     const db = supabase();
 
-    const [saldoRes, pacoteRes, configRes, extratoRes, vouchersRes, carteiraRes] =
+    const [saldoRes, pacoteRes, configRes, extratoRes, vouchersRes, carteiraRes, dinheiroRes] =
       await Promise.all([
         db.from('points_balance').select('balance').eq('user_id', userId).maybeSingle(),
         db.from('customer_packages').select('package').eq('user_id', userId).maybeSingle(),
@@ -127,6 +186,12 @@ export function useCarteira(userId: string | null): CarteiraHook {
           .is('used_at', null)
           .order('granted_at', { ascending: false }),
         db.from('wallet_balance').select('currency, balance_cents').eq('user_id', userId),
+        db
+          .from('wallet_entries')
+          .select('id, kind, amount_cents, currency, source, reference, occurred_at, reason')
+          .eq('user_id', userId)
+          .order('occurred_at', { ascending: false })
+          .limit(20),
       ]);
 
     // O extrato e o saldo sao o coracao da tela: se qualquer um falhar, a tela
@@ -136,6 +201,32 @@ export function useCarteira(userId: string | null): CarteiraHook {
 
     const config = new Map((configRes.data ?? []).map((c) => [c.key, c.value]));
     const limiaresCrus = config.get('points.level_thresholds') as Record<string, unknown> | null;
+
+    // Os dois extratos viram um so, em ordem. As contas continuam separadas:
+    // a juncao acontece na exibicao, e nao no saldo.
+    const dePontos: Movimento[] = (extratoRes.data ?? []).map((l) => ({
+      id: `p:${l.id}`,
+      quando: l.occurred_at,
+      titulo: tituloDePontos(l.kind, l.source),
+      detalhe: l.reason ?? l.reference ?? '',
+      dominio: 'pontos' as const,
+      valor: l.amount,
+      moeda: null,
+      origem: l.source,
+      apagado: l.kind === 'reverse' || l.kind === 'expire',
+    }));
+
+    const deDinheiro: Movimento[] = (dinheiroRes.data ?? []).map((w) => ({
+      id: `d:${w.id}`,
+      quando: w.occurred_at,
+      titulo: tituloDeDinheiro(w.kind),
+      detalhe: w.reason ?? w.reference ?? '',
+      dominio: 'dinheiro' as const,
+      valor: Number(w.amount_cents),
+      moeda: w.currency,
+      origem: w.source,
+      apagado: w.kind === 'reverse',
+    }));
 
     setData({
       kind: 'ready',
@@ -170,6 +261,7 @@ export function useCarteira(userId: string | null): CarteiraHook {
             ),
             valeAte: v.coupons?.valid_until ?? null,
           })),
+        movimentos: [...dePontos, ...deDinheiro].sort((a, b) => b.quando.localeCompare(a.quando)),
         lancamentos: (extratoRes.data ?? []).map((l) => ({
           id: l.id,
           tipo: l.kind as TipoDeLancamento,

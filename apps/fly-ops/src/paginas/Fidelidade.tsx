@@ -21,7 +21,11 @@ interface ClienteFidelidade {
   nome: string;
   flyId: string;
   pacote: string | null;
+  /** Saldo de Fly Points. */
   saldo: number;
+  /** Saldo financeiro em centavos, e a moeda dele. */
+  carteiraCentavos: number;
+  moeda: string;
 }
 
 interface BeneficioOps {
@@ -106,40 +110,53 @@ export function Fidelidade() {
   const [pontos, setPontos] = useState('');
   const [motivo, setMotivo] = useState('');
 
+  // Credito de carteira: dinheiro, dominio separado dos pontos.
+  const [creditando, setCreditando] = useState<string | null>(null);
+  const [valor, setValor] = useState('');
+  const [motivoValor, setMotivoValor] = useState('');
+
   const carregar = useCallback(async () => {
     const db = supabase();
 
-    const [perfis, pacotes, saldos, bens, config, pers, scores, cups, vchs] = await Promise.all([
-      db.from('profiles').select('id, public_id, preferred_name, display_name').limit(200),
-      db.from('customer_packages').select('user_id, package'),
-      db.from('points_balance').select('user_id, balance'),
-      db
-        .from('benefits')
-        .select('id, key, title, points_cost, stock, min_level, is_active')
-        .order('sort_order'),
-      db
-        .from('app_config')
-        .select('key, value')
-        .in('key', ['points.level_thresholds', 'points.validity_months', 'points.earning_rule']),
-      db
-        .from('ranking_periods')
-        .select(
-          'id, key, label, dimension, starts_on, ends_on, basis, criteria_note, is_published, computed_at',
-        )
-        .order('starts_on', { ascending: false }),
-      db.from('ranking_scores').select('period_id'),
-      db.from('coupons').select('code, label, is_active').order('code'),
-      db
-        .from('customer_vouchers')
-        .select('id, user_id, coupon_code, granted_at, used_at')
-        .order('granted_at', { ascending: false })
-        .limit(50),
-    ]);
+    const [perfis, pacotes, saldos, carteiras, bens, config, pers, scores, cups, vchs] =
+      await Promise.all([
+        db.from('profiles').select('id, public_id, preferred_name, display_name').limit(200),
+        db.from('customer_packages').select('user_id, package'),
+        db.from('points_balance').select('user_id, balance'),
+        db.from('wallet_balance').select('user_id, currency, balance_cents'),
+        db
+          .from('benefits')
+          .select('id, key, title, points_cost, stock, min_level, is_active')
+          .order('sort_order'),
+        db
+          .from('app_config')
+          .select('key, value')
+          .in('key', ['points.level_thresholds', 'points.validity_months', 'points.earning_rule']),
+        db
+          .from('ranking_periods')
+          .select(
+            'id, key, label, dimension, starts_on, ends_on, basis, criteria_note, is_published, computed_at',
+          )
+          .order('starts_on', { ascending: false }),
+        db.from('ranking_scores').select('period_id'),
+        db.from('coupons').select('code, label, is_active').order('code'),
+        db
+          .from('customer_vouchers')
+          .select('id, user_id, coupon_code, granted_at, used_at')
+          .order('granted_at', { ascending: false })
+          .limit(50),
+      ]);
 
     if (perfis.error) return setErro(perfis.error.message);
 
     const porPacote = new Map((pacotes.data ?? []).map((p) => [p.user_id, p.package]));
     const porSaldo = new Map((saldos.data ?? []).map((s) => [s.user_id, s.balance ?? 0]));
+    const porCarteira = new Map(
+      (carteiras.data ?? []).map((w) => [
+        w.user_id,
+        { centavos: Number(w.balance_cents ?? 0), moeda: w.currency },
+      ]),
+    );
 
     setClientes(
       (perfis.data ?? []).map((p) => ({
@@ -148,6 +165,8 @@ export function Fidelidade() {
         flyId: p.public_id,
         pacote: porPacote.get(p.id) ?? null,
         saldo: porSaldo.get(p.id) ?? 0,
+        carteiraCentavos: porCarteira.get(p.id)?.centavos ?? 0,
+        moeda: porCarteira.get(p.id)?.moeda ?? 'AED',
       })),
     );
 
@@ -345,6 +364,68 @@ export function Fidelidade() {
     setOcupado(false);
   }
 
+  function dinheiro(centavos: number, moeda: string): string {
+    try {
+      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: moeda }).format(
+        centavos / 100,
+      );
+    } catch {
+      return `${moeda} ${(centavos / 100).toFixed(2)}`;
+    }
+  }
+
+  async function lancarCredito(c: ClienteFidelidade) {
+    // Aceita "150" e "150,50". Virgula porque e o separador que se digita aqui.
+    const n = Number(valor.replace(',', '.'));
+    if (!Number.isFinite(n) || n === 0) {
+      return setErro('O valor é um número diferente de zero. Negativo tira da carteira.');
+    }
+    if (!motivoValor.trim()) {
+      return setErro('O crédito exige motivo — é dinheiro, e alguém vai auditar.');
+    }
+
+    const centavos = Math.round(n * 100);
+    if (
+      !confirm(
+        `${centavos > 0 ? 'Creditar' : 'Debitar'} ${dinheiro(Math.abs(centavos), c.moeda)} ` +
+          `${centavos > 0 ? 'para' : 'de'} ${c.nome}?\n\n` +
+          `Saldo hoje: ${dinheiro(c.carteiraCentavos, c.moeda)}\n` +
+          `Saldo depois: ${dinheiro(c.carteiraCentavos + centavos, c.moeda)}\n\n` +
+          `Isto é dinheiro e não pode ser apagado. Corrigir exige outro lançamento.`,
+      )
+    ) {
+      return;
+    }
+
+    setOcupado(true);
+    setErro(null);
+    const { error } = await supabase()
+      .from('wallet_entries')
+      .insert({
+        user_id: c.id,
+        // Positivo que a Fly concede e `credit`; negativo e `adjust`, porque
+        // `debit` e reservado a gasto do cliente na Fly.
+        kind: centavos > 0 ? 'credit' : 'adjust',
+        amount_cents: centavos,
+        currency: c.moeda as 'AED',
+        source: 'ops',
+        reason: motivoValor.trim(),
+        idempotency_key: `ops:wallet:${c.id}:${Date.now()}`,
+      });
+
+    if (error) setErro(error.message);
+    else {
+      setRecado(
+        `${dinheiro(Math.abs(centavos), c.moeda)} ${centavos > 0 ? 'creditados para' : 'debitados de'} ${c.nome}.`,
+      );
+      setCreditando(null);
+      setValor('');
+      setMotivoValor('');
+    }
+    await carregar();
+    setOcupado(false);
+  }
+
   async function entregarVoucher() {
     if (!vCliente || !vCupom) return setErro('Escolha o cliente e o cupom.');
     setOcupado(true);
@@ -476,9 +557,10 @@ export function Fidelidade() {
               <tr>
                 <th>Cliente</th>
                 <th>Pacote</th>
-                <th>Saldo</th>
+                <th>Fly Points</th>
                 <th>Nível</th>
-                <th>Ajuste</th>
+                <th>Carteira</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -508,18 +590,33 @@ export function Fidelidade() {
                   </td>
                   <td className="mono">{formatar(c.saldo)}</td>
                   <td>{nivelDe(c.saldo, regra)}</td>
+                  <td className="mono">{dinheiro(c.carteiraCentavos, c.moeda)}</td>
                   <td>
                     <button
                       type="button"
                       className={ajustando === c.id ? 'botao' : 'botao botao--fantasma'}
                       onClick={() => {
                         setAjustando(ajustando === c.id ? null : c.id);
+                        setCreditando(null);
                         setPontos('');
                         setMotivo('');
                         setErro(null);
                       }}
                     >
-                      {ajustando === c.id ? 'Fechando' : 'Ajustar'}
+                      {ajustando === c.id ? 'Fechando' : 'Pontos'}
+                    </button>{' '}
+                    <button
+                      type="button"
+                      className={creditando === c.id ? 'botao' : 'botao botao--fantasma'}
+                      onClick={() => {
+                        setCreditando(creditando === c.id ? null : c.id);
+                        setAjustando(null);
+                        setValor('');
+                        setMotivoValor('');
+                        setErro(null);
+                      }}
+                    >
+                      {creditando === c.id ? 'Fechando' : 'Dinheiro'}
                     </button>
                   </td>
                 </tr>
@@ -527,6 +624,73 @@ export function Fidelidade() {
             </tbody>
           </table>
         </div>
+
+        {creditando ? (
+          <div className="bloco">
+            {(() => {
+              const c = clientes.find((x) => x.id === creditando);
+              if (!c) return null;
+              const n = Number(valor.replace(',', '.'));
+              const centavos = Number.isFinite(n) ? Math.round(n * 100) : 0;
+              return (
+                <>
+                  <h3>Carteira de {c.nome}</h3>
+                  <p className="muted">
+                    Isto é <strong>dinheiro</strong>, e é domínio separado dos Fly Points. Serve
+                    para cortesia, reembolso convertido em crédito e correção de operação. Como o
+                    extrato é append-only, corrigir depois exige outro lançamento.
+                  </p>
+
+                  <div className="form form--linha">
+                    <label className="field">
+                      <span className="muted">Valor em {c.moeda} (negativo tira)</span>
+                      <input
+                        value={valor}
+                        onChange={(e) => setValor(e.target.value)}
+                        placeholder="150,00"
+                        inputMode="decimal"
+                      />
+                    </label>
+                    <label className="field">
+                      <span className="muted">Motivo</span>
+                      <input
+                        value={motivoValor}
+                        onChange={(e) => setMotivoValor(e.target.value)}
+                        placeholder="Cortesia por atraso no transfer"
+                      />
+                    </label>
+                  </div>
+
+                  <p className="muted">
+                    Saldo hoje <span className="mono">{dinheiro(c.carteiraCentavos, c.moeda)}</span>{' '}
+                    → depois{' '}
+                    <span className="mono">
+                      <strong>{dinheiro(c.carteiraCentavos + centavos, c.moeda)}</strong>
+                    </span>
+                  </p>
+
+                  {c.carteiraCentavos + centavos < 0 ? (
+                    <p className="aviso">
+                      Este lançamento deixaria a carteira negativa. O banco aceita — ajuste existe
+                      para corrigir erro —, mas confira antes.
+                    </p>
+                  ) : null}
+
+                  <div className="acoes">
+                    <button
+                      type="button"
+                      className="botao"
+                      disabled={ocupado}
+                      onClick={() => void lancarCredito(c)}
+                    >
+                      Lançar na carteira
+                    </button>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        ) : null}
 
         {ajustando ? (
           <div className="bloco">

@@ -83,9 +83,11 @@ o HTML é **só o visual** de: tab bar, flutuantes, banner e blocos da Início.
 
 ## Fase 6 — o que existe e o que não
 
-**Existe:** pacote do cliente, ledger de Fly Points append-only, saldo, nível
-(basic/prime/elite), progresso, extrato, a faixa no Perfil, **benefícios com
-resgate atômico** (estoque, elegibilidade por nível e pacote, código para
+**Existe:** o **cartão com saldo em dinheiro** (`wallet_entries`, ledger
+próprio), pacote do cliente, ledger de Fly Points append-only, saldo, nível
+(basic/prime/elite), progresso, **extrato único** com dinheiro e pontos em
+ordem, vouchers nominais, a faixa no Perfil, **benefícios com resgate
+atômico** (estoque, elegibilidade por nível e pacote, código para
 apresentar na Base Fly), e **o crédito automático**: a compra confirmada rende pontos por gatilho, e o reembolso
 estorna proporcional. Nenhum lançamento é inserido à mão.
 

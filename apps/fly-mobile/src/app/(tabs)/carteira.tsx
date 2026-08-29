@@ -19,7 +19,7 @@ import {
 } from '@/carteira/CarteiraBlocos';
 import { ehPacote } from '@/carteira/pacote';
 import { progressoDoSaldo } from '@/carteira/nivel';
-import { useCarteira, type Lancamento } from '@/carteira/useCarteira';
+import { useCarteira } from '@/carteira/useCarteira';
 import { EXPLICACAO, useBeneficios, type Beneficio } from '@/carteira/useBeneficios';
 
 /**
@@ -151,28 +151,6 @@ function IconeExtrato() {
       <Path d="M9 10.6h7M9 14.4h7" stroke={TRACO_ACAO} strokeWidth={1.7} strokeLinecap="round" />
     </Svg>
   );
-}
-
-const NOME_DA_ORIGEM: Record<string, string> = {
-  order: 'Experiência comprada',
-  event: 'Check-in em evento Fly',
-  referral: 'Indicação',
-  checkin: 'Check-in',
-  challenge: 'Desafio',
-  ops: 'Ajuste da Fly',
-};
-
-const NOME_DO_TIPO: Record<Lancamento['tipo'], string> = {
-  earn: 'Pontos creditados',
-  redeem: 'Resgate',
-  expire: 'Pontos vencidos',
-  adjust: 'Ajuste da Fly',
-  reverse: 'Estorno',
-};
-
-function tituloDoLancamento(l: Lancamento): string {
-  if (l.tipo === 'earn') return NOME_DA_ORIGEM[l.origem] ?? 'Pontos creditados';
-  return NOME_DO_TIPO[l.tipo];
 }
 
 function dataCurta(iso: string): string {
@@ -359,28 +337,28 @@ export default function WalletScreen() {
 
       <TituloDeSecao>Movimentações</TituloDeSecao>
 
-      {carteira.lancamentos.length === 0 ? (
+      {carteira.movimentos.length === 0 ? (
         <View style={styles.vazio}>
           <Text variant="body" style={styles.vazioTitulo}>
             Nenhuma movimentação ainda
           </Text>
           <Text variant="body" style={styles.vazioNota}>
-            Seus primeiros pontos aparecem aqui depois da primeira experiência.
+            Suas compras, créditos e pontos aparecem aqui.
           </Text>
         </View>
       ) : (
         <GrupoDeMovimentos>
-          {carteira.lancamentos.map((l, n) => (
-            <View key={l.id}>
+          {carteira.movimentos.map((m, n) => (
+            <View key={m.id}>
               {n > 0 ? <DivisorDeMovimento /> : null}
               <LinhaDeMovimento
-                titulo={tituloDoLancamento(l)}
-                detalhe={
-                  l.motivo ?? `${dataCurta(l.quando)}${l.referencia ? ` · ${l.referencia}` : ''}`
-                }
-                pontos={l.pontos}
-                apagado={l.tipo === 'reverse' || l.tipo === 'expire'}
-                icone={<IconePorOrigem origem={l.origem} positivo={l.pontos > 0} />}
+                titulo={m.titulo}
+                detalhe={[dataCurta(m.quando), m.detalhe].filter(Boolean).join(' · ')}
+                valor={m.valor}
+                dominio={m.dominio}
+                moeda={m.moeda}
+                apagado={m.apagado}
+                icone={<IconePorOrigem origem={m.origem} positivo={m.valor > 0} />}
               />
             </View>
           ))}

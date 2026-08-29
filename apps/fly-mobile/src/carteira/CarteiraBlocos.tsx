@@ -139,7 +139,11 @@ export function CartaoDePontos({ saldo, progresso, validadeMeses }: CartaoDePont
 export interface MovimentoProps {
   titulo: string;
   detalhe: string;
-  pontos: number;
+  /** Pontos, ou centavos. Assinado. */
+  valor: number;
+  /** Decide o sufixo e a cor: pontos sao dourados, dinheiro e neutro. */
+  dominio: 'pontos' | 'dinheiro';
+  moeda: string | null;
   icone: ReactNode;
   /** Estorno e vencimento aparecem apagados: saiu, mas nao foi gasto. */
   apagado?: boolean;
@@ -148,14 +152,27 @@ export interface MovimentoProps {
 export function LinhaDeMovimento({
   titulo,
   detalhe,
-  pontos,
+  valor,
+  dominio,
+  moeda,
   icone,
   apagado = false,
 }: MovimentoProps) {
-  const positivo = pontos > 0;
+  const positivo = valor > 0;
+  /* Pontos em dourado, dinheiro em branco. E o que separa as duas escalas na
+     lista unica sem precisar de dois blocos — o canvas faz igual. */
+  const texto =
+    dominio === 'pontos'
+      ? `${formatar(Math.abs(valor))} pts`
+      : new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: moeda ?? 'AED',
+        }).format(Math.abs(valor) / 100);
   return (
     <View style={styles.movimento}>
-      <View style={[styles.movIcone, positivo && styles.movIconeOuro]}>{icone}</View>
+      <View style={[styles.movIcone, positivo && dominio === 'pontos' && styles.movIconeOuro]}>
+        {icone}
+      </View>
       <View style={styles.movTexto}>
         <Text variant="body" numberOfLines={1} style={styles.movTitulo}>
           {titulo}
@@ -166,9 +183,13 @@ export function LinhaDeMovimento({
       </View>
       <Text
         variant="body"
-        style={[styles.movPontos, positivo && styles.movPontosOuro, apagado && styles.movApagado]}
+        style={[
+          styles.movPontos,
+          positivo && dominio === 'pontos' && styles.movPontosOuro,
+          apagado && styles.movApagado,
+        ]}
       >
-        {positivo ? '+' : '−'} {formatar(Math.abs(pontos))} pts
+        {positivo ? '+' : '−'} {texto}
       </Text>
     </View>
   );
