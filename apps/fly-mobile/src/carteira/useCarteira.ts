@@ -26,6 +26,15 @@ export interface Lancamento {
   motivo: string | null;
 }
 
+export interface Voucher {
+  id: string;
+  codigo: string;
+  rotulo: string;
+  /** "20% de desconto" ou "AED 150 de desconto". */
+  desconto: string;
+  valeAte: string | null;
+}
+
 export interface Carteira {
   saldo: number;
   /** Pacote adquirido. `null` = a Fly ainda nao registrou. */
@@ -33,13 +42,37 @@ export interface Carteira {
   limiares: Limiares;
   /** Meses ate um ganho vencer. `null` = nunca vence. */
   validadeMeses: number | null;
-  /** Saldo financeiro e Fly Card. Falso ate haver parceiro (P09/P38). */
-  financeiroLigado: boolean;
+  /** Saldo financeiro em centavos, do ledger `wallet_entries`. */
+  saldoCentavos: number;
+  moeda: string;
+  /** Recarga e transferencia pelo cliente. Exigem PSP (P09/P38). */
+  recargaLigada: boolean;
   lancamentos: Lancamento[];
+  /** Vouchers ainda nao usados. Usado some da Carteira. */
+  vouchers: Voucher[];
 }
 
 export type CarteiraData =
   { kind: 'loading' } | { kind: 'ready'; carteira: Carteira } | { kind: 'error'; message: string };
+
+/**
+ * O desconto em uma linha.
+ *
+ * A tabela garante que e **ou** percentual **ou** valor fixo, nunca os dois —
+ * cupom que e as duas coisas vira reclamacao. Aqui isso vira texto.
+ */
+function descrever(
+  percentual: number | null,
+  centavos: number | null,
+  moeda: string | null,
+): string {
+  if (percentual !== null) return `${percentual}% de desconto`;
+  if (centavos !== null && moeda) {
+    const v = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(centavos / 100);
+    return `${moeda} ${v} de desconto`;
+  }
+  return 'desconto';
+}
 
 /** Le um numero de `app_config`, aceitando nulo como "ainda nao decidido". */
 function numeroOuNulo(valor: unknown): number | null {
@@ -71,24 +104,30 @@ export function useCarteira(userId: string | null): CarteiraHook {
     if (!userId) return setData({ kind: 'loading' });
     const db = supabase();
 
-    const [saldoRes, pacoteRes, configRes, extratoRes] = await Promise.all([
-      db.from('points_balance').select('balance').eq('user_id', userId).maybeSingle(),
-      db.from('customer_packages').select('package').eq('user_id', userId).maybeSingle(),
-      db
-        .from('app_config')
-        .select('key, value')
-        .in('key', [
-          'points.level_thresholds',
-          'points.validity_months',
-          'wallet.financial_balance_enabled',
-        ]),
-      db
-        .from('points_ledger')
-        .select('id, kind, amount, source, reference, occurred_at, expires_on, reason')
-        .eq('user_id', userId)
-        .order('occurred_at', { ascending: false })
-        .limit(20),
-    ]);
+    const [saldoRes, pacoteRes, configRes, extratoRes, vouchersRes, carteiraRes] =
+      await Promise.all([
+        db.from('points_balance').select('balance').eq('user_id', userId).maybeSingle(),
+        db.from('customer_packages').select('package').eq('user_id', userId).maybeSingle(),
+        db
+          .from('app_config')
+          .select('key, value')
+          .in('key', ['points.level_thresholds', 'points.validity_months', 'wallet.topup_enabled']),
+        db
+          .from('points_ledger')
+          .select('id, kind, amount, source, reference, occurred_at, expires_on, reason')
+          .eq('user_id', userId)
+          .order('occurred_at', { ascending: false })
+          .limit(20),
+        db
+          .from('customer_vouchers')
+          .select(
+            'id, coupon_code, coupons(label, percent_off, amount_off_cents, currency, valid_until, is_active)',
+          )
+          .eq('user_id', userId)
+          .is('used_at', null)
+          .order('granted_at', { ascending: false }),
+        db.from('wallet_balance').select('currency, balance_cents').eq('user_id', userId),
+      ]);
 
     // O extrato e o saldo sao o coracao da tela: se qualquer um falhar, a tela
     // erra em vez de mostrar zero, que seria mentira tranquilizadora.
@@ -112,7 +151,25 @@ export function useCarteira(userId: string | null): CarteiraHook {
             }
           : LIMIARES_DESCONHECIDOS,
         validadeMeses: numeroOuNulo(config.get('points.validity_months')),
-        financeiroLigado: config.get('wallet.financial_balance_enabled') === true,
+        // Uma moeda por enquanto: somar moedas exigiria cambio, que a §33
+        // proibe inventar. A view ja separa por moeda, entao quando houver
+        // uma segunda ela aparece — nao se soma por acidente.
+        saldoCentavos: Number(carteiraRes.data?.[0]?.balance_cents ?? 0),
+        moeda: carteiraRes.data?.[0]?.currency ?? 'AED',
+        recargaLigada: config.get('wallet.topup_enabled') === true,
+        vouchers: (vouchersRes.data ?? [])
+          .filter((v) => v.coupons?.is_active)
+          .map((v) => ({
+            id: v.id,
+            codigo: v.coupon_code,
+            rotulo: v.coupons?.label ?? v.coupon_code,
+            desconto: descrever(
+              v.coupons?.percent_off ?? null,
+              v.coupons?.amount_off_cents ?? null,
+              v.coupons?.currency ?? null,
+            ),
+            valeAte: v.coupons?.valid_until ?? null,
+          })),
         lancamentos: (extratoRes.data ?? []).map((l) => ({
           id: l.id,
           tipo: l.kind as TipoDeLancamento,

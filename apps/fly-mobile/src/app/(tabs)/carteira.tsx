@@ -5,12 +5,13 @@ import { palette } from '@/theme';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { AppHeader, EmptyState, ErrorState, LoadingSkeleton, PhaseStub, Screen, Text } from '@/ui';
 import { useSession } from '@/auth/session';
+import { AcaoDaCarteira, CartaoDaCarteira, LinhaDeAcoes } from '@/carteira/CartaoDaCarteira';
 import {
   CartaoDeBeneficio,
   CartaoDePontos,
   CartaoDeResgate,
+  CartaoDeVoucher,
   DivisorDeMovimento,
-  FinanceiroDesligado,
   GrupoDeMovimentos,
   LinhaDeMovimento,
   SeloDoPacote,
@@ -109,6 +110,49 @@ function IconePorOrigem({ origem, positivo }: { origem: string; positivo: boolea
   );
 }
 
+/** O texto que a Carteira usa quando a acao depende de parceiro de pagamento. */
+const SEM_PARCEIRO =
+  'Recarga e transferência entram quando a Fly ligar o parceiro de pagamento. Créditos que a Fly concede já aparecem no seu saldo.';
+
+const TRACO_ACAO = '#F5F5F7';
+
+function IconeMais() {
+  return (
+    <Svg width={19} height={19} viewBox="0 0 24 24" fill="none">
+      <Path d="M12 5.6v12.8" stroke={TRACO_ACAO} strokeWidth={1.7} strokeLinecap="round" />
+      <Path d="M5.6 12h12.8" stroke={TRACO_ACAO} strokeWidth={1.7} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+function IconeSeta() {
+  return (
+    <Svg width={19} height={19} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M12 19V5.6M6.4 11.2L12 5.6l5.6 5.6"
+        stroke={TRACO_ACAO}
+        strokeWidth={1.7}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+function IconeExtrato() {
+  return (
+    <Svg width={19} height={19} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M6 4.4h9.4L19 8v11.6H6z"
+        stroke={TRACO_ACAO}
+        strokeWidth={1.7}
+        strokeLinejoin="round"
+      />
+      <Path d="M9 10.6h7M9 14.4h7" stroke={TRACO_ACAO} strokeWidth={1.7} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
 const NOME_DA_ORIGEM: Record<string, string> = {
   order: 'Experiência comprada',
   event: 'Check-in em evento Fly',
@@ -182,6 +226,16 @@ export default function WalletScreen() {
     );
   }
 
+  // O tipo cobrou este: a sessao tambem tem estado de erro, e ele nao estava
+  // tratado. Sem ele a tela renderizaria sem perfil.
+  if (state.kind === 'error') {
+    return (
+      <Screen testID="screen-carteira">
+        <ErrorState title="Não consegui carregar sua conta" description={state.message} />
+      </Screen>
+    );
+  }
+
   if (dados.kind === 'error') {
     return (
       <Screen testID="screen-carteira">
@@ -202,6 +256,45 @@ export default function WalletScreen() {
         {ehPacote(carteira.pacote) ? <SeloDoPacote pacote={carteira.pacote} /> : null}
       </View>
 
+      <CartaoDaCarteira
+        centavos={carteira.saldoCentavos}
+        moeda={carteira.moeda}
+        nome={state.profile.displayName ?? state.profile.preferredName ?? 'Viajante Fly'}
+        flyId={state.profile.publicId}
+        pacote={ehPacote(carteira.pacote) ? carteira.pacote : null}
+      />
+
+      <LinhaDeAcoes>
+        <AcaoDaCarteira
+          icone={<IconeMais />}
+          rotulo="Adicionar"
+          indisponivel={carteira.recargaLigada ? null : SEM_PARCEIRO}
+          onPress={() =>
+            setRecado({
+              ok: carteira.recargaLigada,
+              texto: carteira.recargaLigada ? '' : SEM_PARCEIRO,
+            })
+          }
+        />
+        <AcaoDaCarteira
+          icone={<IconeSeta />}
+          rotulo="Transferir"
+          indisponivel={carteira.recargaLigada ? null : SEM_PARCEIRO}
+          onPress={() =>
+            setRecado({
+              ok: carteira.recargaLigada,
+              texto: carteira.recargaLigada ? '' : SEM_PARCEIRO,
+            })
+          }
+        />
+        <AcaoDaCarteira
+          icone={<IconeExtrato />}
+          rotulo="Extrato"
+          indisponivel={null}
+          onPress={() => setRecado({ ok: true, texto: 'Seu extrato está logo abaixo.' })}
+        />
+      </LinhaDeAcoes>
+
       <CartaoDePontos
         saldo={carteira.saldo}
         progresso={progresso}
@@ -214,6 +307,23 @@ export default function WalletScreen() {
             {recado.texto}
           </Text>
         </View>
+      ) : null}
+
+      {carteira.vouchers.length > 0 ? (
+        <>
+          <TituloDeSecao>Seus vouchers</TituloDeSecao>
+          <View style={styles.lista}>
+            {carteira.vouchers.map((v) => (
+              <CartaoDeVoucher
+                key={v.id}
+                rotulo={v.rotulo}
+                codigo={v.codigo}
+                desconto={v.desconto}
+                valeAte={v.valeAte}
+              />
+            ))}
+          </View>
+        </>
       ) : null}
 
       {beneficios.kind === 'ready' && beneficios.resgates.length > 0 ? (
@@ -276,8 +386,6 @@ export default function WalletScreen() {
           ))}
         </GrupoDeMovimentos>
       )}
-
-      {!carteira.financeiroLigado ? <FinanceiroDesligado /> : null}
 
       <View style={styles.fases}>
         <PhaseStub

@@ -458,6 +458,40 @@ const styles = StyleSheet.create({
   resgatarPressionado: { transform: [{ scale: 0.95 }] },
   resgatarTexto: { fontSize: 13, fontWeight: '600', letterSpacing: -0.13, color: palette.gold },
 
+  voucher: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 14,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255,255,255,.045)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,.07)',
+  },
+  voucherTexto: { flex: 1, minWidth: 0 },
+  voucherRotulo: { fontSize: 14, fontWeight: '600', letterSpacing: -0.2, color: palette.text },
+  voucherNota: {
+    marginTop: 3,
+    fontSize: 12,
+    letterSpacing: -0.06,
+    color: 'rgba(245,245,247,.4)',
+  },
+  voucherCodigo: {
+    paddingHorizontal: 11,
+    paddingVertical: 6,
+    borderRadius: 11,
+    backgroundColor: 'rgba(0,0,0,.35)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,.18)',
+  },
+  voucherCodigoTexto: {
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+    color: palette.text,
+    fontVariant: ['tabular-nums'],
+  },
+
   resgate: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -581,6 +615,45 @@ export function CartaoDeBeneficio({
             Resgatando…
           </Text>
         ) : null}
+      </View>
+    </View>
+  );
+}
+
+/**
+ * Voucher: um cupom que e **desta pessoa**.
+ *
+ * O codigo fica em destaque porque e o que ela vai digitar no checkout. A
+ * validade aparece so quando existe — "sem prazo" e informacao, "—" nao e.
+ */
+export function CartaoDeVoucher({
+  rotulo,
+  codigo,
+  desconto,
+  valeAte,
+}: {
+  rotulo: string;
+  codigo: string;
+  desconto: string;
+  valeAte: string | null;
+}) {
+  return (
+    <View style={styles.voucher}>
+      <View style={styles.voucherTexto}>
+        <Text variant="body" numberOfLines={1} style={styles.voucherRotulo}>
+          {rotulo}
+        </Text>
+        <Text variant="body" style={styles.voucherNota}>
+          {desconto}
+          {valeAte
+            ? ` · até ${new Date(valeAte).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}`
+            : ' · sem prazo'}
+        </Text>
+      </View>
+      <View style={styles.voucherCodigo}>
+        <Text variant="body" style={styles.voucherCodigoTexto}>
+          {codigo}
+        </Text>
       </View>
     </View>
   );

@@ -48,6 +48,20 @@ interface Periodo {
   participantes: number;
 }
 
+interface CupomOps {
+  codigo: string;
+  rotulo: string;
+  ativo: boolean;
+}
+
+interface VoucherOps {
+  id: string;
+  cliente: string;
+  codigo: string;
+  entregueEm: string;
+  usadoEm: string | null;
+}
+
 interface Regra {
   limiarPrime: number | null;
   limiarElite: number | null;
@@ -78,6 +92,10 @@ export function Fidelidade() {
   const [clientes, setClientes] = useState<ClienteFidelidade[] | null>(null);
   const [beneficios, setBeneficios] = useState<BeneficioOps[]>([]);
   const [periodos, setPeriodos] = useState<Periodo[]>([]);
+  const [cupons, setCupons] = useState<CupomOps[]>([]);
+  const [vouchers, setVouchers] = useState<VoucherOps[]>([]);
+  const [vCliente, setVCliente] = useState('');
+  const [vCupom, setVCupom] = useState('');
   const [regra, setRegra] = useState<Regra | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [recado, setRecado] = useState<string | null>(null);
@@ -91,7 +109,7 @@ export function Fidelidade() {
   const carregar = useCallback(async () => {
     const db = supabase();
 
-    const [perfis, pacotes, saldos, bens, config, pers, scores] = await Promise.all([
+    const [perfis, pacotes, saldos, bens, config, pers, scores, cups, vchs] = await Promise.all([
       db.from('profiles').select('id, public_id, preferred_name, display_name').limit(200),
       db.from('customer_packages').select('user_id, package'),
       db.from('points_balance').select('user_id, balance'),
@@ -110,6 +128,12 @@ export function Fidelidade() {
         )
         .order('starts_on', { ascending: false }),
       db.from('ranking_scores').select('period_id'),
+      db.from('coupons').select('code, label, is_active').order('code'),
+      db
+        .from('customer_vouchers')
+        .select('id, user_id, coupon_code, granted_at, used_at')
+        .order('granted_at', { ascending: false })
+        .limit(50),
     ]);
 
     if (perfis.error) return setErro(perfis.error.message);
@@ -157,6 +181,28 @@ export function Fidelidade() {
         publicado: p.is_published,
         calculadoEm: p.computed_at,
         participantes: porPeriodo.get(p.id) ?? 0,
+      })),
+    );
+
+    const nomePorId = new Map(
+      (perfis.data ?? []).map((p) => [p.id, p.preferred_name ?? p.display_name ?? p.public_id]),
+    );
+
+    const listaCupons = (cups.data ?? []).map((x) => ({
+      codigo: x.code,
+      rotulo: x.label,
+      ativo: x.is_active,
+    }));
+    setCupons(listaCupons);
+    setVCupom((atual) => atual || (listaCupons.find((x) => x.ativo)?.codigo ?? ''));
+
+    setVouchers(
+      (vchs.data ?? []).map((v) => ({
+        id: v.id,
+        cliente: nomePorId.get(v.user_id) ?? 'Cliente',
+        codigo: v.coupon_code,
+        entregueEm: v.granted_at,
+        usadoEm: v.used_at,
       })),
     );
 
@@ -294,6 +340,28 @@ export function Fidelidade() {
       const r = Array.isArray(data) ? data[0] : data;
       if (r?.ok) setRecado(`«${p.rotulo}» recalculado: ${r.participantes} participantes.`);
       else setErro(r?.motivo ?? 'não foi possível recalcular');
+    }
+    await carregar();
+    setOcupado(false);
+  }
+
+  async function entregarVoucher() {
+    if (!vCliente || !vCupom) return setErro('Escolha o cliente e o cupom.');
+    setOcupado(true);
+    setErro(null);
+    setRecado(null);
+    const { error } = await supabase()
+      .from('customer_vouchers')
+      .insert({ user_id: vCliente, coupon_code: vCupom });
+    // A tabela impede o mesmo cupom duas vezes para a mesma pessoa.
+    if (error) {
+      setErro(
+        error.code === '23505'
+          ? 'Esse cliente já tem esse cupom. Um voucher por pessoa por código.'
+          : error.message,
+      );
+    } else {
+      setRecado('Voucher entregue. Já aparece na Carteira do cliente.');
     }
     await carregar();
     setOcupado(false);
@@ -575,6 +643,82 @@ export function Fidelidade() {
           Benefício ativo aparece na Carteira do cliente. Estoque zero mostra “esgotado” em vez de
           sumir — o cliente precisa saber que existe.
         </p>
+      </section>
+
+      <section className="secao">
+        <div className="cabecalho">
+          <h2>Vouchers</h2>
+          <p className="muted">{vouchers.filter((v) => !v.usadoEm).length} em aberto</p>
+        </div>
+
+        <p className="muted">
+          Cupom entregue a uma pessoa. Aparece na Carteira dela e some quando for usado. Os termos
+          continuam no cupom — aqui não há cópia.
+        </p>
+
+        <div className="form form--linha">
+          <label className="field">
+            <span className="muted">Cliente</span>
+            <select value={vCliente} onChange={(e) => setVCliente(e.target.value)}>
+              <option value="">escolha</option>
+              {clientes.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nome} · {c.flyId}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span className="muted">Cupom</span>
+            <select value={vCupom} onChange={(e) => setVCupom(e.target.value)}>
+              {cupons.map((c) => (
+                <option key={c.codigo} value={c.codigo} disabled={!c.ativo}>
+                  {c.codigo} · {c.rotulo}
+                  {c.ativo ? '' : ' (inativo)'}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="acoes">
+            <button
+              type="button"
+              className="botao"
+              disabled={ocupado || !vCliente || !vCupom}
+              onClick={() => void entregarVoucher()}
+            >
+              Entregar
+            </button>
+          </div>
+        </div>
+
+        {vouchers.length > 0 ? (
+          <div className="tabela-envolvente">
+            <table className="tabela">
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Cupom</th>
+                  <th>Situação</th>
+                </tr>
+              </thead>
+              <tbody>
+                {vouchers.map((v) => (
+                  <tr key={v.id}>
+                    <td>{v.cliente}</td>
+                    <td className="mono">{v.codigo}</td>
+                    <td>
+                      {v.usadoEm ? (
+                        <span className="muted">usado</span>
+                      ) : (
+                        <span className="selo selo--ok">em aberto</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : null}
       </section>
 
       <section className="secao">

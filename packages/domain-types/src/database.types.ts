@@ -759,6 +759,54 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_vouchers: {
+        Row: {
+          coupon_code: string
+          granted_at: string
+          granted_by: string | null
+          id: string
+          note: string | null
+          used_at: string | null
+          used_order_id: string | null
+          user_id: string
+        }
+        Insert: {
+          coupon_code: string
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          note?: string | null
+          used_at?: string | null
+          used_order_id?: string | null
+          user_id: string
+        }
+        Update: {
+          coupon_code?: string
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          note?: string | null
+          used_at?: string | null
+          used_order_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_vouchers_coupon_code_fkey"
+            columns: ["coupon_code"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "customer_vouchers_used_order_id_fkey"
+            columns: ["used_order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       destinations: {
         Row: {
           country: string
@@ -3208,6 +3256,62 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_entries: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          idempotency_key: string
+          kind: Database["public"]["Enums"]["wallet_entry_kind"]
+          occurred_at: string
+          reason: string | null
+          reference: string | null
+          reverses_id: string | null
+          source: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          created_by?: string | null
+          currency: string
+          id?: string
+          idempotency_key: string
+          kind: Database["public"]["Enums"]["wallet_entry_kind"]
+          occurred_at?: string
+          reason?: string | null
+          reference?: string | null
+          reverses_id?: string | null
+          source: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          idempotency_key?: string
+          kind?: Database["public"]["Enums"]["wallet_entry_kind"]
+          occurred_at?: string
+          reason?: string | null
+          reference?: string | null
+          reverses_id?: string | null
+          source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_entries_reverses_id_fkey"
+            columns: ["reverses_id"]
+            isOneToOne: false
+            referencedRelation: "wallet_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       current_consents: {
@@ -3232,6 +3336,15 @@ export type Database = {
         Row: {
           balance: number | null
           earned: number | null
+          last_entry_at: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      wallet_balance: {
+        Row: {
+          balance_cents: number | null
+          currency: string | null
           last_entry_at: string | null
           user_id: string | null
         }
@@ -3646,6 +3759,13 @@ export type Database = {
         | "completed"
         | "cancelled"
       trip_status: "draft" | "published" | "ongoing" | "finished" | "cancelled"
+      wallet_entry_kind:
+        | "credit"
+        | "topup"
+        | "debit"
+        | "refund"
+        | "adjust"
+        | "reverse"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3898,6 +4018,14 @@ export const Constants = {
         "cancelled",
       ],
       trip_status: ["draft", "published", "ongoing", "finished", "cancelled"],
+      wallet_entry_kind: [
+        "credit",
+        "topup",
+        "debit",
+        "refund",
+        "adjust",
+        "reverse",
+      ],
     },
   },
 } as const
