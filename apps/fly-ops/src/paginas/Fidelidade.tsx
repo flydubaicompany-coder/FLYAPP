@@ -34,6 +34,20 @@ interface BeneficioOps {
   ativo: boolean;
 }
 
+interface Periodo {
+  id: string;
+  chave: string;
+  rotulo: string;
+  dimensao: string;
+  comeca: string;
+  termina: string;
+  base: string;
+  criterio: string | null;
+  publicado: boolean;
+  calculadoEm: string | null;
+  participantes: number;
+}
+
 interface Regra {
   limiarPrime: number | null;
   limiarElite: number | null;
@@ -43,6 +57,12 @@ interface Regra {
 }
 
 const PACOTES = ['standard', 'black', 'billionaire'] as const;
+type Pacote = (typeof PACOTES)[number];
+
+/** Guarda de verdade, no lugar de um cast que afirma o que nao sabe. */
+function ehPacote(v: string): v is Pacote {
+  return (PACOTES as readonly string[]).includes(v);
+}
 
 function formatar(n: number): string {
   return new Intl.NumberFormat('pt-BR').format(n);
@@ -57,6 +77,7 @@ function nivelDe(saldo: number, r: Regra): string {
 export function Fidelidade() {
   const [clientes, setClientes] = useState<ClienteFidelidade[] | null>(null);
   const [beneficios, setBeneficios] = useState<BeneficioOps[]>([]);
+  const [periodos, setPeriodos] = useState<Periodo[]>([]);
   const [regra, setRegra] = useState<Regra | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [recado, setRecado] = useState<string | null>(null);
@@ -70,7 +91,7 @@ export function Fidelidade() {
   const carregar = useCallback(async () => {
     const db = supabase();
 
-    const [perfis, pacotes, saldos, bens, config] = await Promise.all([
+    const [perfis, pacotes, saldos, bens, config, pers, scores] = await Promise.all([
       db.from('profiles').select('id, public_id, preferred_name, display_name').limit(200),
       db.from('customer_packages').select('user_id, package'),
       db.from('points_balance').select('user_id, balance'),
@@ -82,6 +103,13 @@ export function Fidelidade() {
         .from('app_config')
         .select('key, value')
         .in('key', ['points.level_thresholds', 'points.validity_months', 'points.earning_rule']),
+      db
+        .from('ranking_periods')
+        .select(
+          'id, key, label, dimension, starts_on, ends_on, basis, criteria_note, is_published, computed_at',
+        )
+        .order('starts_on', { ascending: false }),
+      db.from('ranking_scores').select('period_id'),
     ]);
 
     if (perfis.error) return setErro(perfis.error.message);
@@ -111,6 +139,27 @@ export function Fidelidade() {
       })),
     );
 
+    const porPeriodo = new Map<string, number>();
+    for (const sc of scores.data ?? []) {
+      porPeriodo.set(sc.period_id, (porPeriodo.get(sc.period_id) ?? 0) + 1);
+    }
+
+    setPeriodos(
+      (pers.data ?? []).map((p) => ({
+        id: p.id,
+        chave: p.key,
+        rotulo: p.label,
+        dimensao: p.dimension,
+        comeca: p.starts_on,
+        termina: p.ends_on,
+        base: p.basis,
+        criterio: p.criteria_note,
+        publicado: p.is_published,
+        calculadoEm: p.computed_at,
+        participantes: porPeriodo.get(p.id) ?? 0,
+      })),
+    );
+
     const c = new Map((config.data ?? []).map((x) => [x.key, x.value]));
     const lim = c.get('points.level_thresholds') as Record<string, number | null> | undefined;
     const reg = c.get('points.earning_rule') as Record<string, unknown> | undefined;
@@ -133,12 +182,13 @@ export function Fidelidade() {
   }, [carregar]);
 
   async function definirPacote(userId: string, pacote: string) {
+    if (!ehPacote(pacote)) return setErro(`Pacote desconhecido: ${pacote}`);
     setOcupado(true);
     setErro(null);
     setRecado(null);
     const { error } = await supabase()
       .from('customer_packages')
-      .upsert({ user_id: userId, package: pacote as 'standard' }, { onConflict: 'user_id' });
+      .upsert({ user_id: userId, package: pacote }, { onConflict: 'user_id' });
     if (error) setErro(error.message);
     else setRecado(`Pacote definido como ${pacote}.`);
     await carregar();
@@ -182,6 +232,68 @@ export function Fidelidade() {
       setAjustando(null);
       setPontos('');
       setMotivo('');
+    }
+    await carregar();
+    setOcupado(false);
+  }
+
+  async function vencerPontos() {
+    if (
+      !confirm(
+        'Vencer os pontos que passaram da validade?\n\n' +
+          'Cada lote vencido gera um lançamento de saída no extrato do cliente. ' +
+          'Isto não pode ser apagado — desfazer exige um ajuste manual.',
+      )
+    ) {
+      return;
+    }
+    setOcupado(true);
+    setErro(null);
+    setRecado(null);
+    const { data, error } = await supabase().rpc('vencer_pontos', {});
+    if (error) setErro(error.message);
+    else {
+      const r = Array.isArray(data) ? data[0] : data;
+      setRecado(
+        r && r.lotes > 0
+          ? `${r.lotes} lote(s) vencido(s), ${formatar(r.pontos ?? 0)} pontos retirados.`
+          : 'Nenhum lote venceu: não há ponto fora da validade.',
+      );
+    }
+    await carregar();
+    setOcupado(false);
+  }
+
+  async function alternarPublicacao(p: Periodo) {
+    setOcupado(true);
+    setErro(null);
+    const { error } = await supabase()
+      .from('ranking_periods')
+      .update({ is_published: !p.publicado })
+      .eq('id', p.id);
+    // A constraint do banco recusa publicar sem criterio declarado. A tela
+    // traduz, em vez de mostrar o texto da constraint.
+    if (error) {
+      setErro(
+        error.code === '23514'
+          ? `«${p.rotulo}» não tem os critérios escritos. Um ranking que ninguém sabe explicar gera briga — escreva antes de publicar.`
+          : error.message,
+      );
+    }
+    await carregar();
+    setOcupado(false);
+  }
+
+  async function recalcular(p: Periodo) {
+    setOcupado(true);
+    setErro(null);
+    setRecado(null);
+    const { data, error } = await supabase().rpc('recalcular_ranking', { p_period: p.id });
+    if (error) setErro(error.message);
+    else {
+      const r = Array.isArray(data) ? data[0] : data;
+      if (r?.ok) setRecado(`«${p.rotulo}» recalculado: ${r.participantes} participantes.`);
+      else setErro(r?.motivo ?? 'não foi possível recalcular');
     }
     await carregar();
     setOcupado(false);
@@ -261,6 +373,27 @@ export function Fidelidade() {
           A regra vive em <span className="mono">app_config</span> e vale para os lançamentos novos.
           Cada lançamento guarda a versão que o gerou, então mudar a regra não reescreve o passado.
         </p>
+
+        {regra.validadeMeses !== null ? (
+          <>
+            <p className="muted">
+              O app promete ao cliente que cada ponto vale por{' '}
+              <strong>{regra.validadeMeses} meses</strong>. Quem cumpre essa promessa é o botão
+              abaixo: ele vence o <strong>saldo restante</strong> de cada lote fora da validade, do
+              mais antigo para o mais novo. Um lote de 10.000 com 7.000 já gastos vence 3.000.
+            </p>
+            <div className="acoes">
+              <button
+                type="button"
+                className="botao botao--fantasma"
+                disabled={ocupado}
+                onClick={() => void vencerPontos()}
+              >
+                Vencer pontos fora da validade
+              </button>
+            </div>
+          </>
+        ) : null}
       </section>
 
       <section className="secao">
@@ -442,6 +575,86 @@ export function Fidelidade() {
           Benefício ativo aparece na Carteira do cliente. Estoque zero mostra “esgotado” em vez de
           sumir — o cliente precisa saber que existe.
         </p>
+      </section>
+
+      <section className="secao">
+        <div className="cabecalho">
+          <h2>Ranking</h2>
+          <p className="muted">{periodos.filter((p) => p.publicado).length} publicados</p>
+        </div>
+
+        <p className="muted">
+          O ranking é <strong>opt-in</strong>: quem não ativou no app não aparece, e quem desativa
+          some na hora. A pontuação é normalizada de 0 a 1000 —{' '}
+          <strong>valor gasto nunca é publicado</strong>, e a tabela nem tem essa coluna.
+        </p>
+
+        {periodos.length === 0 ? (
+          <p className="aviso">
+            Nenhum período ainda. Períodos são criados no banco por enquanto — a tela de criação
+            entra junto com premiação.
+          </p>
+        ) : (
+          <div className="tabela-envolvente">
+            <table className="tabela">
+              <thead>
+                <tr>
+                  <th>Período</th>
+                  <th>Dimensão</th>
+                  <th>Janela</th>
+                  <th>Base</th>
+                  <th>Participantes</th>
+                  <th>Recalcular</th>
+                  <th>Publicar</th>
+                </tr>
+              </thead>
+              <tbody>
+                {periodos.map((p) => (
+                  <tr key={p.id}>
+                    <td>
+                      <strong>{p.rotulo}</strong>
+                      <br />
+                      <span className="mono muted">{p.chave}</span>
+                      {p.criterio ? null : (
+                        <>
+                          <br />
+                          <span className="pendente">sem critério escrito</span>
+                        </>
+                      )}
+                    </td>
+                    <td>{p.dimensao}</td>
+                    <td className="mono">
+                      {p.comeca} → {p.termina}
+                    </td>
+                    <td>{p.base === 'manual' ? 'digitada' : 'pontos ganhos'}</td>
+                    <td className="mono">{p.participantes}</td>
+                    <td>
+                      <button
+                        type="button"
+                        className="botao botao--fantasma"
+                        disabled={ocupado || p.base === 'manual'}
+                        onClick={() => void recalcular(p)}
+                      >
+                        Recalcular
+                      </button>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className={p.publicado ? 'botao' : 'botao botao--fantasma'}
+                        disabled={ocupado}
+                        aria-pressed={p.publicado}
+                        onClick={() => void alternarPublicacao(p)}
+                      >
+                        {p.publicado ? 'Publicado' : 'Rascunho'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
     </>
   );

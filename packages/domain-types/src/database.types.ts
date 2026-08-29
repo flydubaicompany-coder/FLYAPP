@@ -2246,6 +2246,83 @@ export type Database = {
           },
         ]
       }
+      ranking_periods: {
+        Row: {
+          basis: Database["public"]["Enums"]["ranking_basis"]
+          computed_at: string | null
+          created_at: string
+          criteria_note: string | null
+          dimension: string
+          ends_on: string
+          id: string
+          is_published: boolean
+          key: string
+          label: string
+          starts_on: string
+        }
+        Insert: {
+          basis?: Database["public"]["Enums"]["ranking_basis"]
+          computed_at?: string | null
+          created_at?: string
+          criteria_note?: string | null
+          dimension: string
+          ends_on: string
+          id?: string
+          is_published?: boolean
+          key: string
+          label: string
+          starts_on: string
+        }
+        Update: {
+          basis?: Database["public"]["Enums"]["ranking_basis"]
+          computed_at?: string | null
+          created_at?: string
+          criteria_note?: string | null
+          dimension?: string
+          ends_on?: string
+          id?: string
+          is_published?: boolean
+          key?: string
+          label?: string
+          starts_on?: string
+        }
+        Relationships: []
+      }
+      ranking_scores: {
+        Row: {
+          computed_at: string
+          period_id: string
+          position: number
+          public_name: string | null
+          public_score: number
+          user_id: string
+        }
+        Insert: {
+          computed_at?: string
+          period_id: string
+          position: number
+          public_name?: string | null
+          public_score: number
+          user_id: string
+        }
+        Update: {
+          computed_at?: string
+          period_id?: string
+          position?: number
+          public_name?: string | null
+          public_score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ranking_scores_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "ranking_periods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ready_check_responses: {
         Row: {
           note: string | null
@@ -3346,6 +3423,14 @@ export type Database = {
           verified_at: string
         }[]
       }
+      recalcular_ranking: {
+        Args: { p_period: string }
+        Returns: {
+          motivo: string
+          ok: boolean
+          participantes: number
+        }[]
+      }
       reembolsar_pedido: {
         Args: { p_amount_cents: number; p_order: string; p_reason: string }
         Returns: {
@@ -3391,6 +3476,14 @@ export type Database = {
       vagas_livres: {
         Args: { p_ignorar_carrinho?: string; p_slot: string }
         Returns: number
+      }
+      vencer_pontos: {
+        Args: { p_ate?: string }
+        Returns: {
+          lotes: number
+          ok: boolean
+          pontos: number
+        }[]
       }
       ver_passaporte: {
         Args: { p_id: string }
@@ -3532,6 +3625,7 @@ export type Database = {
         | "already_used"
         | "wrong_scope"
         | "unknown"
+      ranking_basis: "manual" | "points_earned"
       ready_state: "ready" | "late" | "lost" | "needs_help"
       tour_audience:
         | "family"
@@ -3781,6 +3875,7 @@ export const Constants = {
         "wrong_scope",
         "unknown",
       ],
+      ranking_basis: ["manual", "points_earned"],
       ready_state: ["ready", "late", "lost", "needs_help"],
       tour_audience: [
         "family",

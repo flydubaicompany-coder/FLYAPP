@@ -102,8 +102,15 @@ estorna proporcional. Nenhum lançamento é inserido à mão.
 pacote, ajusta pontos com motivo obrigatório, liga e desliga benefício, e vê a
 regra em vigor.
 
+**Ranking opt-in** funciona: período, critério escrito, pontuação normalizada
+de 0 a 1000 e a lista no Perfil. A tabela pública **não tem coluna de
+dinheiro** — não se vaza o que não se guarda.
+
+**Os pontos vencem de verdade** desde 28/08, em lotes FIFO, pelo botão do Fly
+Ops. Antes disso o app prometia 24 meses e nada cumpria (D145).
+
 Falta da Fase 6: vouchers e cupons na Carteira, pagamentos tokenizados,
-ranking opt-in, premiação, scanner de nota e tax-free.
+premiação e finalistas, scanner de nota e tax-free.
 
 **A regra de pontos (D129):** 10 pontos por unidade de moeda, 2.000 por
 check-in em evento, 5.000 por indicação. Prime 25.000, elite 100.000, validade
