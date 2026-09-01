@@ -15,7 +15,7 @@
 
 begin;
 
-select plan(11);
+select plan(18);
 
 insert into auth.users (id, instance_id, aud, role, email, encrypted_password, created_at, updated_at,
   confirmation_token, recovery_token, email_change, email_change_token_new,
@@ -154,6 +154,73 @@ select is(
    where period_id = '70010000-0000-0000-0000-000000007001'),
   1,
   'a equipe continua vendo, porque a §9.3 permite valor completo a funcionario autorizado');
+
+-- =============================================================================
+-- Premiacao e finalistas (§41, entrega 10).
+--
+-- As tres recusas importam mais que o caminho feliz. A primeira e a que
+-- protege o jogo: **nao se anuncia vencedor no meio da corrida**. Publicar
+-- antes do fim transforma o ranking em vitrine de quem esta na frente hoje, e
+-- quem ficou para tras para de jogar.
+-- =============================================================================
+
+set local request.jwt.claims to '{"sub":"40030000-0000-0000-0000-000000004003","role":"authenticated"}';
+
+-- O periodo de agosto termina em 31/08 e hoje e 29/08: ainda correndo.
+select is(
+  (select motivo from public.publicar_finalistas('70010000-0000-0000-0000-000000007001')),
+  'o periodo ainda nao terminou: nao se anuncia vencedor no meio da corrida',
+  'nao se publica finalista com o periodo correndo');
+
+-- Um periodo ja encerrado, para o resto do caminho.
+insert into public.ranking_periods
+  (id, key, label, dimension, starts_on, ends_on, basis, criteria_note, is_published)
+values
+  ('70030000-0000-0000-0000-000000007003','jul-2026','Julho 2026','semana',
+   '2026-07-01','2026-07-31','points_earned',
+   'Soma dos Fly Points ganhos no mes.', true);
+
+select is(
+  (select motivo from public.publicar_finalistas('70030000-0000-0000-0000-000000007003')),
+  'nao ha pontuacao calculada neste periodo',
+  'sem pontuacao nao ha finalista para anunciar');
+
+insert into public.ranking_scores (period_id, user_id, public_score, position, public_name)
+values ('70030000-0000-0000-0000-000000007003','40010000-0000-0000-0000-000000004001',1000,1,'Cliente A');
+
+select is(
+  (select motivo from public.publicar_finalistas('70030000-0000-0000-0000-000000007003')),
+  'nao ha premiacao declarada: anunciar vencedor sem dizer o que ele ganhou vira discussao',
+  'sem premio declarado nao se anuncia vencedor');
+
+insert into public.ranking_prizes (period_id, position_from, position_to, label)
+values ('70030000-0000-0000-0000-000000007003', 1, 3, 'Jantar para dois');
+
+select is(
+  (select ok from public.publicar_finalistas('70030000-0000-0000-0000-000000007003')),
+  true,
+  'com periodo encerrado, pontuacao e premio, publica');
+
+select is(
+  (select finalistas from public.publicar_finalistas('70030000-0000-0000-0000-000000007003')),
+  1,
+  'conta quantos ficaram dentro de alguma faixa de premio');
+
+-- A constraint segura mesmo por escrita direta.
+select throws_ok(
+  $$update public.ranking_periods
+    set finalists_published_at = '2026-07-15'::timestamptz
+    where id = '70030000-0000-0000-0000-000000007003'$$,
+  '23514',
+  null,
+  'data de publicacao anterior ao fim do periodo e recusada pela constraint');
+
+set local request.jwt.claims to '{"sub":"40010000-0000-0000-0000-000000004001","role":"authenticated"}';
+select throws_ok(
+  $$select * from public.publicar_finalistas('70030000-0000-0000-0000-000000007003')$$,
+  '42501',
+  null,
+  'cliente comum NAO publica finalista');
 
 select * from finish();
 rollback;

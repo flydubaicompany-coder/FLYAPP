@@ -97,6 +97,31 @@ export default function RankingScreen() {
             </Text>
           ) : null}
 
+          {/* O que esta em jogo vem antes da lista: saber o premio e parte de
+              decidir se vale participar. */}
+          {periodo.premios.length > 0 ? (
+            <View style={styles.premios}>
+              <Text variant="caption" style={styles.premiosKicker}>
+                {periodo.finalistasEm ? 'QUEM GANHOU' : 'O QUE ESTÁ EM JOGO'}
+              </Text>
+              {periodo.premios.map((pr) => (
+                <View key={pr.id} style={styles.premio}>
+                  <Text variant="body" style={styles.premioFaixa}>
+                    {pr.faixa}
+                  </Text>
+                  <Text variant="body" numberOfLines={2} style={styles.premioRotulo}>
+                    {pr.rotulo}
+                  </Text>
+                </View>
+              ))}
+              {!periodo.finalistasEm ? (
+                <Text variant="body" style={styles.premiosNota}>
+                  Os finalistas são anunciados depois que o período termina.
+                </Text>
+              ) : null}
+            </View>
+          ) : null}
+
           {colocacoes.length === 0 ? (
             <Text variant="body" style={styles.vazio}>
               {participa
@@ -192,6 +217,44 @@ const styles = StyleSheet.create({
     letterSpacing: -0.2,
     color: 'rgba(245,245,247,.6)',
     fontVariant: ['tabular-nums'],
+  },
+
+  premios: {
+    marginTop: 16,
+    padding: 14,
+    borderRadius: 20,
+    backgroundColor: 'rgba(223,201,138,.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(223,201,138,.18)',
+    gap: 9,
+  },
+  premiosKicker: {
+    fontSize: 9,
+    fontWeight: '700',
+    letterSpacing: 1.35,
+    color: 'rgba(223,201,138,.85)',
+  },
+  premio: { flexDirection: 'row', alignItems: 'baseline', gap: 10 },
+  premioFaixa: {
+    width: 78,
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: -0.06,
+    color: palette.text,
+  },
+  premioRotulo: {
+    flex: 1,
+    fontSize: 13,
+    lineHeight: 19,
+    letterSpacing: -0.1,
+    color: 'rgba(245,245,247,.62)',
+  },
+  premiosNota: {
+    marginTop: 2,
+    fontSize: 11.5,
+    lineHeight: 17,
+    letterSpacing: -0.04,
+    color: 'rgba(245,245,247,.36)',
   },
 
   vazio: {

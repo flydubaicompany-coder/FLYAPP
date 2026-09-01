@@ -50,6 +50,15 @@ interface Periodo {
   publicado: boolean;
   calculadoEm: string | null;
   participantes: number;
+  finalistasEm: string | null;
+}
+
+interface Premio {
+  id: string;
+  periodoId: string;
+  de: number;
+  ate: number;
+  rotulo: string;
 }
 
 interface CupomOps {
@@ -97,6 +106,10 @@ export function Fidelidade() {
   const [beneficios, setBeneficios] = useState<BeneficioOps[]>([]);
   const [periodos, setPeriodos] = useState<Periodo[]>([]);
   const [cupons, setCupons] = useState<CupomOps[]>([]);
+  const [premios, setPremios] = useState<Premio[]>([]);
+  const [novoPremio, setNovoPremio] = useState<
+    Record<string, { de: string; ate: string; rotulo: string }>
+  >({});
   const [vouchers, setVouchers] = useState<VoucherOps[]>([]);
   const [vCliente, setVCliente] = useState('');
   const [vCupom, setVCupom] = useState('');
@@ -118,7 +131,7 @@ export function Fidelidade() {
   const carregar = useCallback(async () => {
     const db = supabase();
 
-    const [perfis, pacotes, saldos, carteiras, bens, config, pers, scores, cups, vchs] =
+    const [perfis, pacotes, saldos, carteiras, bens, config, pers, scores, prz, cups, vchs] =
       await Promise.all([
         db.from('profiles').select('id, public_id, preferred_name, display_name').limit(200),
         db.from('customer_packages').select('user_id, package'),
@@ -135,10 +148,14 @@ export function Fidelidade() {
         db
           .from('ranking_periods')
           .select(
-            'id, key, label, dimension, starts_on, ends_on, basis, criteria_note, is_published, computed_at',
+            'id, key, label, dimension, starts_on, ends_on, basis, criteria_note, is_published, computed_at, finalists_published_at',
           )
           .order('starts_on', { ascending: false }),
         db.from('ranking_scores').select('period_id'),
+        db
+          .from('ranking_prizes')
+          .select('id, period_id, position_from, position_to, label')
+          .order('sort_order'),
         db.from('coupons').select('code, label, is_active').order('code'),
         db
           .from('customer_vouchers')
@@ -199,12 +216,23 @@ export function Fidelidade() {
         criterio: p.criteria_note,
         publicado: p.is_published,
         calculadoEm: p.computed_at,
+        finalistasEm: p.finalists_published_at,
         participantes: porPeriodo.get(p.id) ?? 0,
       })),
     );
 
     const nomePorId = new Map(
       (perfis.data ?? []).map((p) => [p.id, p.preferred_name ?? p.display_name ?? p.public_id]),
+    );
+
+    setPremios(
+      (prz.data ?? []).map((x) => ({
+        id: x.id,
+        periodoId: x.period_id,
+        de: x.position_from,
+        ate: x.position_to,
+        rotulo: x.label,
+      })),
     );
 
     const listaCupons = (cups.data ?? []).map((x) => ({
@@ -421,6 +449,58 @@ export function Fidelidade() {
       setCreditando(null);
       setValor('');
       setMotivoValor('');
+    }
+    await carregar();
+    setOcupado(false);
+  }
+
+  async function somarPremio(periodoId: string) {
+    const f = novoPremio[periodoId] ?? { de: '', ate: '', rotulo: '' };
+    const de = Number(f.de);
+    const ate = Number(f.ate || f.de);
+    if (!Number.isInteger(de) || de < 1)
+      return setErro('A colocação inicial é um número a partir de 1.');
+    if (!Number.isInteger(ate) || ate < de)
+      return setErro('A colocação final não pode ser menor que a inicial.');
+    if (!f.rotulo.trim())
+      return setErro('O prêmio precisa de um nome — é o que o cliente vai ler.');
+
+    setOcupado(true);
+    setErro(null);
+    const { error } = await supabase().from('ranking_prizes').insert({
+      period_id: periodoId,
+      position_from: de,
+      position_to: ate,
+      label: f.rotulo.trim(),
+    });
+    if (error) setErro(error.message);
+    else {
+      setRecado('Prêmio declarado.');
+      setNovoPremio({ ...novoPremio, [periodoId]: { de: '', ate: '', rotulo: '' } });
+    }
+    await carregar();
+    setOcupado(false);
+  }
+
+  async function publicarFinalistas(p: Periodo) {
+    if (
+      !confirm(
+        `Anunciar os finalistas de «${p.rotulo}»?\n\n` +
+          'Depois de anunciado, o cliente vê quem ganhou. Recalcular o período ' +
+          'em seguida mudaria o resultado já divulgado.',
+      )
+    ) {
+      return;
+    }
+    setOcupado(true);
+    setErro(null);
+    setRecado(null);
+    const { data, error } = await supabase().rpc('publicar_finalistas', { p_period: p.id });
+    if (error) setErro(error.message);
+    else {
+      const r = Array.isArray(data) ? data[0] : data;
+      if (r?.ok) setRecado(`Finalistas de «${p.rotulo}» anunciados: ${r.finalistas} premiado(s).`);
+      else setErro(r?.motivo ?? 'não foi possível publicar');
     }
     await carregar();
     setOcupado(false);
@@ -807,6 +887,133 @@ export function Fidelidade() {
           Benefício ativo aparece na Carteira do cliente. Estoque zero mostra “esgotado” em vez de
           sumir — o cliente precisa saber que existe.
         </p>
+      </section>
+
+      <section className="secao">
+        <div className="cabecalho">
+          <h2>Premiação</h2>
+          <p className="muted">O que cada faixa de colocação ganha</p>
+        </div>
+
+        <p className="muted">
+          O prêmio <strong>não está no código</strong> — é seu, e por período. Uma faixa pode cobrir
+          mais de uma colocação: «1 a 3» dá a mesma coisa ao pódio inteiro.
+        </p>
+
+        {periodos.map((p) => {
+          const meus = premios.filter((x) => x.periodoId === p.id);
+          const f = novoPremio[p.id] ?? { de: '', ate: '', rotulo: '' };
+          const encerrado = new Date(p.termina) < new Date();
+
+          return (
+            <div key={p.id} className="bloco">
+              <div className="cabecalho">
+                <div>
+                  <p className="kicker">
+                    {p.comeca} → {p.termina}
+                  </p>
+                  <h3>{p.rotulo}</h3>
+                </div>
+                {p.finalistasEm ? (
+                  <span className="selo selo--ok">finalistas anunciados</span>
+                ) : encerrado ? (
+                  <span className="selo selo--pendente">encerrado, sem anúncio</span>
+                ) : (
+                  <span className="selo">em andamento</span>
+                )}
+              </div>
+
+              {meus.length === 0 ? (
+                <p className="muted">Nenhum prêmio declarado neste período.</p>
+              ) : (
+                <ul className="checks">
+                  {meus.map((x) => (
+                    <li key={x.id}>
+                      <span>
+                        <strong>
+                          {x.de === x.ate ? `${x.de}º lugar` : `${x.de}º ao ${x.ate}º`}
+                        </strong>{' '}
+                        — {x.rotulo}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <div className="form form--linha">
+                <label className="field">
+                  <span className="muted">Da colocação</span>
+                  <input
+                    value={f.de}
+                    onChange={(e) =>
+                      setNovoPremio({ ...novoPremio, [p.id]: { ...f, de: e.target.value } })
+                    }
+                    inputMode="numeric"
+                    placeholder="1"
+                  />
+                </label>
+                <label className="field">
+                  <span className="muted">Até (vazio = só uma)</span>
+                  <input
+                    value={f.ate}
+                    onChange={(e) =>
+                      setNovoPremio({ ...novoPremio, [p.id]: { ...f, ate: e.target.value } })
+                    }
+                    inputMode="numeric"
+                    placeholder="3"
+                  />
+                </label>
+                <label className="field">
+                  <span className="muted">Prêmio</span>
+                  <input
+                    value={f.rotulo}
+                    onChange={(e) =>
+                      setNovoPremio({ ...novoPremio, [p.id]: { ...f, rotulo: e.target.value } })
+                    }
+                    placeholder="Jantar para dois no Burj Al Arab"
+                  />
+                </label>
+                <div className="acoes">
+                  <button
+                    type="button"
+                    className="botao botao--fantasma"
+                    disabled={ocupado}
+                    onClick={() => void somarPremio(p.id)}
+                  >
+                    Declarar
+                  </button>
+                </div>
+              </div>
+
+              {!p.finalistasEm ? (
+                <>
+                  {!encerrado ? (
+                    <p className="muted">
+                      O anúncio só é possível <strong>depois que o período terminar</strong>.
+                      Anunciar no meio da corrida vira vitrine de quem está na frente hoje, e quem
+                      ficou para trás para de jogar.
+                    </p>
+                  ) : null}
+                  <div className="acoes">
+                    <button
+                      type="button"
+                      className="botao"
+                      disabled={ocupado || !encerrado || meus.length === 0}
+                      onClick={() => void publicarFinalistas(p)}
+                    >
+                      Anunciar finalistas
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <p className="muted">
+                  Anunciado em {new Date(p.finalistasEm).toLocaleDateString('pt-BR')}. Recalcular
+                  agora mudaria um resultado já divulgado.
+                </p>
+              )}
+            </div>
+          );
+        })}
       </section>
 
       <section className="secao">

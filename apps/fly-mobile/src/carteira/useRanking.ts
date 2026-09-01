@@ -20,6 +20,13 @@ import { supabase } from '@/auth/client';
  * ranking no calculo, e so para quem optou por participar.
  */
 
+export interface Premio {
+  id: string;
+  /** "1º lugar" ou "1º ao 3º". */
+  faixa: string;
+  rotulo: string;
+}
+
 export interface Periodo {
   id: string;
   rotulo: string;
@@ -28,6 +35,9 @@ export interface Periodo {
   termina: string;
   /** Como se pontua, em portugues. O banco recusa publicar sem isto. */
   criterio: string | null;
+  /** Quando os finalistas foram anunciados. `null` = ainda nao. */
+  finalistasEm: string | null;
+  premios: Premio[];
 }
 
 export interface Colocacao {
@@ -52,7 +62,7 @@ export function useRanking(userId: string | null): RankingData {
 
     const { data: periodos, error } = await db
       .from('ranking_periods')
-      .select('id, label, dimension, starts_on, ends_on, criteria_note')
+      .select('id, label, dimension, starts_on, ends_on, criteria_note, finalists_published_at')
       .eq('is_published', true)
       .order('starts_on', { ascending: false })
       .limit(1);
@@ -61,6 +71,12 @@ export function useRanking(userId: string | null): RankingData {
 
     const p = (periodos ?? [])[0];
     if (!p) return setData({ kind: 'ready', periodo: null, colocacoes: [] });
+
+    const { data: premios } = await db
+      .from('ranking_prizes')
+      .select('id, position_from, position_to, label')
+      .eq('period_id', p.id)
+      .order('sort_order');
 
     const { data: scores } = await db
       .from('ranking_scores')
@@ -78,6 +94,15 @@ export function useRanking(userId: string | null): RankingData {
         comeca: p.starts_on,
         termina: p.ends_on,
         criterio: p.criteria_note,
+        finalistasEm: p.finalists_published_at,
+        premios: (premios ?? []).map((x) => ({
+          id: x.id,
+          faixa:
+            x.position_from === x.position_to
+              ? `${x.position_from}º lugar`
+              : `${x.position_from}º ao ${x.position_to}º`,
+          rotulo: x.label,
+        })),
       },
       colocacoes: (scores ?? []).map((s) => ({
         userId: s.user_id,

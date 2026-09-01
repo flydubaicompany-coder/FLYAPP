@@ -2302,6 +2302,7 @@ export type Database = {
           criteria_note: string | null
           dimension: string
           ends_on: string
+          finalists_published_at: string | null
           id: string
           is_published: boolean
           key: string
@@ -2315,6 +2316,7 @@ export type Database = {
           criteria_note?: string | null
           dimension: string
           ends_on: string
+          finalists_published_at?: string | null
           id?: string
           is_published?: boolean
           key: string
@@ -2328,6 +2330,7 @@ export type Database = {
           criteria_note?: string | null
           dimension?: string
           ends_on?: string
+          finalists_published_at?: string | null
           id?: string
           is_published?: boolean
           key?: string
@@ -2335,6 +2338,57 @@ export type Database = {
           starts_on?: string
         }
         Relationships: []
+      }
+      ranking_prizes: {
+        Row: {
+          benefit_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          label: string
+          period_id: string
+          position_from: number
+          position_to: number
+          sort_order: number
+        }
+        Insert: {
+          benefit_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          label: string
+          period_id: string
+          position_from: number
+          position_to: number
+          sort_order?: number
+        }
+        Update: {
+          benefit_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          label?: string
+          period_id?: string
+          position_from?: number
+          position_to?: number
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ranking_prizes_benefit_id_fkey"
+            columns: ["benefit_id"]
+            isOneToOne: false
+            referencedRelation: "benefits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ranking_prizes_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "ranking_periods"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ranking_scores: {
         Row: {
@@ -3609,6 +3663,14 @@ export type Database = {
           number: string
           vence_antes_do_fim: boolean
           verified_at: string
+        }[]
+      }
+      publicar_finalistas: {
+        Args: { p_period: string }
+        Returns: {
+          finalistas: number
+          motivo: string
+          ok: boolean
         }[]
       }
       recalcular_ranking: {
