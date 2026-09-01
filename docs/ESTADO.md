@@ -17,7 +17,8 @@ reler a conversa anterior. **Mantenha-o ao fim de cada fase.**
 | 3     | Home dinâmica, eventos, notificações, push, analytics | ✅ concluída                   |
 | 4     | Minha Viagem: roteiro, cofre, QR, presença            | ✅ concluída                   |
 | **5** | **Passeios, carrinho e pedidos**                      | 🟢 **entregue — uma ressalva** |
-| **6** | **Carteira e fidelidade (§41)**                       | 🟡 **fundação entregue**       |
+| **6** | **Carteira e fidelidade (§41)**                       | 🟢 **entregue — 2 bloqueios**  |
+| **7** | **Gastronomia, reservas e serviços (§42)**            | 🟡 **refeições entregues**     |
 
 Prova: `npm run verify` (**310 testes**) e a suíte pgTAP na esteira (**262
 asserções**, 10 arquivos). A esteira agora também roda `deno check` nas Edge

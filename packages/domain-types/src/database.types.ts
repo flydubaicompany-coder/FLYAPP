@@ -1501,6 +1501,145 @@ export type Database = {
           },
         ]
       }
+      meal_choices: {
+        Row: {
+          chosen_at: string
+          customization: string | null
+          decided_by: string | null
+          exception_reason: string | null
+          id: string
+          option_id: string
+          service_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          chosen_at?: string
+          customization?: string | null
+          decided_by?: string | null
+          exception_reason?: string | null
+          id?: string
+          option_id: string
+          service_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          chosen_at?: string
+          customization?: string | null
+          decided_by?: string | null
+          exception_reason?: string | null
+          id?: string
+          option_id?: string
+          service_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_choices_option_id_fkey"
+            columns: ["option_id"]
+            isOneToOne: false
+            referencedRelation: "meal_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_choices_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "meal_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_options: {
+        Row: {
+          customization_note: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          label: string
+          service_id: string
+          sort_order: number
+        }
+        Insert: {
+          customization_note?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          label: string
+          service_id: string
+          sort_order?: number
+        }
+        Update: {
+          customization_note?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          label?: string
+          service_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_options_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "meal_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_services: {
+        Row: {
+          choices_close_at: string | null
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["meal_kind"]
+          location: string | null
+          notes: string | null
+          serves_at: string | null
+          status: Database["public"]["Enums"]["meal_service_status"]
+          supplier_name: string | null
+          trip_day_id: string
+          updated_at: string
+        }
+        Insert: {
+          choices_close_at?: string | null
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["meal_kind"]
+          location?: string | null
+          notes?: string | null
+          serves_at?: string | null
+          status?: Database["public"]["Enums"]["meal_service_status"]
+          supplier_name?: string | null
+          trip_day_id: string
+          updated_at?: string
+        }
+        Update: {
+          choices_close_at?: string | null
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["meal_kind"]
+          location?: string | null
+          notes?: string | null
+          serves_at?: string | null
+          status?: Database["public"]["Enums"]["meal_service_status"]
+          supplier_name?: string | null
+          trip_day_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_services_trip_day_id_fkey"
+            columns: ["trip_day_id"]
+            isOneToOne: false
+            referencedRelation: "trip_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_categories: {
         Row: {
           description: string
@@ -3490,6 +3629,14 @@ export type Database = {
           storage_path: string
         }[]
       }
+      abrir_refeicao: {
+        Args: { p_horas?: number; p_service: string }
+        Returns: {
+          fecha_em: string
+          motivo: string
+          ok: boolean
+        }[]
+      }
       advance_onboarding: {
         Args: { p_to: string }
         Returns: {
@@ -3836,6 +3983,14 @@ export type Database = {
         | "press_kit"
         | "special"
       inclusion_status: "included" | "optional" | "purchased" | "unavailable"
+      meal_kind: "breakfast" | "lunch" | "dinner" | "snack"
+      meal_service_status:
+        | "draft"
+        | "open"
+        | "locked"
+        | "sent"
+        | "delivered"
+        | "cancelled"
       order_status:
         | "pending_payment"
         | "paid"
@@ -4094,6 +4249,15 @@ export const Constants = {
         "special",
       ],
       inclusion_status: ["included", "optional", "purchased", "unavailable"],
+      meal_kind: ["breakfast", "lunch", "dinner", "snack"],
+      meal_service_status: [
+        "draft",
+        "open",
+        "locked",
+        "sent",
+        "delivered",
+        "cancelled",
+      ],
       order_status: [
         "pending_payment",
         "paid",
