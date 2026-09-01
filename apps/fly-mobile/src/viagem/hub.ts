@@ -69,6 +69,14 @@ export const HUB: readonly ItemDoHub[] = [
     ref: '§7.7',
   },
   {
+    chave: 'refeicoes',
+    rotulo: 'Refeições',
+    descricao: 'Escolha o prato de cada dia, até o prazo.',
+    rota: '/viagem/refeicoes',
+    fase: null,
+    ref: '§11.1',
+  },
+  {
     chave: 'qr',
     rotulo: 'Ingressos e QR',
     descricao: 'Seus códigos de entrada e check-in.',
@@ -100,14 +108,6 @@ export const HUB: readonly ItemDoHub[] = [
     rota: null,
     fase: 5,
     ref: '§6',
-  },
-  {
-    chave: 'refeicoes',
-    rotulo: 'Refeições',
-    descricao: 'Escolha de prato, restrições e prazo de confirmação.',
-    rota: null,
-    fase: 7,
-    ref: '§11',
   },
   {
     chave: 'mapa',
