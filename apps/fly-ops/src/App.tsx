@@ -21,6 +21,7 @@ import {
   Fidelidade,
   Notas,
   Refeicoes,
+  Concierge,
 } from './paginas';
 
 /**
@@ -47,6 +48,7 @@ const ABAS = [
   { para: '/fidelidade', rotulo: 'Fidelidade' },
   { para: '/notas', rotulo: 'Notas' },
   { para: '/refeicoes', rotulo: 'Refeições' },
+  { para: '/concierge', rotulo: 'Concierge' },
   { para: '/eventos', rotulo: 'Eventos' },
   { para: '/consentimentos', rotulo: 'Consentimentos' },
 ] as const;
@@ -258,6 +260,14 @@ function Rotas() {
         element={
           <Protegido>
             <Refeicoes />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/concierge"
+        element={
+          <Protegido>
+            <Concierge />
           </Protegido>
         }
       />

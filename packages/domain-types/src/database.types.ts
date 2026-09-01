@@ -1501,6 +1501,36 @@ export type Database = {
           },
         ]
       }
+      lifestyle_services: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          kind: Database["public"]["Enums"]["service_kind"]
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          kind: Database["public"]["Enums"]["service_kind"]
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["service_kind"]
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       meal_choices: {
         Row: {
           chosen_at: string
@@ -2753,6 +2783,188 @@ export type Database = {
             columns: ["payment_id"]
             isOneToOne: false
             referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurant_reservations: {
+        Row: {
+          created_at: string
+          decline_reason: string | null
+          desired_at: string
+          handled_at: string | null
+          handled_by: string | null
+          id: string
+          notes: string | null
+          occasion: string | null
+          party_size: number
+          restaurant_id: string
+          status: Database["public"]["Enums"]["reservation_status"]
+          trip_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          decline_reason?: string | null
+          desired_at: string
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          notes?: string | null
+          occasion?: string | null
+          party_size: number
+          restaurant_id: string
+          status?: Database["public"]["Enums"]["reservation_status"]
+          trip_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          decline_reason?: string | null
+          desired_at?: string
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          notes?: string | null
+          occasion?: string | null
+          party_size?: number
+          restaurant_id?: string
+          status?: Database["public"]["Enums"]["reservation_status"]
+          trip_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_reservations_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurant_reservations_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurants: {
+        Row: {
+          created_at: string
+          cuisine: string | null
+          description: string | null
+          destination_id: string | null
+          fly_note: string | null
+          id: string
+          is_active: boolean
+          is_curated: boolean
+          name: string
+          neighborhood: string | null
+          requires_deposit: boolean
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          cuisine?: string | null
+          description?: string | null
+          destination_id?: string | null
+          fly_note?: string | null
+          id?: string
+          is_active?: boolean
+          is_curated?: boolean
+          name: string
+          neighborhood?: string | null
+          requires_deposit?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          cuisine?: string | null
+          description?: string | null
+          destination_id?: string | null
+          fly_note?: string | null
+          id?: string
+          is_active?: boolean
+          is_curated?: boolean
+          name?: string
+          neighborhood?: string | null
+          requires_deposit?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurants_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_requests: {
+        Row: {
+          created_at: string
+          deliver_to: string | null
+          details: string
+          handled_at: string | null
+          handled_by: string | null
+          id: string
+          response_note: string | null
+          service_id: string
+          status: Database["public"]["Enums"]["service_request_status"]
+          trip_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          deliver_to?: string | null
+          details: string
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          response_note?: string | null
+          service_id: string
+          status?: Database["public"]["Enums"]["service_request_status"]
+          trip_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          deliver_to?: string | null
+          details?: string
+          handled_at?: string | null
+          handled_by?: string | null
+          id?: string
+          response_note?: string | null
+          service_id?: string
+          status?: Database["public"]["Enums"]["service_request_status"]
+          trip_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_requests_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "lifestyle_services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_requests_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
             referencedColumns: ["id"]
           },
         ]
@@ -4039,6 +4251,29 @@ export type Database = {
         | "approved"
         | "rejected"
         | "duplicate"
+      reservation_status:
+        | "requested"
+        | "confirmed"
+        | "waitlist"
+        | "declined"
+        | "cancelled"
+        | "seated"
+        | "no_show"
+      service_kind:
+        | "pharmacy"
+        | "grocery"
+        | "salon"
+        | "barber"
+        | "spa"
+        | "laundry"
+        | "essentials"
+        | "other"
+      service_request_status:
+        | "requested"
+        | "in_progress"
+        | "done"
+        | "declined"
+        | "cancelled"
       tour_audience:
         | "family"
         | "couple"
@@ -4311,6 +4546,32 @@ export const Constants = {
         "approved",
         "rejected",
         "duplicate",
+      ],
+      reservation_status: [
+        "requested",
+        "confirmed",
+        "waitlist",
+        "declined",
+        "cancelled",
+        "seated",
+        "no_show",
+      ],
+      service_kind: [
+        "pharmacy",
+        "grocery",
+        "salon",
+        "barber",
+        "spa",
+        "laundry",
+        "essentials",
+        "other",
+      ],
+      service_request_status: [
+        "requested",
+        "in_progress",
+        "done",
+        "declined",
+        "cancelled",
       ],
       tour_audience: [
         "family",

@@ -77,6 +77,14 @@ export const HUB: readonly ItemDoHub[] = [
     ref: '§11.1',
   },
   {
+    chave: 'concierge',
+    rotulo: 'Restaurantes e serviços',
+    descricao: 'Peça mesa, lavanderia, farmácia. A Fly resolve.',
+    rota: '/viagem/concierge',
+    fase: null,
+    ref: '§11.2',
+  },
+  {
     chave: 'qr',
     rotulo: 'Ingressos e QR',
     descricao: 'Seus códigos de entrada e check-in.',
