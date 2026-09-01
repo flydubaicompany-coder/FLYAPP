@@ -2438,6 +2438,81 @@ export type Database = {
           },
         ]
       }
+      receipts: {
+        Row: {
+          amount_cents: number | null
+          created_at: string
+          currency: string | null
+          duplicate_of: string | null
+          id: string
+          issued_on: string | null
+          merchant: string | null
+          mime_type: string | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          size_bytes: number | null
+          status: Database["public"]["Enums"]["receipt_status"]
+          storage_path: string
+          trip_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents?: number | null
+          created_at?: string
+          currency?: string | null
+          duplicate_of?: string | null
+          id?: string
+          issued_on?: string | null
+          merchant?: string | null
+          mime_type?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          size_bytes?: number | null
+          status?: Database["public"]["Enums"]["receipt_status"]
+          storage_path: string
+          trip_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number | null
+          created_at?: string
+          currency?: string | null
+          duplicate_of?: string | null
+          id?: string
+          issued_on?: string | null
+          merchant?: string | null
+          mime_type?: string | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          size_bytes?: number | null
+          status?: Database["public"]["Enums"]["receipt_status"]
+          storage_path?: string
+          trip_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receipts_duplicate_of_fkey"
+            columns: ["duplicate_of"]
+            isOneToOne: false
+            referencedRelation: "receipts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receipts_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       refunds: {
         Row: {
           amount_cents: number
@@ -3586,6 +3661,7 @@ export type Database = {
       }
       revogar_qr: { Args: { p_id: string }; Returns: undefined }
       revoke_invitation: { Args: { p_id: string }; Returns: undefined }
+      unaccent_imutavel: { Args: { p: string }; Returns: string }
       vagas_livres: {
         Args: { p_ignorar_carrinho?: string; p_slot: string }
         Returns: number
@@ -3740,6 +3816,12 @@ export type Database = {
         | "unknown"
       ranking_basis: "manual" | "points_earned"
       ready_state: "ready" | "late" | "lost" | "needs_help"
+      receipt_status:
+        | "received"
+        | "in_review"
+        | "approved"
+        | "rejected"
+        | "duplicate"
       tour_audience:
         | "family"
         | "couple"
@@ -3997,6 +4079,13 @@ export const Constants = {
       ],
       ranking_basis: ["manual", "points_earned"],
       ready_state: ["ready", "late", "lost", "needs_help"],
+      receipt_status: [
+        "received",
+        "in_review",
+        "approved",
+        "rejected",
+        "duplicate",
+      ],
       tour_audience: [
         "family",
         "couple",

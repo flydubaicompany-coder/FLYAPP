@@ -111,8 +111,12 @@ dinheiro** — não se vaza o que não se guarda.
 **Os pontos vencem de verdade** desde 28/08, em lotes FIFO, pelo botão do Fly
 Ops. Antes disso o app prometia 24 meses e nada cumpria (D145).
 
-Falta da Fase 6: vouchers e cupons na Carteira, pagamentos tokenizados,
-premiação e finalistas, scanner de nota e tax-free.
+**Notas fiscais por upload** funcionam: o cliente fotografa, digita o que leu,
+e a Fly confere numa fila no Fly Ops. O sistema só decide **duplicidade**.
+Scanner e OCR ficaram para depois, por decisão do dono (D157).
+
+Falta da Fase 6: pagamentos tokenizados, premiação e finalistas, e a
+**estimativa** de tax-free — que espera a regra (P47).
 
 **A regra de pontos (D129):** 10 pontos por unidade de moeda, 2.000 por
 check-in em evento, 5.000 por indicação. Prime 25.000, elite 100.000, validade
@@ -513,6 +517,11 @@ E uma que só o dono faz, no painel do Supabase:
 ---
 
 ## Armadilhas já pagas — não repetir
+
+**Função pura testável nunca mora no mesmo arquivo que um import nativo.** O
+vitest não parseia `react-native` nem `expo-*`, então um teste que importe
+desse arquivo falha com "Flow is not supported" — erro que não diz nada sobre
+a causa. Mordeu duas vezes: `carteira/pacote.ts` e `notas/valor.ts`.
 
 **O React Compiler ignora dependência que a função não lê.** Este app roda com
 `reactCompiler: true` (`app.json`). O compilador memoiza pelo que a função **de

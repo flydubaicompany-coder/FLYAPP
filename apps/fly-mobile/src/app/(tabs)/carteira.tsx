@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { palette } from '@/theme';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { AppHeader, EmptyState, ErrorState, LoadingSkeleton, PhaseStub, Screen, Text } from '@/ui';
@@ -365,6 +365,29 @@ export default function WalletScreen() {
         </GrupoDeMovimentos>
       )}
 
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Notas e Tax-Free"
+        onPress={() => router.push('/carteira/notas')}
+        testID="carteira-notas"
+      >
+        {({ pressed }) => (
+          <View style={[styles.atalho, pressed && styles.atalhoPressionado]}>
+            <View style={styles.atalhoTexto}>
+              <Text variant="body" style={styles.atalhoTitulo}>
+                Notas e Tax-Free
+              </Text>
+              <Text variant="body" style={styles.atalhoNota}>
+                Fotografe a nota das suas compras. A Fly confere.
+              </Text>
+            </View>
+            <Text variant="body" style={styles.atalhoChevron}>
+              ›
+            </Text>
+          </View>
+        )}
+      </Pressable>
+
       <View style={styles.fases}>
         <PhaseStub
           phase={6}
@@ -405,6 +428,30 @@ const styles = StyleSheet.create({
   },
 
   fases: { marginTop: 28, marginHorizontal: 16 },
+
+  atalho: {
+    marginTop: 24,
+    marginHorizontal: 16,
+    padding: 16,
+    borderRadius: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: 'rgba(255,255,255,.045)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,.07)',
+  },
+  atalhoPressionado: { backgroundColor: 'rgba(255,255,255,.06)' },
+  atalhoTexto: { flex: 1, minWidth: 0 },
+  atalhoTitulo: { fontSize: 15, fontWeight: '600', letterSpacing: -0.24, color: palette.text },
+  atalhoNota: {
+    marginTop: 4,
+    fontSize: 12.5,
+    lineHeight: 18,
+    letterSpacing: -0.08,
+    color: 'rgba(245,245,247,.4)',
+  },
+  atalhoChevron: { fontSize: 20, color: 'rgba(245,245,247,.28)' },
 
   lista: { marginHorizontal: 16, gap: 10 },
 

@@ -11,3 +11,4 @@ export { Catalogo } from './Catalogo';
 export { default as Vitrine } from './Vitrine';
 export { Pedidos } from './Pedidos';
 export { Fidelidade } from './Fidelidade';
+export { Notas } from './Notas';
