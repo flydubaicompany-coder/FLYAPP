@@ -18,7 +18,7 @@ reler a conversa anterior. **Mantenha-o ao fim de cada fase.**
 | 4     | Minha Viagem: roteiro, cofre, QR, presença            | ✅ concluída                   |
 | **5** | **Passeios, carrinho e pedidos**                      | 🟢 **entregue — uma ressalva** |
 | **6** | **Carteira e fidelidade (§41)**                       | 🟢 **entregue — 2 bloqueios**  |
-| **7** | **Gastronomia, reservas e serviços (§42)**            | 🟡 **refeições entregues**     |
+| **7** | **Gastronomia, reservas e serviços (§42)**            | 🟢 **entregue**                |
 
 Prova: `npm run verify` (**310 testes**) e a suíte pgTAP na esteira (**262
 asserções**, 10 arquivos). A esteira agora também roda `deno check` nas Edge
@@ -469,8 +469,10 @@ o que os testes não pegavam.
   formulário estático ou `PhaseStub` honesto de fase futura.
 - Offline mora em camada compartilhada (`OfflineBanner`, `StateShell`), não
   repetida por tela.
-- Fly Crew é só a casca com `/health` — e é o correto: o conteúdo dele é da
-  Fase 7 (§42).
+- Fly Crew **deixou de ser casca em 29/08**, na Fase 7, que é a fase do
+  conteúdo dele. Tem sessão, rota e a tela de entregas de refeição. Os papéis
+  são de **campo** (guia, base, mídia, experiência + admin e trip_manager);
+  financeiro e suporte trabalham no Fly Ops.
 - Os quatro itens que faltam na Fase 5, abaixo, foram verificados um a um:
   faltam mesmo.
 - Descartar o `error` continua em três lugares onde degrada para **menos** e
