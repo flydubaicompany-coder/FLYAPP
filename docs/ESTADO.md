@@ -19,6 +19,7 @@ reler a conversa anterior. **Mantenha-o ao fim de cada fase.**
 | **5** | **Passeios, carrinho e pedidos**                      | 🟢 **entregue — uma ressalva** |
 | **6** | **Carteira e fidelidade (§41)**                       | 🟢 **entregue — 2 bloqueios**  |
 | **7** | **Gastronomia, reservas e serviços (§42)**            | 🟢 **entregue**                |
+| **8** | **Mapa, Bases Fly, concierge e SOS (§43)**            | 🟡 **atendimento entregue**    |
 
 Prova: `npm run verify` (**310 testes**) e a suíte pgTAP na esteira (**262
 asserções**, 10 arquivos). A esteira agora também roda `deno check` nas Edge

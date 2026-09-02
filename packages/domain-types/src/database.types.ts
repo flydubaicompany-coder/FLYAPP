@@ -565,6 +565,44 @@ export type Database = {
         }
         Relationships: []
       }
+      case_locations: {
+        Row: {
+          accuracy_m: number | null
+          captured_at: string
+          case_id: string
+          id: string
+          latitude: number
+          longitude: number
+          user_id: string
+        }
+        Insert: {
+          accuracy_m?: number | null
+          captured_at?: string
+          case_id: string
+          id?: string
+          latitude: number
+          longitude: number
+          user_id: string
+        }
+        Update: {
+          accuracy_m?: number | null
+          captured_at?: string
+          case_id?: string
+          id?: string
+          latitude?: number
+          longitude?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "case_locations_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "support_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companionships: {
         Row: {
           authorized_at: string
@@ -1390,6 +1428,68 @@ export type Database = {
             columns: ["trip_id"]
             isOneToOne: false
             referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fly_bases: {
+        Row: {
+          address: string | null
+          created_at: string
+          destination_id: string | null
+          hours_note: string | null
+          id: string
+          is_active: boolean
+          is_open: boolean
+          latitude: number | null
+          longitude: number | null
+          name: string
+          notes: string | null
+          phone: string | null
+          services: string[]
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          destination_id?: string | null
+          hours_note?: string | null
+          id?: string
+          is_active?: boolean
+          is_open?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          services?: string[]
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          destination_id?: string | null
+          hours_note?: string | null
+          id?: string
+          is_active?: boolean
+          is_open?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          services?: string[]
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fly_bases_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
             referencedColumns: ["id"]
           },
         ]
@@ -3007,6 +3107,126 @@ export type Database = {
           },
         ]
       }
+      support_cases: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          activity_id: string | null
+          created_at: string
+          escalated_at: string | null
+          escalation_reason: string | null
+          first_response_at: string | null
+          id: string
+          level: Database["public"]["Enums"]["support_level"]
+          opened_at: string
+          order_id: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: Database["public"]["Enums"]["support_status"]
+          subject: string | null
+          trip_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          activity_id?: string | null
+          created_at?: string
+          escalated_at?: string | null
+          escalation_reason?: string | null
+          first_response_at?: string | null
+          id?: string
+          level?: Database["public"]["Enums"]["support_level"]
+          opened_at?: string
+          order_id?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["support_status"]
+          subject?: string | null
+          trip_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          activity_id?: string | null
+          created_at?: string
+          escalated_at?: string | null
+          escalation_reason?: string | null
+          first_response_at?: string | null
+          id?: string
+          level?: Database["public"]["Enums"]["support_level"]
+          opened_at?: string
+          order_id?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["support_status"]
+          subject?: string | null
+          trip_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_cases_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_cases_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_cases_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_messages: {
+        Row: {
+          author_id: string | null
+          body: string
+          case_id: string
+          created_at: string
+          id: string
+          is_system: boolean
+        }
+        Insert: {
+          author_id?: string | null
+          body: string
+          case_id: string
+          created_at?: string
+          id?: string
+          is_system?: boolean
+        }
+        Update: {
+          author_id?: string | null
+          body?: string
+          case_id?: string
+          created_at?: string
+          id?: string
+          is_system?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "support_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       template_activities: {
         Row: {
           day_number: number
@@ -3832,6 +4052,17 @@ export type Database = {
       }
     }
     Functions: {
+      abrir_atendimento: {
+        Args: {
+          p_level: Database["public"]["Enums"]["support_level"]
+          p_subject?: string
+          p_trip?: string
+        }
+        Returns: {
+          caso: string
+          ok: boolean
+        }[]
+      }
       abrir_documento: {
         Args: { p_id: string }
         Returns: {
@@ -4274,6 +4505,14 @@ export type Database = {
         | "done"
         | "declined"
         | "cancelled"
+      support_level: "chat" | "urgent" | "sos"
+      support_status:
+        | "open"
+        | "accepted"
+        | "in_progress"
+        | "escalated"
+        | "resolved"
+        | "closed"
       tour_audience:
         | "family"
         | "couple"
@@ -4315,12 +4554,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -4344,11 +4583,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -4369,11 +4608,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -4394,11 +4633,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -4411,11 +4650,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -4572,6 +4811,15 @@ export const Constants = {
         "done",
         "declined",
         "cancelled",
+      ],
+      support_level: ["chat", "urgent", "sos"],
+      support_status: [
+        "open",
+        "accepted",
+        "in_progress",
+        "escalated",
+        "resolved",
+        "closed",
       ],
       tour_audience: [
         "family",
