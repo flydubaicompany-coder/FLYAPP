@@ -7,6 +7,46 @@ reler a conversa anterior. **Mantenha-o ao fim de cada fase.**
 
 ---
 
+## Onde retomar — 03/09/2026
+
+**Fase 8, itens que faltam.** O que já existe: casos de atendimento nos três
+níveis (conversa, urgente, SOS), thread de mensagens, localização enviada pelo
+cliente, Bases Fly, e a tela do app com o aviso de emergência e o 999.
+
+O que falta, em ordem de valor:
+
+1. **Fly Ops: fila e SLA** — a fila por urgência já tem índice
+   (`support_cases_fila_idx`); falta a tela. Aceitar, responder, escalar e
+   resolver, com os tempos que os gatilhos já carimbam.
+2. **Fly Crew: receber e operar casos** — o app de campo tem sessão e rota;
+   falta a tela de casos.
+3. **Mapa** (§12.1) com atrações, roteiro, bases e clínicas.
+4. **Modo degradado/offline** (§43, entrega 12).
+5. **Notificações em tempo real** — `support_messages` já está na publicação
+   `supabase_realtime`; falta assinar no app.
+
+**Não existe tabela de localização de funcionário, e isso é decisão** (D179).
+Não crie uma.
+
+### O que só o dono decide, e está travando
+
+| #       | O quê                               | Trava                             |
+| ------- | ----------------------------------- | --------------------------------- |
+| P47     | Regra de tax-free                   | a estimativa na tela de notas     |
+| —       | Quanto vale 1 Fly Point em dinheiro | o "≈ R$ X" do design da Carteira  |
+| P45     | Catálogo real de benefícios         | os 6 dizem "(demonstração)"       |
+| P46     | Critérios e prêmios do ranking      | o período diz "(demonstração)"    |
+| P43     | Confirmar a moeda (assumi AED)      | rótulos de preço                  |
+| P09/P38 | Parceiro de pagamento               | recarga, transferência e Fly Card |
+
+### Verificação que ficou pendente
+
+O envio de nota fiscal **logado** nunca foi exercitado: o preview reiniciou sem
+sessão, e eu não digito senha em campo de login. Peça ao dono para entrar no
+app antes de dar isso por testado.
+
+---
+
 ## Fases
 
 | Fase  | O quê                                                 | Situação                       |
