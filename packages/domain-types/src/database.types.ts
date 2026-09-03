@@ -1770,6 +1770,65 @@ export type Database = {
           },
         ]
       }
+      map_places: {
+        Row: {
+          address: string | null
+          created_at: string
+          destination_id: string | null
+          hours_note: string | null
+          id: string
+          is_active: boolean
+          kind: Database["public"]["Enums"]["place_kind"]
+          latitude: number | null
+          longitude: number | null
+          name: string
+          notes: string | null
+          phone: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          destination_id?: string | null
+          hours_note?: string | null
+          id?: string
+          is_active?: boolean
+          kind: Database["public"]["Enums"]["place_kind"]
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          destination_id?: string | null
+          hours_note?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["place_kind"]
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "map_places_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_categories: {
         Row: {
           description: string
@@ -4463,6 +4522,7 @@ export type Database = {
         | "failed"
         | "cancelled"
         | "refunded"
+      place_kind: "attraction" | "partner" | "clinic" | "hospital" | "pharmacy"
       points_entry_kind: "earn" | "redeem" | "expire" | "adjust" | "reverse"
       proposal_status:
         | "requested"
@@ -4763,6 +4823,7 @@ export const Constants = {
         "cancelled",
         "refunded",
       ],
+      place_kind: ["attraction", "partner", "clinic", "hospital", "pharmacy"],
       points_entry_kind: ["earn", "redeem", "expire", "adjust", "reverse"],
       proposal_status: [
         "requested",

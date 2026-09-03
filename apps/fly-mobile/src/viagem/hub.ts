@@ -121,9 +121,9 @@ export const HUB: readonly ItemDoHub[] = [
     chave: 'mapa',
     rotulo: 'Mapa e Bases Fly',
     descricao: 'Onde a Fly está, na cidade e no aeroporto.',
-    rota: null,
-    fase: 8,
-    ref: '§12',
+    rota: '/mapa',
+    fase: null,
+    ref: '§12.1',
   },
   {
     chave: 'album',
