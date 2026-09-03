@@ -14,3 +14,4 @@ export { Fidelidade } from './Fidelidade';
 export { Notas } from './Notas';
 export { Refeicoes } from './Refeicoes';
 export { Concierge } from './Concierge';
+export { Atendimento } from './Atendimento';

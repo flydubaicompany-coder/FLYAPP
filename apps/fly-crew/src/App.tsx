@@ -7,6 +7,7 @@ import { loadEnv } from './env';
 import { SessaoProvider, useSessao } from './auth/sessao';
 import { Entrar } from './paginas/Entrar';
 import { Entregas } from './paginas/Entregas';
+import { Casos } from './paginas/Casos';
 
 /**
  * Fly Crew — o app de campo (§42, entrega 12).
@@ -17,10 +18,14 @@ import { Entregas } from './paginas/Entregas';
  *
  * A navegacao e curta de proposito. Este app e usado **em pe, com uma mao**,
  * do lado de uma cozinha ou de um ponto de encontro. Cada aba a mais e uma
- * chance de tocar na errada.
+ * chance de tocar na errada — sao duas, e a segunda so entrou porque a Fase 8
+ * pede que a equipe de campo **receba e opere casos** (§43, entrega 9).
  */
 
-const ABAS = [{ para: '/entregas', rotulo: 'Entregas' }] as const;
+const ABAS = [
+  { para: '/entregas', rotulo: 'Entregas' },
+  { para: '/casos', rotulo: 'Casos' },
+] as const;
 
 function Casca({ children }: { children: React.ReactNode }) {
   const { estado, sair } = useSessao();
@@ -72,6 +77,14 @@ function Rotas({ env }: { env: PublicEnv }) {
         element={
           <Protegido>
             <Entregas />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/casos"
+        element={
+          <Protegido>
+            <Casos />
           </Protegido>
         }
       />

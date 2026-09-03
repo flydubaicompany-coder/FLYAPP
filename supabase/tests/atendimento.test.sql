@@ -15,7 +15,7 @@
 
 begin;
 
-select plan(15);
+select plan(28);
 
 insert into auth.users (id, instance_id, aud, role, email, encrypted_password, created_at, updated_at,
   confirmation_token, recovery_token, email_change, email_change_token_new,
@@ -39,6 +39,17 @@ select isnt(
   (select value from public.app_config where key = 'support.sos_disclaimer'),
   null,
   'o aviso de que o SOS nao substitui emergencia publica existe (§12.4)');
+
+-- O alvo de SLA e promessa de nivel de servico, e a §33 proibe inventar.
+select is(
+  (select value from public.app_config where key = 'support.sla_minutes'),
+  '"PENDENTE"'::jsonb,
+  'o alvo de SLA nasce PENDENTE: prazo de atendimento e decisao do dono');
+
+select is(
+  (select is_public from public.app_config where key = 'support.sla_minutes'),
+  false,
+  'e nao e publico — alvo interno lido pelo app viraria promessa ao cliente');
 
 set local role authenticated;
 set local request.jwt.claims to '{"sub":"81110000-0000-0000-0000-000000008111","role":"authenticated"}';
@@ -142,6 +153,82 @@ select throws_ok(
   '23514',
   null,
   'escalar sem motivo e recusado');
+
+-- =============================================================================
+-- Atribuir e aceitar sao atos diferentes (§43, entrega 7).
+--
+-- `accepted_by` responde "quem pegou"; `assigned_to` responde "de quem e". Um
+-- caso atribuido a um guia que ainda nao abriu o app nao tem `accepted_by`, e
+-- some da fila dele se as duas colunas forem a mesma.
+-- =============================================================================
+update public.support_cases set assigned_to = '83330000-0000-0000-0000-000000008333'
+where subject = 'Passei mal no deserto';
+
+select isnt(
+  (select assigned_at from public.support_cases where subject = 'Passei mal no deserto'),
+  null,
+  'atribuir carimba a hora, sem ninguem precisar lembrar');
+
+update public.support_cases set assigned_to = null
+where subject = 'Passei mal no deserto';
+
+select is(
+  (select assigned_at from public.support_cases where subject = 'Passei mal no deserto'),
+  null,
+  'devolver para a fila apaga a hora, e a constraint de par continua valendo');
+
+-- Quem resolve e a equipe. O cliente tem GRANT de update na tabela; quem o
+-- segura e a RLS, e ela **filtra linhas** em vez de lancar — sem esta asercao
+-- a falha seria silenciosa.
+set local request.jwt.claims to '{"sub":"81110000-0000-0000-0000-000000008111","role":"authenticated"}';
+
+update public.support_cases set status = 'resolved'
+where subject = 'Passei mal no deserto';
+
+select is(
+  (select status::text from public.support_cases where subject = 'Passei mal no deserto'),
+  'accepted',
+  'o cliente NAO muda a situacao do proprio caso');
+
+-- A lista da equipe existe para atribuir, e nao para o cliente ler.
+select throws_ok(
+  $$select * from public.equipe_de_atendimento()$$,
+  '42501',
+  null,
+  'o cliente NAO lista a equipe da Fly');
+
+set local request.jwt.claims to '{"sub":"83330000-0000-0000-0000-000000008333","role":"authenticated"}';
+select ok(
+  (select count(*) from public.equipe_de_atendimento()) >= 1,
+  'a equipe lista a equipe, para ter a quem atribuir');
+
+-- =============================================================================
+-- GRANT e RLS sao controles diferentes (D128, a armadilha que mordeu quatro
+-- vezes). Estas asercoes olham o privilegio, e nao a policy.
+-- =============================================================================
+select ok(
+  not has_table_privilege('anon', 'public.support_cases', 'SELECT'),
+  'anon NAO tem privilegio de leitura nos casos de atendimento');
+
+select ok(
+  not has_table_privilege('anon', 'public.support_messages', 'SELECT'),
+  'anon NAO tem privilegio de leitura nas mensagens');
+
+select ok(
+  not has_table_privilege('anon', 'public.case_locations', 'SELECT'),
+  'anon NAO tem privilegio de leitura na localizacao do cliente');
+
+select ok(
+  not has_table_privilege('authenticated', 'public.support_messages', 'UPDATE'),
+  'ninguem edita mensagem ja enviada: a thread e o historico');
+
+select ok(
+  not has_table_privilege('authenticated', 'public.support_messages', 'DELETE'),
+  'nem apaga');
+
+select ok(
+  not has_table_privilege('authenticated', 'public.case_locations', 'DELETE'),
+  'localizacao enviada nao se apaga: e o que a equipe usa para socorrer');
 
 select * from finish();
 rollback;

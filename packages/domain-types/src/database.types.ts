@@ -3112,6 +3112,8 @@ export type Database = {
           accepted_at: string | null
           accepted_by: string | null
           activity_id: string | null
+          assigned_at: string | null
+          assigned_to: string | null
           created_at: string
           escalated_at: string | null
           escalation_reason: string | null
@@ -3132,6 +3134,8 @@ export type Database = {
           accepted_at?: string | null
           accepted_by?: string | null
           activity_id?: string | null
+          assigned_at?: string | null
+          assigned_to?: string | null
           created_at?: string
           escalated_at?: string | null
           escalation_reason?: string | null
@@ -3152,6 +3156,8 @@ export type Database = {
           accepted_at?: string | null
           accepted_by?: string | null
           activity_id?: string | null
+          assigned_at?: string | null
+          assigned_to?: string | null
           created_at?: string
           escalated_at?: string | null
           escalation_reason?: string | null
@@ -4164,6 +4170,14 @@ export type Database = {
         Returns: {
           expires_at: string
           token: string
+        }[]
+      }
+      equipe_de_atendimento: {
+        Args: never
+        Returns: {
+          nome: string
+          papeis: string[]
+          user_id: string
         }[]
       }
       home_events: {
