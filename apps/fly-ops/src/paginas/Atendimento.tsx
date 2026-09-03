@@ -179,10 +179,17 @@ export function Atendimento() {
           atribuidoEm: c.assigned_at,
           atividadeId: c.activity_id,
           pedidoId: c.order_id,
+          // Um caso pode ter os dois: aberto a partir de uma atividade que
+          // tinha um pedido ligado. Mostrar so um esconderia metade.
           contexto:
-            (c.activity_id
-              ? (tituloDaAtividade.get(c.activity_id) ?? 'Atividade do roteiro')
-              : null) ?? (c.order_id ? `Pedido ${refDoPedido.get(c.order_id) ?? '—'}` : null),
+            [
+              c.activity_id
+                ? (tituloDaAtividade.get(c.activity_id) ?? 'Atividade do roteiro')
+                : null,
+              c.order_id ? `Pedido ${refDoPedido.get(c.order_id) ?? '—'}` : null,
+            ]
+              .filter((x): x is string => x !== null)
+              .join(' · ') || null,
           mensagens: [...(c.support_messages ?? [])]
             .sort((a, b) => a.created_at.localeCompare(b.created_at))
             .map((m) => ({
