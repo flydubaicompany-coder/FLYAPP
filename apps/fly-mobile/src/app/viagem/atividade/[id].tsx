@@ -309,6 +309,31 @@ export default function AtividadeScreen() {
         </View>
       ) : null}
 
+      {/* Falar com a Fly, com o contexto junto (§43, entrega 4).
+
+          Quem diz "o transfer nao chegou" a partir daqui nao deveria precisar
+          explicar qual transfer — a informacao esta nesta tela, e o caso nasce
+          com ela. O id vai conferido no servidor; o rotulo e so o que a pessoa
+          le. */}
+      <View style={styles.secao}>
+        <Kicker>Ajuda</Kicker>
+        <Botao
+          rotulo="Falar com a Fly sobre isto"
+          variante="fantasma"
+          onPress={() =>
+            router.push({
+              pathname: '/assist/[choice]',
+              params: {
+                choice: 'chat',
+                atividade: atividade.id,
+                sobre: atividade.titulo,
+              },
+            })
+          }
+          testID="atividade-falar"
+        />
+      </View>
+
       {/* QR de check-in (§7.8). */}
       <View style={styles.secao}>
         <Kicker>Check-in</Kicker>

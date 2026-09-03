@@ -57,6 +57,8 @@ export interface BaseFly {
   telefone: string | null;
   horario: string | null;
   servicos: string[];
+  /** O recado do dia — a "fila ou disponibilidade" da §12.2, em texto. */
+  observacao: string | null;
   aberta: boolean;
   latitude: number | null;
   longitude: number | null;
@@ -107,7 +109,9 @@ export function useAtendimento(userId: string | null, pais = 'AE') {
         .limit(20),
       db
         .from('fly_bases')
-        .select('id, name, address, phone, hours_note, services, is_open, latitude, longitude')
+        .select(
+          'id, name, address, phone, hours_note, services, notes, is_open, latitude, longitude',
+        )
         .eq('is_active', true)
         .order('sort_order'),
       db
@@ -143,6 +147,7 @@ export function useAtendimento(userId: string | null, pais = 'AE') {
       telefone: b.phone,
       horario: b.hours_note,
       servicos: b.services ?? [],
+      observacao: b.notes,
       aberta: b.is_open,
       latitude: b.latitude,
       longitude: b.longitude,
@@ -246,15 +251,29 @@ export function useAtendimento(userId: string | null, pais = 'AE') {
     };
   }, [userId, carregar]);
 
-  /** Abre um caso. O SOS ja nasce com a confirmacao gravada, pela RPC. */
+  /**
+   * Abre um caso. O SOS ja nasce com a confirmacao gravada, pela RPC.
+   *
+   * O contexto (§43, entrega 4) e **conferido no servidor**: atividade de
+   * viagem que a pessoa nao enxerga e pedido que nao e dela sao ignorados, e
+   * o caso nasce sem etiqueta em vez de ser recusado. Recusar um SOS porque o
+   * id envelheceu seria trocar uma etiqueta por um atendimento.
+   */
   const abrir = useCallback(
-    async (nivel: Nivel, assunto: string, tripId: string | null) => {
+    async (
+      nivel: Nivel,
+      assunto: string,
+      tripId: string | null,
+      contexto?: { atividade?: string | null; pedido?: string | null },
+    ) => {
       // Os parametros opcionais da RPC sao `string | undefined` no tipo
       // gerado, e nao `| null`: omitir e diferente de mandar nulo.
       const { data: r, error } = await supabase().rpc('abrir_atendimento', {
         p_level: nivel,
         ...(assunto.trim() ? { p_subject: assunto.trim() } : {}),
         ...(tripId ? { p_trip: tripId } : {}),
+        ...(contexto?.atividade ? { p_activity: contexto.atividade } : {}),
+        ...(contexto?.pedido ? { p_order: contexto.pedido } : {}),
       });
       if (error) {
         return {

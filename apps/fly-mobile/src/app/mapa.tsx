@@ -293,6 +293,11 @@ export default function MapaScreen() {
                   {b.servicos.join(' · ')}
                 </Text>
               ) : null}
+              {b.observacao ? (
+                <Text variant="body" style={styles.meta}>
+                  {b.observacao}
+                </Text>
+              ) : null}
               {distancia(b) ? (
                 <Text variant="body" style={styles.meta}>
                   {distancia(b)} em linha reta

@@ -73,6 +73,10 @@ interface Caso {
   motivoEscala: string | null;
   atribuidoA: string | null;
   atribuidoEm: string | null;
+  /** De onde a conversa veio (§43, entrega 4). Nulo = conversa solta. */
+  atividadeId: string | null;
+  pedidoId: string | null;
+  contexto: string | null;
   mensagens: Mensagem[];
   pontos: Ponto[];
 }
@@ -110,7 +114,7 @@ export function Atendimento() {
       db
         .from('support_cases')
         .select(
-          'id, user_id, level, subject, status, opened_at, accepted_at, first_response_at, resolved_at, escalated_at, escalation_reason, assigned_to, assigned_at, support_messages(id, author_id, body, is_system, created_at), case_locations(latitude, longitude, accuracy_m, captured_at)',
+          'id, user_id, level, subject, status, opened_at, accepted_at, first_response_at, resolved_at, escalated_at, escalation_reason, assigned_to, assigned_at, activity_id, order_id, support_messages(id, author_id, body, is_system, created_at), case_locations(latitude, longitude, accuracy_m, captured_at)',
         )
         .order('opened_at', { ascending: false })
         .limit(200),
@@ -130,6 +134,25 @@ export function Atendimento() {
 
     // A lista da equipe é o que torna a atribuição possível. Se o papel não
     // puder listar, a tela segue funcionando — só sem o seletor.
+    // O contexto do caso (§43, entrega 4): qual atividade, qual pedido. Sem
+    // isto a equipe vê "o transfer não chegou" e precisa perguntar qual.
+    const atividadeIds = [
+      ...new Set(linhas.map((c) => c.activity_id).filter((x): x is string => x !== null)),
+    ];
+    const pedidoIds = [
+      ...new Set(linhas.map((c) => c.order_id).filter((x): x is string => x !== null)),
+    ];
+    const [atividadesRes, pedidosRes] = await Promise.all([
+      atividadeIds.length > 0
+        ? db.from('activities').select('id, title').in('id', atividadeIds)
+        : Promise.resolve({ data: [] as Array<{ id: string; title: string }> }),
+      pedidoIds.length > 0
+        ? db.from('orders').select('id, reference').in('id', pedidoIds)
+        : Promise.resolve({ data: [] as Array<{ id: string; reference: string }> }),
+    ]);
+    const tituloDaAtividade = new Map((atividadesRes.data ?? []).map((a) => [a.id, a.title]));
+    const refDoPedido = new Map((pedidosRes.data ?? []).map((o) => [o.id, o.reference]));
+
     const { data: gente } = await db.rpc('equipe_de_atendimento');
     setEquipe((gente ?? []).map((g) => ({ id: g.user_id, nome: g.nome, papeis: g.papeis ?? [] })));
 
@@ -154,6 +177,12 @@ export function Atendimento() {
           motivoEscala: c.escalation_reason,
           atribuidoA: c.assigned_to,
           atribuidoEm: c.assigned_at,
+          atividadeId: c.activity_id,
+          pedidoId: c.order_id,
+          contexto:
+            (c.activity_id
+              ? (tituloDaAtividade.get(c.activity_id) ?? 'Atividade do roteiro')
+              : null) ?? (c.order_id ? `Pedido ${refDoPedido.get(c.order_id) ?? '—'}` : null),
           mensagens: [...(c.support_messages ?? [])]
             .sort((a, b) => a.created_at.localeCompare(b.created_at))
             .map((m) => ({
@@ -424,6 +453,12 @@ export function Atendimento() {
               {atrasoAceite || atrasoResposta ? (
                 <p className="aviso">
                   Fora do prazo declarado em <span className="mono">support.sla_minutes</span>.
+                </p>
+              ) : null}
+
+              {c.contexto ? (
+                <p className="muted">
+                  <strong>Sobre:</strong> {c.contexto}
                 </p>
               ) : null}
 

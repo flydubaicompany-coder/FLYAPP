@@ -55,7 +55,12 @@ function ehNivel(v: string | undefined): v is Nivel {
 }
 
 export default function AssistScreen() {
-  const { choice } = useLocalSearchParams<{ choice: string }>();
+  const { choice, atividade, pedido, sobre } = useLocalSearchParams<{
+    choice: string;
+    atividade?: string;
+    pedido?: string;
+    sobre?: string;
+  }>();
   const { state } = useSession();
   const { data: viagem } = useViagem();
   const userId = state.kind === 'signedIn' ? state.profile.id : null;
@@ -202,7 +207,10 @@ export default function AssistScreen() {
   async function comecar() {
     setOcupado(true);
     setRecado(null);
-    const r = await abrir(nivel, assunto, tripId);
+    const r = await abrir(nivel, assunto, tripId, {
+      atividade: atividade ?? null,
+      pedido: pedido ?? null,
+    });
     setOcupado(false);
     if (!r.ok) return setRecado({ ok: false, texto: r.motivo ?? 'não consegui abrir' });
     setAssunto('');
@@ -278,6 +286,16 @@ export default function AssistScreen() {
               )}
             </Pressable>
           ) : null}
+        </View>
+      ) : null}
+
+      {/* De onde a conversa veio (§43, entrega 4). O rótulo é o da tela
+          anterior; quem vale para a equipe é o id, conferido no servidor. */}
+      {sobre && !aberto ? (
+        <View style={styles.contexto}>
+          <Text variant="body" style={styles.contextoTexto}>
+            Sobre: {sobre}
+          </Text>
         </View>
       ) : null}
 
@@ -432,6 +450,11 @@ export default function AssistScreen() {
                     {b.horario}
                   </Text>
                 ) : null}
+                {b.observacao ? (
+                  <Text variant="body" style={styles.baseMeta}>
+                    {b.observacao}
+                  </Text>
+                ) : null}
                 {b.servicos.length > 0 ? (
                   <Text variant="body" style={styles.baseServicos}>
                     {b.servicos.join(' · ')}
@@ -500,6 +523,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#F05454',
   },
   emergenciaTexto: { fontSize: 15, fontWeight: '700', letterSpacing: -0.24, color: '#fff' },
+
+  contexto: {
+    marginTop: 14,
+    padding: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: palette.strokeSubtle,
+    backgroundColor: palette.fill,
+  },
+  contextoTexto: { fontSize: 12.5, lineHeight: 18, color: palette.textMuted },
 
   recado: { marginTop: 14, padding: 13, borderRadius: 18, borderWidth: 1 },
   recadoOk: { backgroundColor: 'rgba(223,201,138,.1)', borderColor: 'rgba(223,201,138,.32)' },

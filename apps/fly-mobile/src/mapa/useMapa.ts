@@ -37,6 +37,12 @@ export interface Base {
   telefone: string | null;
   horario: string | null;
   servicos: string[];
+  /**
+   * O recado do dia da base. É por aqui que a §12.2 pede "fila ou
+   * disponibilidade": texto que a operação escreve, e não um contador que o
+   * sistema inventaria.
+   */
+  observacao: string | null;
   aberta: boolean;
   latitude: number | null;
   longitude: number | null;
@@ -73,7 +79,9 @@ export function useMapa(tripId: string | null, diaAtual: number | null) {
     const consultas = [
       db
         .from('fly_bases')
-        .select('id, name, address, phone, hours_note, services, is_open, latitude, longitude')
+        .select(
+          'id, name, address, phone, hours_note, services, notes, is_open, latitude, longitude',
+        )
         .eq('is_active', true)
         .order('sort_order'),
       db
@@ -134,6 +142,7 @@ export function useMapa(tripId: string | null, diaAtual: number | null) {
           telefone: b.phone,
           horario: b.hours_note,
           servicos: b.services ?? [],
+          observacao: b.notes,
           aberta: b.is_open,
           latitude: b.latitude,
           longitude: b.longitude,

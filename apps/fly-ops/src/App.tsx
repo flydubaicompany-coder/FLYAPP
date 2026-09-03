@@ -52,7 +52,7 @@ const ABAS = [
   { para: '/refeicoes', rotulo: 'Refeições' },
   { para: '/concierge', rotulo: 'Concierge' },
   { para: '/atendimento', rotulo: 'Atendimento' },
-  { para: '/mapa', rotulo: 'Mapa' },
+  { para: '/mapa', rotulo: 'Mapa e Bases' },
   { para: '/eventos', rotulo: 'Eventos' },
   { para: '/consentimentos', rotulo: 'Consentimentos' },
 ] as const;

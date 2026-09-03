@@ -4119,7 +4119,9 @@ export type Database = {
     Functions: {
       abrir_atendimento: {
         Args: {
+          p_activity?: string
           p_level: Database["public"]["Enums"]["support_level"]
+          p_order?: string
           p_subject?: string
           p_trip?: string
         }

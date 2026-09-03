@@ -15,7 +15,7 @@
 
 begin;
 
-select plan(28);
+select plan(31);
 
 insert into auth.users (id, instance_id, aud, role, email, encrypted_password, created_at, updated_at,
   confirmation_token, recovery_token, email_change, email_change_token_new,
@@ -155,12 +155,44 @@ select throws_ok(
   'escalar sem motivo e recusado');
 
 -- =============================================================================
+-- Contexto: conferido, e nao aceito (§43, entrega 4).
+--
+-- O `activity_id`, o `order_id` e o `trip_id` chegam do cliente. Sem
+-- conferencia, alguem etiquetaria o proprio caso com o pedido de outra pessoa
+-- — e a equipe abriria a tela errada no pior momento. Contexto invalido **nao
+-- lanca**: o caso nasce sem ele, porque recusar um SOS por causa de uma
+-- etiqueta seria trocar o atendimento pela etiqueta.
+-- =============================================================================
+set local request.jwt.claims to '{"sub":"81110000-0000-0000-0000-000000008111","role":"authenticated"}';
+
+select is(
+  (select ok from public.abrir_atendimento(
+     'chat', 'Sobre um pedido que nao e meu', null,
+     '84440000-0000-0000-0000-000000008444'::uuid,
+     '85550000-0000-0000-0000-000000008555'::uuid)),
+  true,
+  'o caso abre mesmo com contexto invalido — atendimento vem antes de etiqueta');
+
+select is(
+  (select order_id from public.support_cases where subject = 'Sobre um pedido que nao e meu'),
+  null,
+  'pedido que nao e da pessoa NAO e gravado');
+
+select is(
+  (select activity_id from public.support_cases where subject = 'Sobre um pedido que nao e meu'),
+  null,
+  'atividade que a pessoa nao enxerga NAO e gravada');
+
+-- =============================================================================
 -- Atribuir e aceitar sao atos diferentes (§43, entrega 7).
 --
 -- `accepted_by` responde "quem pegou"; `assigned_to` responde "de quem e". Um
 -- caso atribuido a um guia que ainda nao abriu o app nao tem `accepted_by`, e
 -- some da fila dele se as duas colunas forem a mesma.
 -- =============================================================================
+-- Quem atribui e a equipe: o bloco acima terminou como cliente.
+set local request.jwt.claims to '{"sub":"83330000-0000-0000-0000-000000008333","role":"authenticated"}';
+
 update public.support_cases set assigned_to = '83330000-0000-0000-0000-000000008333'
 where subject = 'Passei mal no deserto';
 

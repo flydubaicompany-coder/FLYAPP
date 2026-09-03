@@ -446,6 +446,26 @@ export default function PedidoScreen() {
         </View>
       ) : null}
 
+      {/* Falar com a Fly, com o pedido junto (§43, entrega 4). O id vai
+          conferido no servidor — a RPC só aceita pedido da própria pessoa. */}
+      <View style={styles.secao}>
+        <Botao
+          rotulo="Falar com a Fly sobre este pedido"
+          variante="fantasma"
+          onPress={() =>
+            router.push({
+              pathname: '/assist/[choice]',
+              params: {
+                choice: 'chat',
+                pedido: pedido.id,
+                sobre: `Pedido ${pedido.referencia}`,
+              },
+            })
+          }
+          testID="pedido-falar"
+        />
+      </View>
+
       <View style={styles.secao}>
         <Botao
           rotulo="Ver meus passeios"
