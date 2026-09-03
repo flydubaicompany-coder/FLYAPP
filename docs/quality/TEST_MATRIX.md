@@ -1,6 +1,6 @@
 # Matriz de testes
 
-Estado em 27/08/2026, Fase 5 em andamento (§40.9 e §40.10 entregues).
+Estado em 03/09/2026, **Fase 8** (§43). As Fases 0 a 7 estao entregues.
 
 ## O que roda hoje
 
@@ -10,29 +10,38 @@ npm run verify   # lint + typecheck + testes
 
 | Alvo                                    | Onde                              | Testes  | Situação |
 | --------------------------------------- | --------------------------------- | ------- | -------- |
-| Tokens, tipografia, contraste, dourado  | `packages/design-tokens/src`      | 63      | ✅ passa |
+| Tokens, tipografia, contraste, dourado  | `packages/design-tokens/src`      | 66      | ✅ passa |
 | Ambiente, redação de log, health, sonda | `packages/config/src`             | 27      | ✅ passa |
 | Papéis, superfícies, moedas             | `packages/domain-types/src`       | 8       | ✅ passa |
 | Consentimento, PII, taxonomia           | `packages/analytics/src`          | 15      | ✅ passa |
-| **Adapter de pagamento e assinatura**   | `packages/payments/src`           | **25**  | ✅ passa |
-| App cliente                             | `apps/fly-mobile/src`             | 166     | ✅ passa |
-| Tema do Fly Ops                         | `apps/fly-ops/src/theme.test.ts`  | 3       | ✅ passa |
+| Adapter de pagamento e assinatura       | `packages/payments/src`           | 25      | ✅ passa |
+| App cliente                             | `apps/fly-mobile/src`             | **203** | ✅ passa |
+| Fly Ops: tema, slug e tempo da fila     | `apps/fly-ops/src`                | **20**  | ✅ passa |
 | Tema do Fly Crew                        | `apps/fly-crew/src/theme.test.ts` | 3       | ✅ passa |
-| **Total**                               | 20 arquivos                       | **310** | ✅       |
+| **Total**                               |                                   | **367** | ✅       |
 
 Dentro do app cliente, os grupos que mais importam:
 
-| Assunto                         | Arquivo                          |
-| ------------------------------- | -------------------------------- |
-| Composição da Home por estado   | `src/home/composition.test.ts`   |
-| CTA, deep link e fallback       | `src/home/ctas.test.ts`          |
-| Push: destino, login, permissão | `src/push/push.test.ts`          |
-| Onboarding                      | `src/auth/onboarding.test.ts`    |
-| Navegação e abas                | `src/navigation/routing.test.ts` |
+| Assunto                                   | Arquivo                          |
+| ----------------------------------------- | -------------------------------- |
+| Composição da Home por estado             | `src/home/composition.test.ts`   |
+| CTA, deep link e fallback                 | `src/home/ctas.test.ts`          |
+| Push: destino, login, permissão           | `src/push/push.test.ts`          |
+| Onboarding                                | `src/auth/onboarding.test.ts`    |
+| Navegação e abas                          | `src/navigation/routing.test.ts` |
+| **Rota e distância sem provedor de mapa** | `src/mapa/rota.test.ts`          |
+| **Falha de rede ≠ recusa do servidor**    | `src/rede/falha.test.ts`         |
+| **Cache de contatos para offline**        | `src/assist/cache.test.ts`       |
 
-## RLS e regra de negócio: 262 asserções, verdes na esteira
+## RLS e regra de negócio: 413 asserções
 
-A suíte pgTAP roda a cada push, no job **Migrations e RLS**:
+A suíte pgTAP roda a cada push, no job **Migrations e RLS**.
+
+⚠️ **As 39 asserções da Fase 8 (`atendimento` e `mapa`) ainda não rodaram.**
+Elas foram escritas nesta máquina, que não tem Docker, e as migrations de
+03/09 ainda não estão aplicadas no projeto — nem há token da CLI aqui para
+aplicá-las. A primeira prova delas será o job **Migrations e RLS** no push.
+As 374 anteriores estão verdes.
 
 | Arquivo                       | Asserções | Cobre                                                                             |
 | ----------------------------- | --------- | --------------------------------------------------------------------------------- |
@@ -45,7 +54,16 @@ A suíte pgTAP roda a cada push, no job **Migrations e RLS**:
 | `isolamento_viagens.test.sql` | 10        | **uma viagem não vaza para outra** — ver abaixo                                   |
 | `minha_viagem.test.sql`       | 52        | roteiro, cofre, QR, presença                                                      |
 | `passaporte.test.sql`         | 18        | quem lê o número, e o registro de quem leu                                        |
-| `passeios.test.sql`           | **67**    | catálogo, carrinho, pedido, pagamento, webhook, participantes, reembolso, vitrine |
+| `passeios.test.sql`           | 67        | catálogo, carrinho, pedido, pagamento, webhook, participantes, reembolso, vitrine |
+| `carteira.test.sql`           | 41        | ledger append-only, nível, benefício, resgate atômico, privilégio                 |
+| `ranking.test.sql`            | 18        | opt-in, pontuação normalizada, premiação, finalistas depois do fim                |
+| `vencimento.test.sql`         | 9         | vencimento FIFO de pontos                                                         |
+| `notas.test.sql`              | 11        | nota fiscal, duplicidade, tax-free ainda sem regra                                |
+| `documentos_equipe.test.sql`  | 7         | equipe lê documento de quem opera, e não escreve                                  |
+| `refeicoes.test.sql`          | 14        | prazo gravado, exceção com justificativa, opção da refeição certa                 |
+| `restaurantes.test.sql`       | 12        | reserva é pedido, recusa exige motivo, pedido não se apaga                        |
+| **`atendimento.test.sql`**    | **28**    | **os três níveis, thread, estranho negado, tempos, atribuição, privilégio**       |
+| **`mapa.test.sql`**           | **11**    | **mapa nasce vazio, ativo exige coordenada, cliente não publica**                 |
 
 Antes de a esteira existir, as 22 asserções equivalentes já tinham sido
 executadas via SQL direto no projeto `ewgbseesocekvhiiscnb`, dentro de uma
@@ -251,11 +269,22 @@ passaporte e uma de documento, todas presentes em `audit_logs` depois do
   consentimento e a barreira de PII são testadas; o envio real, não.
 - **Fluxo visual em aparelho físico.** A verificação foi feita no Expo web e
   no simulador.
-- **Modo avião.** O cache offline protegido é da Fase 8, junto com o resto da
-  resiliência da §24. Hoje, sem rede, as telas caem no estado de erro com
-  botão de tentar de novo — o que é honesto, mas não é o critério da §39.
+- **Modo avião no aparelho.** Desde 03/09 a tela de ajuda distingue falha de
+  rede de recusa do servidor e guarda, no aparelho, o número de emergência e
+  os telefones das Bases Fly — testado por unidade (`rede/falha.test.ts` e
+  `assist/cache.test.ts`). O que **não** foi exercitado é o comportamento com
+  o rádio desligado de verdade, num aparelho: isso depende de build nativo, e
+  não há EAS vinculado. As demais telas continuam caindo no estado de erro com
+  botão de tentar de novo.
+- **Localização no aparelho.** `navigator.geolocation` só existe no Expo web.
+  No aparelho, o botão de enviar localização não aparece — falta
+  `expo-location` (P49). Vale para o SOS.
 - **Leitura de QR pela câmera.** O `Scanner` do Fly Ops recebe o token por
   campo de texto, que é o que um leitor USB ou um app de câmera nativo
-  entrega. A câmera no navegador é da Fase 8.
+  entrega. A câmera no navegador continua sem existir — não entrou na Fase 8,
+  e a §43 não a pede.
+- **Realtime de ponta a ponta.** As três aplicações assinam o canal, mas a
+  publicação só passa a valer quando a migration de 03/09 for aplicada. Nada
+  aqui foi visto funcionando ainda.
 - **OCR de passaporte.** Deixou de existir: o passaporte é digitado, não
   escaneado. Ver D57.

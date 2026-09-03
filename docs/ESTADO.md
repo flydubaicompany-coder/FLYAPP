@@ -1,49 +1,86 @@
 # Onde o trabalho parou
 
-Atualizado em 27/08/2026.
+Atualizado em 03/09/2026.
 
 Este arquivo existe para uma sessão nova saber exatamente onde pegar, sem
 reler a conversa anterior. **Mantenha-o ao fim de cada fase.**
 
 ---
 
-## Onde retomar — 03/09/2026
+## Onde retomar — 03/09/2026, fim do dia
 
-**Fase 8, itens que faltam.** O que já existe: casos de atendimento nos três
-níveis (conversa, urgente, SOS), thread de mensagens, localização enviada pelo
-cliente, Bases Fly, e a tela do app com o aviso de emergência e o 999.
+**A Fase 8 está construída. Falta prova.** Os cinco itens que faltavam foram
+feitos; o que não foi feito é rodar contra banco de verdade — e isso depende
+do dono. Leia os dois bloqueios abaixo antes de qualquer coisa.
 
-O que falta, em ordem de valor:
+### 🔴 Bloqueio 1 — as migrations de 03/09 não estão aplicadas
 
-1. **Fly Ops: fila e SLA** — a fila por urgência já tem índice
-   (`support_cases_fila_idx`); falta a tela. Aceitar, responder, escalar e
-   resolver, com os tempos que os gatilhos já carimbam.
-2. **Fly Crew: receber e operar casos** — o app de campo tem sessão e rota;
-   falta a tela de casos.
-3. **Mapa** (§12.1) com atrações, roteiro, bases e clínicas.
-4. **Modo degradado/offline** (§43, entrega 12).
-5. **Notificações em tempo real** — `support_messages` já está na publicação
-   `supabase_realtime`; falta assinar no app.
+Três migrations novas, nenhuma no projeto `ptmifjnfskwipjjxauns`:
 
-**Não existe tabela de localização de funcionário, e isso é decisão** (D179).
-Não crie uma.
+| Arquivo                               | O que traz                                                      |
+| ------------------------------------- | --------------------------------------------------------------- |
+| `20260903000000_fila_e_sla.sql`       | `assigned_to`, `equipe_de_atendimento()`, `support.sla_minutes` |
+| `20260903010000_mapa.sql`             | `map_places` e o enum `place_kind`                              |
+| `20260903020000_realtime_da_fila.sql` | `support_cases` na publicação do Realtime                       |
+
+**Por que não apliquei:** não há token da CLI nesta máquina
+(`~/.supabase/access-token` não existe), não há Docker, e o MCP do Supabase
+está logado na conta antiga — ele só enxerga `ewgbseesocekvhiiscnb`, o projeto
+do IMMORTALS. Os `.env.local` têm só a chave publicável, como manda a regra.
+
+```bash
+./node_modules/.bin/supabase login && ./node_modules/.bin/supabase db push
+```
+
+Enquanto não rodar: `/atendimento` e `/mapa` no Fly Ops e `/mapa` no app
+abrem em estado de erro, e o Realtime não entrega nada. **Nenhuma asserção
+pgTAP da Fase 8 foi executada** — as 39 novas serão provadas pela esteira no
+push.
+
+### 🔴 Bloqueio 2 — verificação visual não aconteceu
+
+Nada da Fase 8 foi visto rodando: o banco não tem o schema novo, e a sessão
+logada exige senha, que o agente não digita. O envio de nota fiscal logado
+continua sem ser exercitado, como já estava.
+
+### O que foi entregue hoje
+
+| Item                     | Onde                                                                    |
+| ------------------------ | ----------------------------------------------------------------------- |
+| Fila e SLA no Fly Ops    | `apps/fly-ops/src/paginas/Atendimento.tsx`                              |
+| Casos no Fly Crew        | `apps/fly-crew/src/paginas/Casos.tsx`                                   |
+| Mapa (app e painel)      | `apps/fly-mobile/src/app/mapa.tsx`, `apps/fly-ops/src/paginas/Mapa.tsx` |
+| Modo degradado / offline | `apps/fly-mobile/src/rede/falha.ts`, `src/assist/cache.ts`              |
+| Tempo real               | assinatura nas três aplicações + `20260903020000`                       |
+
+Detalhe e porquê de cada escolha: **D184 a D195** no decision log.
+
+### O que a Fase 8 NÃO tem, e é decisão registrada
+
+- **Mapa embutido.** O núcleo é rota abrindo no app de mapas instalado, que é
+  o que a §12.1 pede. Provedor de mapa continua sendo a P16. **D187.**
+- **Camada de Fly Quest.** É Fase 9 (§44, entrega 11). **D189.**
+- **Localização no aparelho.** Só no Expo web. Falta `expo-location` e o
+  texto de permissão do iOS, que é copy do dono. **P49 e D195.**
+- **Tabela de localização de funcionário.** Não existe e não vai existir
+  (D179). Não crie uma.
+- **Lugares no mapa.** `map_places` nasce vazia: endereço de hospital, clínica
+  e farmácia não se inventa (§33). Até alguém cadastrar no Fly Ops, o mapa
+  mostra só as Bases Fly. **P48 e D188.**
 
 ### O que só o dono decide, e está travando
 
-| #       | O quê                               | Trava                             |
-| ------- | ----------------------------------- | --------------------------------- |
-| P47     | Regra de tax-free                   | a estimativa na tela de notas     |
-| —       | Quanto vale 1 Fly Point em dinheiro | o "≈ R$ X" do design da Carteira  |
-| P45     | Catálogo real de benefícios         | os 6 dizem "(demonstração)"       |
-| P46     | Critérios e prêmios do ranking      | o período diz "(demonstração)"    |
-| P43     | Confirmar a moeda (assumi AED)      | rótulos de preço                  |
-| P09/P38 | Parceiro de pagamento               | recarga, transferência e Fly Card |
-
-### Verificação que ficou pendente
-
-O envio de nota fiscal **logado** nunca foi exercitado: o preview reiniciou sem
-sessão, e eu não digito senha em campo de login. Peça ao dono para entrar no
-app antes de dar isso por testado.
+| #       | O quê                                    | Trava                                                                    |
+| ------- | ---------------------------------------- | ------------------------------------------------------------------------ |
+| P47     | Regra de tax-free                        | a estimativa na tela de notas                                            |
+| —       | Quanto vale 1 Fly Point em dinheiro      | o "≈ R$ X" do design da Carteira                                         |
+| P45     | Catálogo real de benefícios              | os 6 dizem "(demonstração)"                                              |
+| P46     | Critérios e prêmios do ranking           | o período diz "(demonstração)"                                           |
+| P43     | Confirmar a moeda (assumi AED)           | rótulos de preço                                                         |
+| P09/P38 | Parceiro de pagamento                    | recarga, transferência e Fly Card                                        |
+| **P20** | **Prazo de aceite e de resposta**        | `support.sla_minutes` está `PENDENTE`; o Fly Ops mede e não acusa atraso |
+| **P48** | **Endereços do mapa**                    | camada de saúde e de parceiros                                           |
+| **P49** | **`expo-location` + texto de permissão** | localização no aparelho, inclusive no SOS                                |
 
 ---
 
@@ -59,10 +96,11 @@ app antes de dar isso por testado.
 | **5** | **Passeios, carrinho e pedidos**                      | 🟢 **entregue — uma ressalva** |
 | **6** | **Carteira e fidelidade (§41)**                       | 🟢 **entregue — 2 bloqueios**  |
 | **7** | **Gastronomia, reservas e serviços (§42)**            | 🟢 **entregue**                |
-| **8** | **Mapa, Bases Fly, concierge e SOS (§43)**            | 🟡 **atendimento entregue**    |
+| **8** | **Mapa, Bases Fly, concierge e SOS (§43)**            | 🟡 **construída, sem prova**   |
 
-Prova: `npm run verify` (**310 testes**) e a suíte pgTAP na esteira (**262
-asserções**, 10 arquivos). A esteira agora também roda `deno check` nas Edge
+Prova: `npm run verify` (**367 testes**, exit 0 nesta máquina) e a suíte
+pgTAP (**413 asserções**, 19 arquivos) — das quais **39 nunca rodaram**: as da
+Fase 8, que dependem das migrations acima. A esteira agora também roda `deno check` nas Edge
 Functions — elas não são workspace do npm e ficavam fora do `typecheck`.
 
 ---
