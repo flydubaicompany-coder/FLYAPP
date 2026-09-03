@@ -34,7 +34,7 @@ do IMMORTALS. Os `.env.local` têm só a chave publicável, como manda a regra.
 
 Enquanto não rodar: `/atendimento` e `/mapa` no Fly Ops e `/mapa` no app
 abrem em estado de erro, e o Realtime não entrega nada. **Nenhuma asserção
-pgTAP da Fase 8 foi executada** — as 39 novas serão provadas pela esteira no
+pgTAP da Fase 8 foi executada** — as 42 novas serão provadas pela esteira no
 push.
 
 ### 🔴 Bloqueio 2 — verificação visual não aconteceu
@@ -53,7 +53,7 @@ continua sem ser exercitado, como já estava.
 | Modo degradado / offline | `apps/fly-mobile/src/rede/falha.ts`, `src/assist/cache.ts`              |
 | Tempo real               | assinatura nas três aplicações + `20260903020000`                       |
 
-Detalhe e porquê de cada escolha: **D184 a D195** no decision log.
+Detalhe e porquê de cada escolha: **D184 a D199** no decision log.
 
 ### O que a Fase 8 NÃO tem, e é decisão registrada
 
@@ -99,7 +99,7 @@ Detalhe e porquê de cada escolha: **D184 a D195** no decision log.
 | **8** | **Mapa, Bases Fly, concierge e SOS (§43)**            | 🟡 **construída, sem prova**   |
 
 Prova: `npm run verify` (**367 testes**, exit 0 nesta máquina) e a suíte
-pgTAP (**413 asserções**, 19 arquivos) — das quais **39 nunca rodaram**: as da
+pgTAP (**416 asserções**, 19 arquivos) — das quais **42 nunca rodaram**: as da
 Fase 8, que dependem das migrations acima. A esteira agora também roda `deno check` nas Edge
 Functions — elas não são workspace do npm e ficavam fora do `typecheck`.
 

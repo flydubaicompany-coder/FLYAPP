@@ -33,37 +33,37 @@ Dentro do app cliente, os grupos que mais importam:
 | **Falha de rede ≠ recusa do servidor**    | `src/rede/falha.test.ts`         |
 | **Cache de contatos para offline**        | `src/assist/cache.test.ts`       |
 
-## RLS e regra de negócio: 413 asserções
+## RLS e regra de negócio: 416 asserções
 
 A suíte pgTAP roda a cada push, no job **Migrations e RLS**.
 
-⚠️ **As 39 asserções da Fase 8 (`atendimento` e `mapa`) ainda não rodaram.**
+⚠️ **As 42 asserções da Fase 8 (`atendimento` e `mapa`) ainda não rodaram.**
 Elas foram escritas nesta máquina, que não tem Docker, e as migrations de
 03/09 ainda não estão aplicadas no projeto — nem há token da CLI aqui para
 aplicá-las. A primeira prova delas será o job **Migrations e RLS** no push.
 As 374 anteriores estão verdes.
 
-| Arquivo                       | Asserções | Cobre                                                                             |
-| ----------------------------- | --------- | --------------------------------------------------------------------------------- |
-| `foundation_rls.test.sql`     | 31        | espinha de sistema, papéis, auditoria append-only                                 |
-| `fly_id_rls.test.sql`         | 39        | isolamento entre clientes, atribuição, vínculo familiar, consentimento            |
-| `advance_onboarding.test.sql` | 9         | transição de onboarding decidida no servidor                                      |
-| `invitations_rpc.test.sql`    | 8         | quem pode convidar, e com qual papel                                              |
-| `account_deletion.test.sql`   | 7         | exclusão de conta, inclusive de conta nascida de convite                          |
-| `home_events.test.sql`        | 21        | estado da Home no fuso do destino, publicação, categoria crítica                  |
-| `isolamento_viagens.test.sql` | 10        | **uma viagem não vaza para outra** — ver abaixo                                   |
-| `minha_viagem.test.sql`       | 52        | roteiro, cofre, QR, presença                                                      |
-| `passaporte.test.sql`         | 18        | quem lê o número, e o registro de quem leu                                        |
-| `passeios.test.sql`           | 67        | catálogo, carrinho, pedido, pagamento, webhook, participantes, reembolso, vitrine |
-| `carteira.test.sql`           | 41        | ledger append-only, nível, benefício, resgate atômico, privilégio                 |
-| `ranking.test.sql`            | 18        | opt-in, pontuação normalizada, premiação, finalistas depois do fim                |
-| `vencimento.test.sql`         | 9         | vencimento FIFO de pontos                                                         |
-| `notas.test.sql`              | 11        | nota fiscal, duplicidade, tax-free ainda sem regra                                |
-| `documentos_equipe.test.sql`  | 7         | equipe lê documento de quem opera, e não escreve                                  |
-| `refeicoes.test.sql`          | 14        | prazo gravado, exceção com justificativa, opção da refeição certa                 |
-| `restaurantes.test.sql`       | 12        | reserva é pedido, recusa exige motivo, pedido não se apaga                        |
-| **`atendimento.test.sql`**    | **28**    | **os três níveis, thread, estranho negado, tempos, atribuição, privilégio**       |
-| **`mapa.test.sql`**           | **11**    | **mapa nasce vazio, ativo exige coordenada, cliente não publica**                 |
+| Arquivo                       | Asserções | Cobre                                                                                           |
+| ----------------------------- | --------- | ----------------------------------------------------------------------------------------------- |
+| `foundation_rls.test.sql`     | 31        | espinha de sistema, papéis, auditoria append-only                                               |
+| `fly_id_rls.test.sql`         | 39        | isolamento entre clientes, atribuição, vínculo familiar, consentimento                          |
+| `advance_onboarding.test.sql` | 9         | transição de onboarding decidida no servidor                                                    |
+| `invitations_rpc.test.sql`    | 8         | quem pode convidar, e com qual papel                                                            |
+| `account_deletion.test.sql`   | 7         | exclusão de conta, inclusive de conta nascida de convite                                        |
+| `home_events.test.sql`        | 21        | estado da Home no fuso do destino, publicação, categoria crítica                                |
+| `isolamento_viagens.test.sql` | 10        | **uma viagem não vaza para outra** — ver abaixo                                                 |
+| `minha_viagem.test.sql`       | 52        | roteiro, cofre, QR, presença                                                                    |
+| `passaporte.test.sql`         | 18        | quem lê o número, e o registro de quem leu                                                      |
+| `passeios.test.sql`           | 67        | catálogo, carrinho, pedido, pagamento, webhook, participantes, reembolso, vitrine               |
+| `carteira.test.sql`           | 41        | ledger append-only, nível, benefício, resgate atômico, privilégio                               |
+| `ranking.test.sql`            | 18        | opt-in, pontuação normalizada, premiação, finalistas depois do fim                              |
+| `vencimento.test.sql`         | 9         | vencimento FIFO de pontos                                                                       |
+| `notas.test.sql`              | 11        | nota fiscal, duplicidade, tax-free ainda sem regra                                              |
+| `documentos_equipe.test.sql`  | 7         | equipe lê documento de quem opera, e não escreve                                                |
+| `refeicoes.test.sql`          | 14        | prazo gravado, exceção com justificativa, opção da refeição certa                               |
+| `restaurantes.test.sql`       | 12        | reserva é pedido, recusa exige motivo, pedido não se apaga                                      |
+| **`atendimento.test.sql`**    | **31**    | **os três níveis, thread, estranho negado, tempos, atribuição, contexto conferido, privilégio** |
+| **`mapa.test.sql`**           | **11**    | **mapa nasce vazio, ativo exige coordenada, cliente não publica**                               |
 
 Antes de a esteira existir, as 22 asserções equivalentes já tinham sido
 executadas via SQL direto no projeto `ewgbseesocekvhiiscnb`, dentro de uma
