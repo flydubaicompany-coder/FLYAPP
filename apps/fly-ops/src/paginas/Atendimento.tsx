@@ -180,6 +180,35 @@ export function Atendimento() {
     void carregar();
   }, [carregar]);
 
+  /**
+   * A fila se atualiza sozinha (§43, entrega 11).
+   *
+   * Um SOS que chega enquanto alguém olha esta tela não pode depender de
+   * lembrar de recarregar. O canal é privado: o Postgres Changes aplica a RLS
+   * de cada tabela por assinante, e quem não é equipe não recebe fila
+   * nenhuma.
+   */
+  useEffect(() => {
+    const db = supabase();
+    const canal = db
+      .channel('ops:atendimento')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'support_cases' }, () => {
+        void carregar();
+      })
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'support_messages' },
+        () => {
+          void carregar();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      void db.removeChannel(canal);
+    };
+  }, [carregar]);
+
   async function mudar(c: Caso, campos: Mudanca, feito: string) {
     setOcupado(true);
     setErro(null);

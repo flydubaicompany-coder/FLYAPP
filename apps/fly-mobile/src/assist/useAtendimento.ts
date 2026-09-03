@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/auth/client';
+import { sessionStorage } from '@/auth/storage';
+import { ehFalhaDeRede } from '@/rede/falha';
+import { CHAVE_CONTATOS, lerContatos, serializarContatos, type ContatosSalvos } from './cache';
 
 /**
  * Atendimento, ajuda urgente e SOS (§12.3 e §12.4).
@@ -69,6 +72,15 @@ export type AtendimentoData =
       emergencia: string | null;
       aviso: string | null;
     }
+  /**
+   * Sem conexao (§43, entrega 12).
+   *
+   * A thread nao existe offline — mensagem nao entra em cache. O que sobra e
+   * o que se disca: o numero de emergencia e os telefones das Bases Fly,
+   * salvos na ultima vez que a tela abriu. "Ligacao funciona sem chat" e
+   * criterio da §43, e uma ligacao sem numero nao funciona.
+   */
+  | { kind: 'offline'; contatos: ContatosSalvos | null }
   | { kind: 'error'; message: string };
 
 export function useAtendimento(userId: string | null, pais = 'AE') {
@@ -78,7 +90,13 @@ export function useAtendimento(userId: string | null, pais = 'AE') {
     if (!userId) return setData({ kind: 'loading' });
     const db = supabase();
 
-    const [casos, bases, cfg] = await Promise.all([
+    /** O que a tela mostra quando a rede cai: so o que se disca. */
+    const cair = async () => {
+      const salvo = await sessionStorage.getItem(CHAVE_CONTATOS).catch(() => null);
+      setData({ kind: 'offline', contatos: lerContatos(salvo) });
+    };
+
+    const consultas = [
       db
         .from('support_cases')
         .select(
@@ -96,13 +114,56 @@ export function useAtendimento(userId: string | null, pais = 'AE') {
         .from('app_config')
         .select('key, value')
         .in('key', ['support.emergency_numbers', 'support.sos_disclaimer']),
-    ]);
+    ] as const;
 
-    if (casos.error) return setData({ kind: 'error', message: casos.error.message });
+    // O `fetch` lanca quando nao ha rede; o PostgREST devolve `error` quando
+    // ha rede e o servidor recusou. Sao dois caminhos, e so o primeiro e
+    // "offline".
+    let casos, bases, cfg;
+    try {
+      [casos, bases, cfg] = await Promise.all(consultas);
+    } catch (e) {
+      if (ehFalhaDeRede(e)) return cair();
+      return setData({ kind: 'error', message: e instanceof Error ? e.message : String(e) });
+    }
+
+    if (casos.error) {
+      if (ehFalhaDeRede(casos.error)) return cair();
+      return setData({ kind: 'error', message: casos.error.message });
+    }
 
     const conf = new Map((cfg.data ?? []).map((c) => [c.key, c.value]));
     const numeros = conf.get('support.emergency_numbers') as Record<string, string> | null;
     const aviso = conf.get('support.sos_disclaimer');
+
+    const listaDeBases = (bases.data ?? []).map((b) => ({
+      id: b.id,
+      nome: b.name,
+      endereco: b.address,
+      telefone: b.phone,
+      horario: b.hours_note,
+      servicos: b.services ?? [],
+      aberta: b.is_open,
+      latitude: b.latitude,
+      longitude: b.longitude,
+    }));
+
+    // Salva o que se disca, para a proxima vez que nao houver rede. Nada de
+    // conversa e nada de localizacao entram aqui.
+    const paraSalvar: ContatosSalvos = {
+      emergencia: numeros?.[pais] ?? null,
+      aviso: typeof aviso === 'string' ? aviso : null,
+      bases: listaDeBases.map((b) => ({
+        nome: b.nome,
+        telefone: b.telefone,
+        endereco: b.endereco,
+      })),
+      salvoEm: new Date().toISOString(),
+    };
+    // Falhar ao gravar cache nao pode derrubar a tela de emergencia.
+    void sessionStorage
+      .setItem(CHAVE_CONTATOS, serializarContatos(paraSalvar))
+      .catch(() => undefined);
 
     setData({
       kind: 'ready',
@@ -143,23 +204,47 @@ export function useAtendimento(userId: string | null, pais = 'AE') {
             })),
         }),
       ),
-      bases: (bases.data ?? []).map((b) => ({
-        id: b.id,
-        nome: b.name,
-        endereco: b.address,
-        telefone: b.phone,
-        horario: b.hours_note,
-        servicos: b.services ?? [],
-        aberta: b.is_open,
-        latitude: b.latitude,
-        longitude: b.longitude,
-      })),
+      bases: listaDeBases,
     });
   }, [userId, pais]);
 
   useEffect(() => {
     void carregar();
   }, [carregar]);
+
+  /**
+   * A resposta da Fly chega sem recarregar (§43, entrega 11).
+   *
+   * O canal e privado porque o Postgres Changes aplica a RLS de
+   * `support_messages` para cada assinante: nao ha filtro por caso aqui, e
+   * nao precisa haver — a policy so entrega a thread de quem participa dela.
+   *
+   * Recarregar a tela inteira em vez de anexar a mensagem recebida e
+   * deliberado: o mesmo evento tambem muda a situacao do caso (a primeira
+   * resposta da equipe carimba `first_response_at` por gatilho), e montar
+   * isso a mao no cliente seria uma segunda verdade.
+   */
+  useEffect(() => {
+    if (!userId) return;
+    const db = supabase();
+    const canal = db
+      .channel('assist:thread')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'support_messages' },
+        () => {
+          void carregar();
+        },
+      )
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'support_cases' }, () => {
+        void carregar();
+      })
+      .subscribe();
+
+    return () => {
+      void db.removeChannel(canal);
+    };
+  }, [userId, carregar]);
 
   /** Abre um caso. O SOS ja nasce com a confirmacao gravada, pela RPC. */
   const abrir = useCallback(
@@ -171,7 +256,14 @@ export function useAtendimento(userId: string | null, pais = 'AE') {
         ...(assunto.trim() ? { p_subject: assunto.trim() } : {}),
         ...(tripId ? { p_trip: tripId } : {}),
       });
-      if (error) return { ok: false, motivo: error.message };
+      if (error) {
+        return {
+          ok: false,
+          motivo: ehFalhaDeRede(error)
+            ? 'Sem conexão: o pedido NÃO chegou à Fly. Se for urgente, ligue.'
+            : error.message,
+        };
+      }
       await carregar();
       const linha = Array.isArray(r) ? r[0] : r;
       return { ok: true, casoId: linha?.caso ?? null };
@@ -186,7 +278,16 @@ export function useAtendimento(userId: string | null, pais = 'AE') {
       const { error } = await supabase()
         .from('support_messages')
         .insert({ case_id: casoId, author_id: userId, body: corpo.trim() });
-      if (error) return { ok: false, motivo: error.message };
+      if (error) {
+        // "Ligacao funciona sem chat" (§43): quando a mensagem nao sai, a
+        // tela precisa dizer isso com todas as letras e oferecer o telefone.
+        return {
+          ok: false,
+          motivo: ehFalhaDeRede(error)
+            ? 'Sem conexão: sua mensagem NÃO foi enviada. Se for urgente, ligue.'
+            : error.message,
+        };
+      }
       await carregar();
       return { ok: true };
     },

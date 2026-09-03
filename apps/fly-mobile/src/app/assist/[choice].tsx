@@ -2,7 +2,16 @@ import { useState } from 'react';
 import { Linking, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { palette } from '@/theme';
-import { AppHeader, EmptyState, ErrorState, LoadingSkeleton, Screen, Text } from '@/ui';
+import {
+  AppHeader,
+  EmptyState,
+  ErrorState,
+  LoadingSkeleton,
+  OfflineBanner,
+  Screen,
+  Text,
+} from '@/ui';
+import { formatLastSynced } from '@/ui';
 import { useSession } from '@/auth/session';
 import { useViagem } from '@/viagem/useViagem';
 import { ROTULO_SITUACAO, useAtendimento, type Nivel } from '@/assist/useAtendimento';
@@ -82,6 +91,104 @@ export default function AssistScreen() {
     return (
       <Screen withBottomNav={false} testID="screen-assist">
         <ErrorState title="Não consegui carregar" description={data.message} />
+      </Screen>
+    );
+  }
+
+  /**
+   * Modo degradado (§43, entrega 12).
+   *
+   * Sem rede não há thread — mensagem não fica em cache, pela mesma razão que
+   * não entra em analytics. O que sobra é o que se disca, salvo da última vez
+   * que a tela abriu com conexão. "Ligação funciona sem chat" é critério da
+   * §43, e é exatamente esta tela.
+   */
+  if (data.kind === 'offline') {
+    const c = data.contatos;
+    return (
+      <Screen withBottomNav={false} testID="screen-assist">
+        <AppHeader
+          kicker={CONTEUDO[nivel].kicker}
+          title="Sem conexão"
+          onBack={() => router.back()}
+        />
+        <OfflineBanner {...(c ? { lastSyncedLabel: formatLastSynced(new Date(c.salvoEm)) } : {})} />
+
+        <Text variant="body" style={styles.nota}>
+          A conversa com a Fly precisa de internet. Estes números não precisam — eles estão salvos
+          no aparelho e funcionam agora.
+        </Text>
+
+        {c?.aviso ? (
+          <View style={styles.aviso}>
+            <Text variant="body" style={styles.avisoTexto}>
+              {c.aviso}
+            </Text>
+          </View>
+        ) : null}
+
+        {c?.emergencia ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Ligar para a emergência ${c.emergencia}`}
+            onPress={() => void Linking.openURL(`tel:${c.emergencia}`)}
+            testID="offline-emergencia"
+          >
+            {({ pressed }) => (
+              <View style={[styles.emergencia, pressed && styles.pressionado]}>
+                <Text variant="body" style={styles.emergenciaTexto}>
+                  Ligar {c.emergencia}
+                </Text>
+              </View>
+            )}
+          </Pressable>
+        ) : null}
+
+        {c && c.bases.length > 0 ? (
+          <>
+            <Text variant="section" style={styles.secao}>
+              Bases Fly
+            </Text>
+            <View style={styles.bases}>
+              {c.bases.map((b) => (
+                <View key={`${b.nome}-${b.telefone ?? 'sem'}`} style={styles.base}>
+                  <Text variant="body" style={styles.baseNome}>
+                    {b.nome}
+                  </Text>
+                  {b.endereco ? (
+                    <Text variant="body" style={styles.baseMeta}>
+                      {b.endereco}
+                    </Text>
+                  ) : null}
+                  {b.telefone ? (
+                    <View style={styles.baseAcoes}>
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityLabel={`Ligar para ${b.nome}`}
+                        onPress={() => void Linking.openURL(`tel:${b.telefone}`)}
+                      >
+                        {() => (
+                          <View style={styles.baseBotao}>
+                            <Text variant="body" style={styles.baseBotaoTexto}>
+                              Ligar
+                            </Text>
+                          </View>
+                        )}
+                      </Pressable>
+                    </View>
+                  ) : null}
+                </View>
+              ))}
+            </View>
+          </>
+        ) : null}
+
+        {c === null ? (
+          <EmptyState
+            title="Não tenho número salvo"
+            description="Esta tela ainda não abriu com internet neste aparelho, então não há o que discar. Assim que houver conexão uma vez, os números ficam salvos para depois."
+          />
+        ) : null}
       </Screen>
     );
   }

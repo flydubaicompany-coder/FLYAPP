@@ -150,6 +150,33 @@ export function Casos() {
     void carregar();
   }, [carregar]);
 
+  /**
+   * Caso novo aparece sem recarregar (§43, entrega 11).
+   *
+   * Quem está na rua não fica puxando a tela para ver se chegou alguma coisa.
+   * O canal é privado: a RLS de cada tabela vale para o Realtime também.
+   */
+  useEffect(() => {
+    const db = supabase();
+    const canal = db
+      .channel('crew:casos')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'support_cases' }, () => {
+        void carregar();
+      })
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'support_messages' },
+        () => {
+          void carregar();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      void db.removeChannel(canal);
+    };
+  }, [carregar]);
+
   async function assumir(c: Caso) {
     if (!euId) return setErro('Sessão sem usuário — entre de novo.');
     setOcupado(true);

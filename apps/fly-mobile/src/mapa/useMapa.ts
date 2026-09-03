@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/auth/client';
+import { ehFalhaDeRede } from '@/rede/falha';
 
 /**
  * O que entra no mapa (§12.1).
@@ -57,7 +58,11 @@ export interface Mapa {
 }
 
 export type MapaData =
-  { kind: 'loading' } | { kind: 'ready'; mapa: Mapa } | { kind: 'error'; message: string };
+  | { kind: 'loading' }
+  | { kind: 'ready'; mapa: Mapa }
+  /** Sem rede. O mapa não fica em cache — o que se disca fica, na tela de ajuda. */
+  | { kind: 'offline' }
+  | { kind: 'error'; message: string };
 
 export function useMapa(tripId: string | null, diaAtual: number | null) {
   const [data, setData] = useState<MapaData>({ kind: 'loading' });
@@ -65,7 +70,7 @@ export function useMapa(tripId: string | null, diaAtual: number | null) {
   const carregar = useCallback(async () => {
     const db = supabase();
 
-    const [basesRes, lugaresRes] = await Promise.all([
+    const consultas = [
       db
         .from('fly_bases')
         .select('id, name, address, phone, hours_note, services, is_open, latitude, longitude')
@@ -76,10 +81,23 @@ export function useMapa(tripId: string | null, diaAtual: number | null) {
         .select('id, kind, name, address, phone, hours_note, notes, latitude, longitude')
         .eq('is_active', true)
         .order('sort_order'),
-    ]);
+    ] as const;
 
-    if (basesRes.error) return setData({ kind: 'error', message: basesRes.error.message });
-    if (lugaresRes.error) return setData({ kind: 'error', message: lugaresRes.error.message });
+    // Sem rede o `fetch` lança; com rede e recusa, o PostgREST devolve
+    // `error`. A tela diz coisas diferentes para cada um.
+    let basesRes, lugaresRes;
+    try {
+      [basesRes, lugaresRes] = await Promise.all(consultas);
+    } catch (e) {
+      if (ehFalhaDeRede(e)) return setData({ kind: 'offline' });
+      return setData({ kind: 'error', message: e instanceof Error ? e.message : String(e) });
+    }
+
+    const falha = basesRes.error ?? lugaresRes.error;
+    if (falha) {
+      if (ehFalhaDeRede(falha)) return setData({ kind: 'offline' });
+      return setData({ kind: 'error', message: falha.message });
+    }
 
     // O roteiro de hoje só existe durante a viagem. Fora dela, a camada some
     // em vez de mostrar o dia 1 de uma viagem que ainda não começou.

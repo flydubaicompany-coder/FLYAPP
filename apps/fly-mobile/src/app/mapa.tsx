@@ -2,7 +2,15 @@ import { useState } from 'react';
 import { Linking, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { palette } from '@/theme';
-import { AppHeader, EmptyState, ErrorState, LoadingSkeleton, Screen, Text } from '@/ui';
+import {
+  AppHeader,
+  EmptyState,
+  ErrorState,
+  LoadingSkeleton,
+  OfflineState,
+  Screen,
+  Text,
+} from '@/ui';
 import { useViagem } from '@/viagem/useViagem';
 import { useMapa, type Lugar, type TipoDeLugar } from '@/mapa/useMapa';
 import { distanciaKm, rotuloDeDistancia, urlDeRota, type Ponto } from '@/mapa/rota';
@@ -94,7 +102,7 @@ export default function MapaScreen() {
   const { data: viagem } = useViagem();
   const tripId = viagem.kind === 'ready' ? viagem.viagem.id : null;
   const diaAtual = viagem.kind === 'ready' ? viagem.viagem.diaAtual : null;
-  const { data } = useMapa(tripId, diaAtual);
+  const { data, recarregar } = useMapa(tripId, diaAtual);
 
   const [eu, setEu] = useState<Ponto | null>(null);
   const [recado, setRecado] = useState<string | null>(null);
@@ -126,6 +134,19 @@ export default function MapaScreen() {
     return (
       <Screen withBottomNav={false} testID="screen-mapa">
         <LoadingSkeleton label="Carregando o mapa" />
+      </Screen>
+    );
+  }
+
+  if (data.kind === 'offline') {
+    return (
+      <Screen withBottomNav={false} testID="screen-mapa">
+        <AppHeader kicker="Minha Viagem" title="Mapa" onBack={() => router.back()} />
+        <OfflineState onRetry={() => void recarregar()} />
+        <Text variant="body" style={styles.nota}>
+          O mapa precisa de internet para carregar. Os telefones da Fly ficam salvos em Ajuda e
+          emergência, e funcionam mesmo assim.
+        </Text>
       </Screen>
     );
   }
