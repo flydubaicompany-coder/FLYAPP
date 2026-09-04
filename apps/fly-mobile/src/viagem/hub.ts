@@ -124,6 +124,14 @@ export const HUB: readonly ItemDoHub[] = [
     fase: null,
     ref: '§15.4',
   },
+  {
+    chave: 'mala',
+    rotulo: 'Mala Pronta',
+    descricao: 'O que levar, vindo do que cada dia do roteiro pede.',
+    rota: '/viagem/mala',
+    fase: null,
+    ref: '§15.4',
+  },
   // --- ainda não abertos -------------------------------------------------
   {
     chave: 'passeios',

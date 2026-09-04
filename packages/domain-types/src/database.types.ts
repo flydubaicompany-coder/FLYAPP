@@ -2610,6 +2610,98 @@ export type Database = {
           },
         ]
       }
+      packing_checks: {
+        Row: {
+          created_at: string
+          id: string
+          item: string
+          marcado: boolean
+          proprio: boolean
+          trip_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item: string
+          marcado?: boolean
+          proprio?: boolean
+          trip_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item?: string
+          marcado?: boolean
+          proprio?: boolean
+          trip_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "packing_checks_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      packing_items: {
+        Row: {
+          created_at: string
+          destination_id: string | null
+          id: string
+          is_active: boolean
+          label: string
+          note: string | null
+          sort_order: number
+          trip_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          destination_id?: string | null
+          id?: string
+          is_active?: boolean
+          label: string
+          note?: string | null
+          sort_order?: number
+          trip_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          destination_id?: string | null
+          id?: string
+          is_active?: boolean
+          label?: string
+          note?: string | null
+          sort_order?: number
+          trip_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "packing_items_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "packing_items_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       passports: {
         Row: {
           birth_date: string | null
