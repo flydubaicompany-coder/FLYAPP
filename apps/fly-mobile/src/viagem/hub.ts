@@ -116,6 +116,14 @@ export const HUB: readonly ItemDoHub[] = [
     fase: null,
     ref: '§15.1',
   },
+  {
+    chave: 'planejador',
+    rotulo: 'Planejador',
+    descricao: 'O que a Fly cobrou e o que você anotou, separados.',
+    rota: '/carteira/planejador',
+    fase: null,
+    ref: '§15.4',
+  },
   // --- ainda não abertos -------------------------------------------------
   {
     chave: 'passeios',

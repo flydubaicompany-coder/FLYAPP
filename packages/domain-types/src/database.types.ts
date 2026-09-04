@@ -2027,6 +2027,53 @@ export type Database = {
         }
         Relationships: []
       }
+      manual_expenses: {
+        Row: {
+          amount_cents: number
+          category: Database["public"]["Enums"]["expense_category"]
+          created_at: string
+          currency: string
+          id: string
+          note: string | null
+          spent_on: string
+          trip_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          category?: Database["public"]["Enums"]["expense_category"]
+          created_at?: string
+          currency: string
+          id?: string
+          note?: string | null
+          spent_on?: string
+          trip_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          category?: Database["public"]["Enums"]["expense_category"]
+          created_at?: string
+          currency?: string
+          id?: string
+          note?: string | null
+          spent_on?: string
+          trip_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manual_expenses_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       map_places: {
         Row: {
           address: string | null
@@ -4566,6 +4613,44 @@ export type Database = {
           },
         ]
       }
+      trip_budgets: {
+        Row: {
+          created_at: string
+          currency: string
+          daily_limit_cents: number
+          id: string
+          trip_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency: string
+          daily_limit_cents: number
+          id?: string
+          trip_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          daily_limit_cents?: number
+          id?: string
+          trip_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_budgets_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trip_days: {
         Row: {
           created_at: string
@@ -5328,6 +5413,13 @@ export type Database = {
         | "open_fly_cup"
         | "want_dubai"
       event_status: "announced" | "registration_open" | "happening" | "finished"
+      expense_category:
+        | "alimentacao"
+        | "transporte"
+        | "compras"
+        | "lazer"
+        | "saude"
+        | "outro"
       fly_package: "standard" | "black" | "billionaire"
       fly_role:
         | "customer"
@@ -5656,6 +5748,14 @@ export const Constants = {
         "want_dubai",
       ],
       event_status: ["announced", "registration_open", "happening", "finished"],
+      expense_category: [
+        "alimentacao",
+        "transporte",
+        "compras",
+        "lazer",
+        "saude",
+        "outro",
+      ],
       fly_package: ["standard", "black", "billionaire"],
       fly_role: [
         "customer",
