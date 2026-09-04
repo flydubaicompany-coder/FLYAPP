@@ -1657,6 +1657,124 @@ export type Database = {
         }
         Relationships: []
       }
+      influencer_deliverables: {
+        Row: {
+          created_at: string
+          description: string | null
+          due_at: string | null
+          engagement_declared: number | null
+          id: string
+          metrics_declared_at: string | null
+          profile_id: string
+          reach_declared: number | null
+          review_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["deliverable_status"]
+          submitted_at: string | null
+          submitted_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          due_at?: string | null
+          engagement_declared?: number | null
+          id?: string
+          metrics_declared_at?: string | null
+          profile_id: string
+          reach_declared?: number | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["deliverable_status"]
+          submitted_at?: string | null
+          submitted_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          due_at?: string | null
+          engagement_declared?: number | null
+          id?: string
+          metrics_declared_at?: string | null
+          profile_id?: string
+          reach_declared?: number | null
+          review_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["deliverable_status"]
+          submitted_at?: string | null
+          submitted_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "influencer_deliverables_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "influencer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      influencer_profiles: {
+        Row: {
+          briefing: string | null
+          collab_note: string | null
+          created_at: string
+          enabled_at: string | null
+          enabled_by: string | null
+          handle: string | null
+          id: string
+          is_active: boolean
+          trip_id: string
+          updated_at: string
+          usage_rights: string | null
+          user_id: string
+        }
+        Insert: {
+          briefing?: string | null
+          collab_note?: string | null
+          created_at?: string
+          enabled_at?: string | null
+          enabled_by?: string | null
+          handle?: string | null
+          id?: string
+          is_active?: boolean
+          trip_id: string
+          updated_at?: string
+          usage_rights?: string | null
+          user_id: string
+        }
+        Update: {
+          briefing?: string | null
+          collab_note?: string | null
+          created_at?: string
+          enabled_at?: string | null
+          enabled_by?: string | null
+          handle?: string | null
+          id?: string
+          is_active?: boolean
+          trip_id?: string
+          updated_at?: string
+          usage_rights?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "influencer_profiles_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invitations: {
         Row: {
           accepted_at: string | null
@@ -4777,6 +4895,18 @@ export type Database = {
           token: string
         }[]
       }
+      enviar_entregavel: {
+        Args: {
+          p_deliverable: string
+          p_engagement?: number
+          p_reach?: number
+          p_url: string
+        }
+        Returns: {
+          motivo: string
+          ok: boolean
+        }[]
+      }
       equipe_de_atendimento: {
         Args: never
         Returns: {
@@ -5027,6 +5157,12 @@ export type Database = {
         | "changed"
         | "cancelled"
       companionship_kind: "family_lead" | "companion" | "guardian"
+      deliverable_status:
+        | "pendente"
+        | "enviado"
+        | "aprovado"
+        | "recusado"
+        | "publicado"
       document_kind:
         | "passport"
         | "ticket"
@@ -5339,6 +5475,13 @@ export const Constants = {
         "cancelled",
       ],
       companionship_kind: ["family_lead", "companion", "guardian"],
+      deliverable_status: [
+        "pendente",
+        "enviado",
+        "aprovado",
+        "recusado",
+        "publicado",
+      ],
       document_kind: [
         "passport",
         "ticket",

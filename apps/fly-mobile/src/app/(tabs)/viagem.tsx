@@ -19,6 +19,46 @@ import { useState } from 'react';
 import { router } from 'expo-router';
 import { dataCurta, faltam, hora } from '@/viagem/tempo';
 import { itensAbertos, itensPendentes } from '@/viagem/hub';
+import { useSession } from '@/auth/session';
+import { useInfluenciador } from '@/album/useInfluenciador';
+
+/**
+ * O Modo Criador aparece **so para habilitados** (§44).
+ *
+ * A entrada nao esta no `HUB` estatico de proposito: se estivesse, todo mundo
+ * a veria e a tela e que recusaria — e esconder botao nao e controle de
+ * acesso, mas mostrar um botao que so serve a alguns e ruido para o resto.
+ * Aqui a linha so existe quando a RLS devolveu um perfil ativo.
+ */
+function LinhaDeCriador() {
+  const { state } = useSession();
+  const userId = state.kind === 'signedIn' ? state.profile.id : null;
+  const { data } = useInfluenciador(userId);
+
+  if (data.kind !== 'ready') return null;
+
+  return (
+    <Link href="/influenciador" asChild>
+      <Pressable
+        accessibilityRole="link"
+        accessibilityLabel="Modo Criador. Briefing e entregáveis da sua viagem."
+        testID="hub-influenciador"
+      >
+        {({ pressed }) => (
+          <View style={[styles.itemHub, pressed && styles.pressed]}>
+            <Text variant="body" style={styles.itemTitulo}>
+              Modo Criador
+            </Text>
+            <Text variant="body" tone="faint" numberOfLines={2}>
+              Briefing, entregáveis e direitos de uso desta viagem.
+            </Text>
+          </View>
+        )}
+      </Pressable>
+    </Link>
+  );
+}
+
 function Hub() {
   return (
     <View style={styles.secao}>
@@ -44,6 +84,7 @@ function Hub() {
             </Pressable>
           </Link>
         ))}
+        <LinhaDeCriador />
       </View>
 
       {/* O que ainda não abriu continua listado, com a fase. Esconder ensina
