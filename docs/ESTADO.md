@@ -98,7 +98,7 @@ Detalhe e porquê de cada escolha: **D184 a D199** no decision log.
 | **7** | **Gastronomia, reservas e serviços (§42)**            | 🟢 **entregue**                |
 | **8** | **Mapa, Bases Fly, concierge e SOS (§43)**            | 🟡 **construída, sem prova**   |
 
-Prova: `npm run verify` (**367 testes**, exit 0 nesta máquina) e a suíte
+Prova: `npm run verify` (**374 testes**, exit 0 nesta máquina) e a suíte
 pgTAP (**416 asserções**, 19 arquivos) — das quais **42 nunca rodaram**: as da
 Fase 8, que dependem das migrations acima. A esteira agora também roda `deno check` nas Edge
 Functions — elas não são workspace do npm e ficavam fora do `typecheck`.

@@ -12,13 +12,13 @@ npm run verify   # lint + typecheck + testes
 | --------------------------------------- | --------------------------------- | ------- | -------- |
 | Tokens, tipografia, contraste, dourado  | `packages/design-tokens/src`      | 66      | ✅ passa |
 | Ambiente, redação de log, health, sonda | `packages/config/src`             | 27      | ✅ passa |
-| Papéis, superfícies, moedas             | `packages/domain-types/src`       | 8       | ✅ passa |
+| Papéis, moedas, **ordem da fila**       | `packages/domain-types/src`       | **15**  | ✅ passa |
 | Consentimento, PII, taxonomia           | `packages/analytics/src`          | 15      | ✅ passa |
 | Adapter de pagamento e assinatura       | `packages/payments/src`           | 25      | ✅ passa |
 | App cliente                             | `apps/fly-mobile/src`             | **203** | ✅ passa |
 | Fly Ops: tema, slug e tempo da fila     | `apps/fly-ops/src`                | **20**  | ✅ passa |
 | Tema do Fly Crew                        | `apps/fly-crew/src/theme.test.ts` | 3       | ✅ passa |
-| **Total**                               |                                   | **367** | ✅       |
+| **Total**                               |                                   | **374** | ✅       |
 
 Dentro do app cliente, os grupos que mais importam:
 
