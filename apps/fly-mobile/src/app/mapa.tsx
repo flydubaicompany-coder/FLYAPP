@@ -98,6 +98,16 @@ function Acoes({
   );
 }
 
+/** "1,2 km em linha reta", ou nada. Um componente para a conta acontecer uma vez. */
+function LinhaDeDistancia({ rotulo }: { rotulo: string | null }) {
+  if (rotulo === null) return null;
+  return (
+    <Text variant="body" style={styles.meta}>
+      {rotulo} em linha reta
+    </Text>
+  );
+}
+
 export default function MapaScreen() {
   const { data: viagem } = useViagem();
   const tripId = viagem.kind === 'ready' ? viagem.viagem.id : null;
@@ -229,35 +239,41 @@ export default function MapaScreen() {
           <Text variant="section" style={styles.secao}>
             Hoje
           </Text>
-          {hoje.map((a) => (
-            <View key={a.id} style={styles.item}>
-              <Text variant="body" style={styles.nome}>
-                {a.titulo}
-              </Text>
-              {a.ponto ? (
-                <Text variant="body" style={styles.meta}>
-                  {a.ponto}
+          {hoje.map((a) => {
+            // Numa `const`, o TypeScript mantem o estreitamento dentro do
+            // callback do onPress — com `a.mapa` direto, ele o perde e sobra
+            // um cast.
+            const linkDoMapa = a.mapa;
+            return (
+              <View key={a.id} style={styles.item}>
+                <Text variant="body" style={styles.nome}>
+                  {a.titulo}
                 </Text>
-              ) : null}
-              {a.mapa ? (
-                <View style={styles.acoes}>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={`Ver o ponto de encontro de ${a.titulo}`}
-                    onPress={() => void Linking.openURL(a.mapa as string)}
-                  >
-                    {({ pressed }) => (
-                      <View style={[styles.acao, pressed && styles.pressionado]}>
-                        <Text variant="body" style={styles.acaoTexto}>
-                          Ponto de encontro
-                        </Text>
-                      </View>
-                    )}
-                  </Pressable>
-                </View>
-              ) : null}
-            </View>
-          ))}
+                {a.ponto ? (
+                  <Text variant="body" style={styles.meta}>
+                    {a.ponto}
+                  </Text>
+                ) : null}
+                {linkDoMapa ? (
+                  <View style={styles.acoes}>
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={`Ver o ponto de encontro de ${a.titulo}`}
+                      onPress={() => void Linking.openURL(linkDoMapa)}
+                    >
+                      {({ pressed }) => (
+                        <View style={[styles.acao, pressed && styles.pressionado]}>
+                          <Text variant="body" style={styles.acaoTexto}>
+                            Ponto de encontro
+                          </Text>
+                        </View>
+                      )}
+                    </Pressable>
+                  </View>
+                ) : null}
+              </View>
+            );
+          })}
         </>
       ) : null}
 
@@ -298,11 +314,7 @@ export default function MapaScreen() {
                   {b.observacao}
                 </Text>
               ) : null}
-              {distancia(b) ? (
-                <Text variant="body" style={styles.meta}>
-                  {distancia(b)} em linha reta
-                </Text>
-              ) : null}
+              <LinhaDeDistancia rotulo={distancia(b)} />
               <Acoes
                 telefone={b.telefone}
                 destino={
@@ -341,11 +353,7 @@ export default function MapaScreen() {
                   {l.observacao}
                 </Text>
               ) : null}
-              {distancia(l) ? (
-                <Text variant="body" style={styles.meta}>
-                  {distancia(l)} em linha reta
-                </Text>
-              ) : null}
+              <LinhaDeDistancia rotulo={distancia(l)} />
               <Acoes
                 telefone={l.telefone}
                 destino={{ latitude: l.latitude, longitude: l.longitude }}

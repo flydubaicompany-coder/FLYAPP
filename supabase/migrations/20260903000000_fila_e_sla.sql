@@ -30,7 +30,15 @@ alter table public.support_cases
   add column assigned_to uuid references auth.users (id) on delete set null,
   add column assigned_at timestamptz;
 
--- Atribuir sem hora nao serve para medir; hora sem dono nao diz de quem e.
+/**
+ * Atribuir sem hora nao serve para medir; hora sem dono nao diz de quem e.
+ *
+ * O gatilho abaixo carimba a hora **no update**, que e como a atribuicao
+ * acontece hoje (a fila do Fly Ops e a do Fly Crew). Um `insert` futuro que ja
+ * traga `assigned_to` sem `assigned_at` bate aqui, com `23514` — de proposito:
+ * falhar alto e melhor do que gravar um caso cuja hora de atribuicao ninguem
+ * sabe. Quem precisar disso acrescenta o ramo de insert ao gatilho.
+ */
 alter table public.support_cases
   add constraint support_cases_atribuicao_completa check (
     (assigned_at is null) = (assigned_to is null)
