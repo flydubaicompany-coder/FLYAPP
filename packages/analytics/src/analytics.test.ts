@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Analytics, DestinoMemoria, limpar, REDIGIDO } from './index';
+import { Analytics, DestinoMemoria, limpar, NOMES_DE_EVENTO, REDIGIDO } from './index';
 
 /**
  * O que estes testes protegem, em ordem de gravidade:
@@ -188,5 +188,55 @@ describe('barreira de dado pessoal', () => {
     });
 
     expect(avisos).toEqual(['evento_visto:origem:email']);
+  });
+});
+
+describe('eventos de experiencia (Fase 9)', () => {
+  it('a lista fechada cobre os tres', () => {
+    expect(NOMES_DE_EVENTO).toContain('album_visto');
+    expect(NOMES_DE_EVENTO).toContain('codigo_resgatado');
+    expect(NOMES_DE_EVENTO).toContain('galeria_vista');
+  });
+
+  /**
+   * Guarda estrutural, e nao de estilo.
+   *
+   * Anotacao de escuta ativa e tarefa de surpresa sao as duas coisas que a
+   * §13.3 e a §13.4 dizem que nem o cliente pode ver. Mandar qualquer uma
+   * delas para um fornecedor de analytics seria pior do que mostra-las no
+   * app. Este teste falha no dia em que alguem acrescentar o evento.
+   */
+  it('nao existe evento de insight nem de surpresa', () => {
+    for (const nome of NOMES_DE_EVENTO) {
+      expect(nome).not.toMatch(/insight|surpresa|escuta/);
+    }
+  });
+
+  it('nao instrumenta o que o banco ja registra', () => {
+    // Conquista, Dia Completo e missao vivem em `sticker_unlocks`,
+    // `chapter_completions` e `quest_completions`. Uma segunda copia aqui
+    // viraria uma segunda verdade sobre a mesma conquista.
+    for (const nome of NOMES_DE_EVENTO) {
+      expect(nome).not.toMatch(/figurinha_conquistada|dia_completo|missao_concluida/);
+    }
+  });
+
+  it('deixa passar contagem sem redigir nada', () => {
+    const { destino, analytics } = novo();
+    analytics.definirConsentimento('concedido');
+
+    analytics.registrar('album_visto', {
+      capitulos: 3,
+      figurinhas_conquistadas: 7,
+      figurinhas_totais: 12,
+      dias_completos: 2,
+    });
+
+    expect(destino.recebidos[0]?.props).toEqual({
+      capitulos: 3,
+      figurinhas_conquistadas: 7,
+      figurinhas_totais: 12,
+      dias_completos: 2,
+    });
   });
 });

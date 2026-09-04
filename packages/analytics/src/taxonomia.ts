@@ -6,7 +6,8 @@
  * Quem precisa de um evento novo acrescenta aqui, e o compilador cobra o
  * formato das propriedades.
  *
- * As três áreas são as que a Fase 3 entregou: Home, eventos e notificações.
+ * As áreas são as que cada fase entregou: Home, eventos e notificações na
+ * Fase 3; álbum, Fly Quest e galeria na Fase 9.
  */
 
 import type { HomeState } from './tipos';
@@ -88,6 +89,58 @@ export interface EventosFly {
     /** Se já havia sido perguntado antes nesta instalação. */
     reperguntado: boolean;
   };
+
+  // --- Experiência: álbum, Fly Quest e galeria (§13, §14.1) --------------
+  /**
+   * Só o que o banco **não** responde.
+   *
+   * A tentação aqui era instrumentar conquista de figurinha, Dia Completo e
+   * missão concluída. Nenhum dos três entrou, e a razão é a mesma: eles já
+   * estão em `sticker_unlocks`, `chapter_completions` e `quest_completions`,
+   * com carimbo de hora e origem. Uma segunda cópia em analytics não
+   * responderia nada de novo e divergiria da primeira no dia em que um
+   * evento se perdesse — e aí haveria duas verdades sobre a mesma conquista.
+   *
+   * O que sobra é o que só o aparelho sabe: **que a tela foi aberta e com
+   * que cara ela estava**.
+   *
+   * O que **nunca** entra: legenda de foto, caminho de arquivo, anotação de
+   * escuta ativa, título de surpresa, nome de quem aparece numa foto. É o
+   * critério da §44 — "analytics de experiência sem expor conteúdo privado".
+   * E não há evento nenhum de `guest_insights` nem de `surprise_tasks`: medir
+   * escuta ativa por analytics seria mandar para fora exatamente o que a
+   * §13.4 diz que nem o cliente pode ler.
+   */
+  album_visto: {
+    /** Quantos capítulos já abriram para esta pessoa. */
+    capitulos: number;
+    figurinhas_conquistadas: number;
+    figurinhas_totais: number;
+    dias_completos: number;
+  };
+  /**
+   * Um código foi digitado. Inclusive os que não deram em nada.
+   *
+   * É a métrica que o banco não tem por completo: um código que o dedo errou
+   * e nem chegou ao servidor não vira `qr_scans`. Erro repetido aqui é sinal
+   * de código impresso ilegível, não de gente distraída.
+   */
+  codigo_resgatado: {
+    /** O que o código entregou, sem dizer qual. */
+    resultado: 'figurinha' | 'missao' | 'recusado';
+    /** Repetição não é erro: é sinal de código circulando. */
+    ja_tinha: boolean;
+  };
+  galeria_vista: {
+    fotos: number;
+    /** Em quantas a pessoa está marcada. Contagem, nunca qual. */
+    apareco_em: number;
+    /**
+     * Se ela autorizou o uso da própria imagem. Responde por que a galeria
+     * parece vazia sem precisar olhar foto nenhuma.
+     */
+    autoriza_imagem: boolean | null;
+  };
 }
 
 export type OrigemEvento = 'home' | 'lista' | 'notificacao' | 'busca';
@@ -105,6 +158,9 @@ export const NOMES_DE_EVENTO = [
   'notificacao_aberta',
   'notificacao_preferencia_alterada',
   'push_permissao_respondida',
+  'album_visto',
+  'codigo_resgatado',
+  'galeria_vista',
 ] as const satisfies readonly NomeEvento[];
 
 /**

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { router } from 'expo-router';
 import { palette } from '@/theme';
@@ -12,6 +12,7 @@ import {
   Text,
 } from '@/ui';
 import { useSession } from '@/auth/session';
+import { useAnalytics } from '@/analytics/provider';
 import { useViagem } from '@/viagem/useViagem';
 import { useAlbum, type Capitulo, type Figurinha } from '@/album/useAlbum';
 import { comoMostrar, faltamParaODia, ROTULO_RARIDADE } from '@/album/raridade';
@@ -137,14 +138,34 @@ export default function AlbumScreen() {
   const tripId = viagem.kind === 'ready' ? viagem.viagem.id : null;
   const { data, resgatar, recarregar } = useAlbum(tripId, userId);
 
+  const analytics = useAnalytics();
   const [codigo, setCodigo] = useState('');
   const [ocupado, setOcupado] = useState(false);
   const [recado, setRecado] = useState<{ ok: boolean; texto: string } | null>(null);
+
+  // Uma vez por abertura de tela. Sem a trava, cada chegada de tempo real
+  // contaria como uma visita nova e a metrica viraria ruido.
+  const jaContou = useRef(false);
+  useEffect(() => {
+    if (data.kind !== 'ready' || jaContou.current) return;
+    jaContou.current = true;
+    const figurinhas = data.capitulos.flatMap((c) => c.figurinhas);
+    analytics.registrar('album_visto', {
+      capitulos: data.capitulos.length,
+      figurinhas_conquistadas: figurinhas.filter((f) => f.desbloqueada).length,
+      figurinhas_totais: figurinhas.length,
+      dias_completos: data.capitulos.filter((c) => c.completoEm !== null).length,
+    });
+  }, [data, analytics]);
 
   async function mandarCodigo() {
     setOcupado(true);
     const r = await resgatar(codigo);
     setOcupado(false);
+    analytics.registrar('codigo_resgatado', {
+      resultado: !r.ok ? 'recusado' : r.missaoTitulo !== null ? 'missao' : 'figurinha',
+      ja_tinha: r.jaTinha,
+    });
     if (!r.ok) {
       return setRecado({ ok: false, texto: r.motivo ?? 'Não consegui usar este código.' });
     }

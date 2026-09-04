@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
@@ -12,6 +13,7 @@ import {
   Text,
 } from '@/ui';
 import { useSession } from '@/auth/session';
+import { useAnalytics } from '@/analytics/provider';
 import { useViagem } from '@/viagem/useViagem';
 import { useGaleria } from '@/album/useGaleria';
 
@@ -31,6 +33,20 @@ export default function GaleriaScreen() {
   const userId = state.kind === 'signedIn' ? state.profile.id : null;
   const tripId = viagem.kind === 'ready' ? viagem.viagem.id : null;
   const { data, recarregar } = useGaleria(tripId, userId);
+  const analytics = useAnalytics();
+
+  // Uma vez por abertura. A galeria vazia e o caso que mais importa medir:
+  // ela responde por que, sem ninguem precisar olhar foto nenhuma.
+  const jaContou = useRef(false);
+  useEffect(() => {
+    if (data.kind !== 'ready' || jaContou.current) return;
+    jaContou.current = true;
+    analytics.registrar('galeria_vista', {
+      fotos: data.fotos.length,
+      apareco_em: data.fotos.filter((f) => f.euApareco).length,
+      autoriza_imagem: data.autorizaImagem,
+    });
+  }, [data, analytics]);
 
   if (state.kind === 'signedOut') {
     return (
