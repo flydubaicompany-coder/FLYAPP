@@ -1723,6 +1723,65 @@ export type Database = {
         }
         Relationships: []
       }
+      map_places: {
+        Row: {
+          address: string | null
+          created_at: string
+          destination_id: string | null
+          hours_note: string | null
+          id: string
+          is_active: boolean
+          kind: Database["public"]["Enums"]["place_kind"]
+          latitude: number | null
+          longitude: number | null
+          name: string
+          notes: string | null
+          phone: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          destination_id?: string | null
+          hours_note?: string | null
+          id?: string
+          is_active?: boolean
+          kind: Database["public"]["Enums"]["place_kind"]
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          destination_id?: string | null
+          hours_note?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["place_kind"]
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "map_places_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meal_choices: {
         Row: {
           chosen_at: string
@@ -1862,61 +1921,34 @@ export type Database = {
           },
         ]
       }
-      map_places: {
+      media_tags: {
         Row: {
-          address: string | null
           created_at: string
-          destination_id: string | null
-          hours_note: string | null
           id: string
-          is_active: boolean
-          kind: Database["public"]["Enums"]["place_kind"]
-          latitude: number | null
-          longitude: number | null
-          name: string
-          notes: string | null
-          phone: string | null
-          sort_order: number
-          updated_at: string
+          media_id: string
+          tagged_by: string | null
+          user_id: string
         }
         Insert: {
-          address?: string | null
           created_at?: string
-          destination_id?: string | null
-          hours_note?: string | null
           id?: string
-          is_active?: boolean
-          kind: Database["public"]["Enums"]["place_kind"]
-          latitude?: number | null
-          longitude?: number | null
-          name: string
-          notes?: string | null
-          phone?: string | null
-          sort_order?: number
-          updated_at?: string
+          media_id: string
+          tagged_by?: string | null
+          user_id: string
         }
         Update: {
-          address?: string | null
           created_at?: string
-          destination_id?: string | null
-          hours_note?: string | null
           id?: string
-          is_active?: boolean
-          kind?: Database["public"]["Enums"]["place_kind"]
-          latitude?: number | null
-          longitude?: number | null
-          name?: string
-          notes?: string | null
-          phone?: string | null
-          sort_order?: number
-          updated_at?: string
+          media_id?: string
+          tagged_by?: string | null
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "map_places_destination_id_fkey"
-            columns: ["destination_id"]
+            foreignKeyName: "media_tags_media_id_fkey"
+            columns: ["media_id"]
             isOneToOne: false
-            referencedRelation: "destinations"
+            referencedRelation: "trip_media"
             referencedColumns: ["id"]
           },
         ]
@@ -4234,6 +4266,79 @@ export type Database = {
           },
         ]
       }
+      trip_media: {
+        Row: {
+          activity_id: string | null
+          caption: string | null
+          created_at: string
+          credit: string | null
+          id: string
+          is_released: boolean
+          kind: Database["public"]["Enums"]["media_kind"]
+          released_at: string | null
+          released_by: string | null
+          storage_path: string
+          trip_day_id: string | null
+          trip_id: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          activity_id?: string | null
+          caption?: string | null
+          created_at?: string
+          credit?: string | null
+          id?: string
+          is_released?: boolean
+          kind?: Database["public"]["Enums"]["media_kind"]
+          released_at?: string | null
+          released_by?: string | null
+          storage_path: string
+          trip_day_id?: string | null
+          trip_id: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          activity_id?: string | null
+          caption?: string | null
+          created_at?: string
+          credit?: string | null
+          id?: string
+          is_released?: boolean
+          kind?: Database["public"]["Enums"]["media_kind"]
+          released_at?: string | null
+          released_by?: string | null
+          storage_path?: string
+          trip_day_id?: string | null
+          trip_id?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_media_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_media_trip_day_id_fkey"
+            columns: ["trip_day_id"]
+            isOneToOne: false
+            referencedRelation: "trip_days"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_media_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trip_members: {
         Row: {
           joined_at: string
@@ -4829,6 +4934,7 @@ export type Database = {
         | "sent"
         | "delivered"
         | "cancelled"
+      media_kind: "photo" | "video"
       order_status:
         | "pending_payment"
         | "paid"
@@ -5130,6 +5236,7 @@ export const Constants = {
         "delivered",
         "cancelled",
       ],
+      media_kind: ["photo", "video"],
       order_status: [
         "pending_payment",
         "paid",

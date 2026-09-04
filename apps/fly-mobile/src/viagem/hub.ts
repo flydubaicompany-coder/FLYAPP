@@ -145,8 +145,8 @@ export const HUB: readonly ItemDoHub[] = [
     chave: 'galeria',
     rotulo: 'Galeria',
     descricao: 'As fotos da viagem, liberadas pela equipe.',
-    rota: null,
-    fase: 9,
+    rota: '/galeria',
+    fase: null,
     ref: '§13.5',
   },
   {
