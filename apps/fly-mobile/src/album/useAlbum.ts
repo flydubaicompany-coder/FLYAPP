@@ -40,7 +40,20 @@ export interface Capitulo {
 export type AlbumData =
   | { kind: 'loading' }
   | { kind: 'semViagem' }
-  | { kind: 'ready'; capitulos: Capitulo[] }
+  | {
+      kind: 'ready';
+      capitulos: Capitulo[];
+      /**
+       * O unico bit que atravessa a parede (§13.3).
+       *
+       * "No app, mostrar apenas um teaser. Nao revelar a surpresa fisica
+       * antes da entrega." Entao e um booleano, e nada mais: nem titulo, nem
+       * orcamento, nem quem esta preparando. A tabela `surprise_tasks` nao e
+       * legivel pelo cliente — quem responde e uma funcao que so sabe dizer
+       * sim ou nao.
+       */
+      surpresaACaminho: boolean;
+    }
   | { kind: 'offline' }
   | { kind: 'error'; message: string };
 
@@ -97,8 +110,13 @@ export function useAlbum(tripId: string | null, userId: string | null) {
 
     const agora = Date.now();
 
+    // Falhar aqui nao pode derrubar o album: o teaser e um enfeite honesto,
+    // e o album e o conteudo.
+    const { data: surpresa } = await db.rpc('tem_surpresa_a_caminho');
+
     setData({
       kind: 'ready',
+      surpresaACaminho: surpresa === true,
       capitulos: (capsRes.data ?? [])
         // "horário de liberação" (§13.2): capítulo do dia seguinte não abre
         // antes da hora. Quem filtra é a tela porque o dado é público para

@@ -75,7 +75,7 @@ function BlocoDoCapitulo({ c }: { c: Capitulo }) {
   return (
     <View style={styles.capitulo}>
       <View style={styles.capituloTopo}>
-        <Text variant="caption" tone="gold" style={styles.capituloKicker}>
+        <Text variant="caption" style={styles.capituloKicker}>
           {`DIA ${c.diaNumero}`}
         </Text>
         <Text variant="body" style={styles.capituloContagem}>
@@ -254,6 +254,16 @@ export default function AlbumScreen() {
         </View>
       ) : null}
 
+      {/* O teaser do proximo capitulo (§13.3). Nunca a surpresa em si: a
+          §13.3 manda nao revelar antes da entrega, e o app so recebe um bit. */}
+      {data.surpresaACaminho ? (
+        <View style={styles.teaserSurpresa}>
+          <Text variant="body" style={styles.teaserSurpresaTexto}>
+            Seu próximo capítulo já está sendo preparado.
+          </Text>
+        </View>
+      ) : null}
+
       {data.capitulos.length === 0 ? (
         <EmptyState
           title="O primeiro capítulo ainda não abriu"
@@ -298,9 +308,26 @@ const styles = StyleSheet.create({
   recadoErro: { backgroundColor: 'rgba(233,162,59,.1)', borderColor: 'rgba(233,162,59,.3)' },
   recadoTexto: { fontSize: 13, lineHeight: 19, color: palette.text },
 
+  // Sem dourado: o teaser e antecipacao, e nao conquista. O ouro fica
+  // reservado ao Dia Completo, que e a unica coisa conquistada nesta tela.
+  teaserSurpresa: {
+    marginTop: 16,
+    padding: 14,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: palette.strokeSubtle,
+    backgroundColor: palette.fill,
+  },
+  teaserSurpresaTexto: {
+    fontSize: 13.5,
+    lineHeight: 20,
+    letterSpacing: -0.1,
+    color: palette.textMuted,
+  },
+
   capitulo: { marginTop: 28 },
   capituloTopo: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  capituloKicker: { letterSpacing: 1.2 },
+  capituloKicker: { letterSpacing: 1.2, color: palette.textFaint },
   capituloContagem: { fontSize: 12.5, color: palette.textMuted },
   capituloTitulo: { marginTop: 6, marginBottom: 14 },
 

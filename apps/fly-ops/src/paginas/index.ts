@@ -18,3 +18,4 @@ export { Atendimento } from './Atendimento';
 export { Mapa } from './Mapa';
 export { Album } from './Album';
 export { Galeria } from './Galeria';
+export { Encantamento } from './Encantamento';

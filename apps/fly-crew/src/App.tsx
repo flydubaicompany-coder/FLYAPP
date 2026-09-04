@@ -8,6 +8,7 @@ import { SessaoProvider, useSessao } from './auth/sessao';
 import { Entrar } from './paginas/Entrar';
 import { Entregas } from './paginas/Entregas';
 import { Casos } from './paginas/Casos';
+import { Escuta } from './paginas/Escuta';
 
 /**
  * Fly Crew — o app de campo (§42, entrega 12).
@@ -25,6 +26,7 @@ import { Casos } from './paginas/Casos';
 const ABAS = [
   { para: '/entregas', rotulo: 'Entregas' },
   { para: '/casos', rotulo: 'Casos' },
+  { para: '/escuta', rotulo: 'Escuta' },
 ] as const;
 
 function Casca({ children }: { children: React.ReactNode }) {
@@ -85,6 +87,14 @@ function Rotas({ env }: { env: PublicEnv }) {
         element={
           <Protegido>
             <Casos />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/escuta"
+        element={
+          <Protegido>
+            <Escuta />
           </Protegido>
         }
       />

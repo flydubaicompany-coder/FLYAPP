@@ -145,7 +145,7 @@ export default function FigurinhaScreen() {
         )}
 
         <View style={styles.cardRodape}>
-          <Text variant="caption" tone="gold" style={styles.cardKicker}>
+          <Text variant="caption" style={styles.cardKicker}>
             {d.capitulo.toUpperCase()}
           </Text>
           <Text variant="section" style={styles.cardNome}>
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
     gap: 5,
     backgroundColor: 'rgba(8,8,10,.72)',
   },
-  cardKicker: { letterSpacing: 1.2 },
+  cardKicker: { letterSpacing: 1.2, color: palette.textMuted },
   cardNome: { fontSize: 24, letterSpacing: -0.6 },
   cardMeta: { fontSize: 12.5, color: palette.textMuted },
 

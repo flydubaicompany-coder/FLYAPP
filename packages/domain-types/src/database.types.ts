@@ -1586,6 +1586,50 @@ export type Database = {
           },
         ]
       }
+      guest_insights: {
+        Row: {
+          category: Database["public"]["Enums"]["insight_category"]
+          context: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          note: string
+          trip_id: string | null
+          urgency: Database["public"]["Enums"]["insight_urgency"]
+          user_id: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["insight_category"]
+          context?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note: string
+          trip_id?: string | null
+          urgency?: Database["public"]["Enums"]["insight_urgency"]
+          user_id: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["insight_category"]
+          context?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          note?: string
+          trip_id?: string | null
+          urgency?: Database["public"]["Enums"]["insight_urgency"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_insights_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       idempotency_keys: {
         Row: {
           created_at: string
@@ -3625,6 +3669,93 @@ export type Database = {
           },
         ]
       }
+      surprise_tasks: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          budget_cents: number | null
+          cost_cents: number | null
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          delivered_at: string | null
+          delivered_by: string | null
+          description: string | null
+          due_at: string | null
+          id: string
+          insight_id: string | null
+          owner_id: string | null
+          reaction: string | null
+          sponsor: string | null
+          status: Database["public"]["Enums"]["surprise_status"]
+          title: string
+          trip_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          budget_cents?: number | null
+          cost_cents?: number | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          delivered_at?: string | null
+          delivered_by?: string | null
+          description?: string | null
+          due_at?: string | null
+          id?: string
+          insight_id?: string | null
+          owner_id?: string | null
+          reaction?: string | null
+          sponsor?: string | null
+          status?: Database["public"]["Enums"]["surprise_status"]
+          title: string
+          trip_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          budget_cents?: number | null
+          cost_cents?: number | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          delivered_at?: string | null
+          delivered_by?: string | null
+          description?: string | null
+          due_at?: string | null
+          id?: string
+          insight_id?: string | null
+          owner_id?: string | null
+          reaction?: string | null
+          sponsor?: string | null
+          status?: Database["public"]["Enums"]["surprise_status"]
+          title?: string
+          trip_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "surprise_tasks_insight_id_fkey"
+            columns: ["insight_id"]
+            isOneToOne: false
+            referencedRelation: "guest_insights"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "surprise_tasks_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       template_activities: {
         Row: {
           day_number: number
@@ -4582,6 +4713,13 @@ export type Database = {
         Args: { p_template: string; p_trip: string }
         Returns: number
       }
+      aprovar_surpresa: {
+        Args: { p_budget_cents: number; p_currency: string; p_task: string }
+        Returns: {
+          motivo: string
+          ok: boolean
+        }[]
+      }
       cancelar_pedido: {
         Args: { p_order: string; p_reason?: string }
         Returns: {
@@ -4814,6 +4952,10 @@ export type Database = {
           ok: boolean
         }[]
       }
+      tem_surpresa_a_caminho: {
+        Args: never
+        Returns: boolean
+      }
       vagas_livres: {
         Args: { p_ignorar_carrinho?: string; p_slot: string }
         Returns: number
@@ -4926,6 +5068,13 @@ export type Database = {
         | "press_kit"
         | "special"
       inclusion_status: "included" | "optional" | "purchased" | "unavailable"
+      insight_category:
+        | "preferencia"
+        | "desejo"
+        | "celebracao"
+        | "incomodo"
+        | "outro"
+      insight_urgency: "baixa" | "normal" | "alta"
       meal_kind: "breakfast" | "lunch" | "dinner" | "snack"
       meal_service_status:
         | "draft"
@@ -5017,6 +5166,14 @@ export type Database = {
         | "escalated"
         | "resolved"
         | "closed"
+      surprise_status:
+        | "sugerida"
+        | "aprovada"
+        | "recusada"
+        | "comprando"
+        | "pronta"
+        | "entregue"
+        | "cancelada"
       tour_audience:
         | "family"
         | "couple"
@@ -5227,6 +5384,14 @@ export const Constants = {
         "special",
       ],
       inclusion_status: ["included", "optional", "purchased", "unavailable"],
+      insight_category: [
+        "preferencia",
+        "desejo",
+        "celebracao",
+        "incomodo",
+        "outro",
+      ],
+      insight_urgency: ["baixa", "normal", "alta"],
       meal_kind: ["breakfast", "lunch", "dinner", "snack"],
       meal_service_status: [
         "draft",
@@ -5328,6 +5493,15 @@ export const Constants = {
         "escalated",
         "resolved",
         "closed",
+      ],
+      surprise_status: [
+        "sugerida",
+        "aprovada",
+        "recusada",
+        "comprando",
+        "pronta",
+        "entregue",
+        "cancelada",
       ],
       tour_audience: [
         "family",

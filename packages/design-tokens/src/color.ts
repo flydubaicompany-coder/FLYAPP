@@ -64,6 +64,10 @@ export const gold = {
 /**
  * Os usos permitidos do dourado, para checagem em revisao de codigo.
  *
+ * Eram cinco ate 27/08/2026, sete em 28/08 e oito na Fase 6. O nono e o Dia
+ * Completo da Fase 9, e ele veio da propria spec: a §13.2 pede "animacao
+ * dourada".
+ *
  * Eram cinco ate 27/08/2026. O handoff de 28/08 ampliou para **sete**,
  * acrescentando o chip de dia selecionado (na tela Minha Viagem) e os detalhes
  * do cartao Fly Black. Aprovado pelo dono do produto e registrado em D106 —
@@ -85,6 +89,11 @@ export const GOLD_ALLOWED_USES = [
   // e borda douradas, e ele e o unico bloco dourado da tela — o que mantem o
   // dourado como sinal, e nao como cor de fundo.
   'fly-points-card',
+  // Fase 9: o bloco de **Dia Completo** do album. Este nao e escolha de
+  // design — a §13.2 pede "animacao dourada" ao concluir o capitulo, com
+  // essas palavras. E o unico bloco dourado do album, e ele marca a unica
+  // coisa que o cliente conquista de verdade ali. Ver D2xx no decision log.
+  'day-complete',
 ] as const;
 
 export type GoldUse = (typeof GOLD_ALLOWED_USES)[number];

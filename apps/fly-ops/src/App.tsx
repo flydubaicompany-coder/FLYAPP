@@ -26,6 +26,7 @@ import {
   Mapa,
   Album,
   Galeria,
+  Encantamento,
 } from './paginas';
 
 /**
@@ -57,6 +58,7 @@ const ABAS = [
   { para: '/mapa', rotulo: 'Mapa e Bases' },
   { para: '/album', rotulo: 'Álbum' },
   { para: '/galeria', rotulo: 'Galeria' },
+  { para: '/encantamento', rotulo: 'Surpresas' },
   { para: '/eventos', rotulo: 'Eventos' },
   { para: '/consentimentos', rotulo: 'Consentimentos' },
 ] as const;
@@ -308,6 +310,14 @@ function Rotas() {
         element={
           <Protegido>
             <Galeria />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/encantamento"
+        element={
+          <Protegido>
+            <Encantamento />
           </Protegido>
         }
       />
