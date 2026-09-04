@@ -300,6 +300,69 @@ export type Database = {
           },
         ]
       }
+      album_chapters: {
+        Row: {
+          completion_rule: string
+          created_at: string
+          id: string
+          is_published: boolean
+          release_at: string | null
+          reward_note: string | null
+          reward_points: number
+          sort_order: number
+          teaser: string | null
+          title: string
+          trip_day_id: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          completion_rule?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          release_at?: string | null
+          reward_note?: string | null
+          reward_points?: number
+          sort_order?: number
+          teaser?: string | null
+          title: string
+          trip_day_id: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          completion_rule?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          release_at?: string | null
+          reward_note?: string | null
+          reward_points?: number
+          sort_order?: number
+          teaser?: string | null
+          title?: string
+          trip_day_id?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "album_chapters_trip_day_id_fkey"
+            columns: ["trip_day_id"]
+            isOneToOne: false
+            referencedRelation: "trip_days"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "album_chapters_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_config: {
         Row: {
           description: string | null
@@ -599,6 +662,35 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "support_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chapter_completions: {
+        Row: {
+          chapter_id: string
+          completed_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          chapter_id: string
+          completed_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          chapter_id?: string
+          completed_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapter_completions_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "album_chapters"
             referencedColumns: ["id"]
           },
         ]
@@ -2622,6 +2714,111 @@ export type Database = {
           },
         ]
       }
+      quest_completions: {
+        Row: {
+          completed_at: string
+          id: string
+          mission_id: string
+          reference: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          id?: string
+          mission_id: string
+          reference?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          id?: string
+          mission_id?: string
+          reference?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quest_completions_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "quest_missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quest_missions: {
+        Row: {
+          briefing: string | null
+          code: string
+          created_at: string
+          destination_id: string | null
+          ends_at: string | null
+          id: string
+          is_published: boolean
+          points_reward: number
+          sort_order: number
+          starts_at: string | null
+          sticker_id: string | null
+          title: string
+          trip_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          briefing?: string | null
+          code: string
+          created_at?: string
+          destination_id?: string | null
+          ends_at?: string | null
+          id?: string
+          is_published?: boolean
+          points_reward?: number
+          sort_order?: number
+          starts_at?: string | null
+          sticker_id?: string | null
+          title: string
+          trip_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          briefing?: string | null
+          code?: string
+          created_at?: string
+          destination_id?: string | null
+          ends_at?: string | null
+          id?: string
+          is_published?: boolean
+          points_reward?: number
+          sort_order?: number
+          starts_at?: string | null
+          sticker_id?: string | null
+          title?: string
+          trip_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quest_missions_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quest_missions_sticker_id_fkey"
+            columns: ["sticker_id"]
+            isOneToOne: false
+            referencedRelation: "stickers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quest_missions_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ranking_periods: {
         Row: {
           basis: Database["public"]["Enums"]["ranking_basis"]
@@ -3162,6 +3359,110 @@ export type Database = {
             columns: ["trip_id"]
             isOneToOne: false
             referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sticker_unlocks: {
+        Row: {
+          id: string
+          reference: string | null
+          source: string
+          sticker_id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          reference?: string | null
+          source: string
+          sticker_id: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          reference?: string | null
+          source?: string
+          sticker_id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sticker_unlocks_sticker_id_fkey"
+            columns: ["sticker_id"]
+            isOneToOne: false
+            referencedRelation: "stickers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stickers: {
+        Row: {
+          activity_id: string | null
+          chapter_id: string
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          image_path: string | null
+          is_published: boolean
+          is_required: boolean
+          name: string
+          points_reward: number
+          rarity: Database["public"]["Enums"]["sticker_rarity"]
+          sort_order: number
+          unlock_kind: Database["public"]["Enums"]["sticker_unlock_kind"]
+          updated_at: string
+        }
+        Insert: {
+          activity_id?: string | null
+          chapter_id: string
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_path?: string | null
+          is_published?: boolean
+          is_required?: boolean
+          name: string
+          points_reward?: number
+          rarity?: Database["public"]["Enums"]["sticker_rarity"]
+          sort_order?: number
+          unlock_kind?: Database["public"]["Enums"]["sticker_unlock_kind"]
+          updated_at?: string
+        }
+        Update: {
+          activity_id?: string | null
+          chapter_id?: string
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_path?: string | null
+          is_published?: boolean
+          is_required?: boolean
+          name?: string
+          points_reward?: number
+          rarity?: Database["public"]["Enums"]["sticker_rarity"]
+          sort_order?: number
+          unlock_kind?: Database["public"]["Enums"]["sticker_unlock_kind"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stickers_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stickers_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "album_chapters"
             referencedColumns: ["id"]
           },
         ]
@@ -4317,6 +4618,13 @@ export type Database = {
           usos: number
         }[]
       }
+      liberar_figurinha: {
+        Args: { p_sticker: string; p_user: string }
+        Returns: {
+          novo: boolean
+          ok: boolean
+        }[]
+      }
       passaporte_para_viagem: {
         Args: { p_trip: string }
         Returns: {
@@ -4389,6 +4697,18 @@ export type Database = {
       revogar_qr: { Args: { p_id: string }; Returns: undefined }
       revoke_invitation: { Args: { p_id: string }; Returns: undefined }
       unaccent_imutavel: { Args: { p: string }; Returns: string }
+      resgatar_codigo: {
+        Args: { p_token: string }
+        Returns: {
+          figurinha: string
+          figurinha_nome: string
+          ja_tinha: boolean
+          missao: string
+          missao_titulo: string
+          motivo: string
+          ok: boolean
+        }[]
+      }
       vagas_livres: {
         Args: { p_ignorar_carrinho?: string; p_slot: string }
         Returns: number
@@ -4581,6 +4901,8 @@ export type Database = {
         | "done"
         | "declined"
         | "cancelled"
+      sticker_rarity: "common" | "rare" | "secret" | "holographic"
+      sticker_unlock_kind: "activity_checkin" | "qr" | "manual"
       support_level: "chat" | "urgent" | "sos"
       support_status:
         | "open"
@@ -4889,6 +5211,8 @@ export const Constants = {
         "declined",
         "cancelled",
       ],
+      sticker_rarity: ["common", "rare", "secret", "holographic"],
+      sticker_unlock_kind: ["activity_checkin", "qr", "manual"],
       support_level: ["chat", "urgent", "sos"],
       support_status: [
         "open",

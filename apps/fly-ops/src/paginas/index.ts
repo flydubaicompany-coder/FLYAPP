@@ -16,3 +16,4 @@ export { Refeicoes } from './Refeicoes';
 export { Concierge } from './Concierge';
 export { Atendimento } from './Atendimento';
 export { Mapa } from './Mapa';
+export { Album } from './Album';

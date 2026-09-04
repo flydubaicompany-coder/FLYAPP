@@ -24,6 +24,7 @@ import {
   Concierge,
   Atendimento,
   Mapa,
+  Album,
 } from './paginas';
 
 /**
@@ -53,6 +54,7 @@ const ABAS = [
   { para: '/concierge', rotulo: 'Concierge' },
   { para: '/atendimento', rotulo: 'Atendimento' },
   { para: '/mapa', rotulo: 'Mapa e Bases' },
+  { para: '/album', rotulo: 'Álbum' },
   { para: '/eventos', rotulo: 'Eventos' },
   { para: '/consentimentos', rotulo: 'Consentimentos' },
 ] as const;
@@ -288,6 +290,14 @@ function Rotas() {
         element={
           <Protegido>
             <Mapa />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/album"
+        element={
+          <Protegido>
+            <Album />
           </Protegido>
         }
       />
