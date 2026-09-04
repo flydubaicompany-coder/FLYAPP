@@ -1,27 +1,31 @@
 # Onde o trabalho parou
 
-Atualizado em 03/09/2026.
+Atualizado em 04/09/2026.
 
 Este arquivo existe para uma sessão nova saber exatamente onde pegar, sem
 reler a conversa anterior. **Mantenha-o ao fim de cada fase.**
 
 ---
 
-## Onde retomar — 03/09/2026, fim do dia
+## Onde retomar — 04/09/2026
 
-**A Fase 8 está construída. Falta prova.** Os cinco itens que faltavam foram
-feitos; o que não foi feito é rodar contra banco de verdade — e isso depende
-do dono. Leia os dois bloqueios abaixo antes de qualquer coisa.
+**Fases 8 e 9 construídas. Nenhuma das duas foi provada contra banco.** Leia
+o bloqueio abaixo antes de qualquer coisa: ele vale para as duas fases.
 
-### 🔴 Bloqueio 1 — as migrations de 03/09 não estão aplicadas
+### 🔴 Bloqueio único — oito migrations não aplicadas
 
-Três migrations novas, nenhuma no projeto `ptmifjnfskwipjjxauns`:
+Nenhuma das oito está no projeto `ptmifjnfskwipjjxauns`:
 
-| Arquivo                               | O que traz                                                      |
-| ------------------------------------- | --------------------------------------------------------------- |
-| `20260903000000_fila_e_sla.sql`       | `assigned_to`, `equipe_de_atendimento()`, `support.sla_minutes` |
-| `20260903010000_mapa.sql`             | `map_places` e o enum `place_kind`                              |
-| `20260903020000_realtime_da_fila.sql` | `support_cases` na publicação do Realtime                       |
+| Arquivo                                       | O que traz                                         |
+| --------------------------------------------- | -------------------------------------------------- |
+| `20260903000000_fila_e_sla.sql`               | `assigned_to`, `equipe_de_atendimento()`, SLA      |
+| `20260903010000_mapa.sql`                     | `map_places`, enum `place_kind`                    |
+| `20260903020000_realtime_da_fila.sql`         | `support_cases` na publicação do Realtime          |
+| `20260903030000_atendimento_com_contexto.sql` | `abrir_atendimento` com atividade e pedido         |
+| `20260904000000_album_e_quest.sql`            | álbum, figurinhas, Dia Completo, Fly Quest, bucket |
+| `20260904010000_galeria.sql`                  | galeria, `image_use`, bucket, revogação de imagem  |
+| `20260904020000_encantamento.sql`             | escuta ativa, tarefas de surpresa, teto PENDENTE   |
+| `20260904030000_influenciador.sql`            | Modo Criador, entregáveis                          |
 
 **Por que não apliquei:** não há token da CLI nesta máquina
 (`~/.supabase/access-token` não existe), não há Docker, e o MCP do Supabase
@@ -32,55 +36,62 @@ do IMMORTALS. Os `.env.local` têm só a chave publicável, como manda a regra.
 ./node_modules/.bin/supabase login && ./node_modules/.bin/supabase db push
 ```
 
-Enquanto não rodar: `/atendimento` e `/mapa` no Fly Ops e `/mapa` no app
-abrem em estado de erro, e o Realtime não entrega nada. **Nenhuma asserção
-pgTAP da Fase 8 foi executada** — as 42 novas serão provadas pela esteira no
-push.
+Enquanto não rodar, as telas novas abrem em estado de erro e **nenhuma das
+122 asserções pgTAP das Fases 8 e 9 foi executada**. A primeira prova delas
+será o job **Migrations e RLS** no push.
 
-### 🔴 Bloqueio 2 — verificação visual não aconteceu
+### 🔴 Verificação visual logada não aconteceu
 
-Nada da Fase 8 foi visto rodando: o banco não tem o schema novo, e a sessão
-logada exige senha, que o agente não digita. O envio de nota fiscal logado
-continua sem ser exercitado, como já estava.
+Nada das duas fases foi visto com sessão. As rotas foram abertas deslogadas e
+renderizam o estado correto, sem erro de console — é o que dá para provar sem
+senha. O envio de nota fiscal logado continua sem teste, como já estava.
 
-### O que foi entregue hoje
+### Fase 9 — o que existe
 
-| Item                     | Onde                                                                    |
-| ------------------------ | ----------------------------------------------------------------------- |
-| Fila e SLA no Fly Ops    | `apps/fly-ops/src/paginas/Atendimento.tsx`                              |
-| Casos no Fly Crew        | `apps/fly-crew/src/paginas/Casos.tsx`                                   |
-| Mapa (app e painel)      | `apps/fly-mobile/src/app/mapa.tsx`, `apps/fly-ops/src/paginas/Mapa.tsx` |
-| Modo degradado / offline | `apps/fly-mobile/src/rede/falha.ts`, `src/assist/cache.ts`              |
-| Tempo real               | assinatura nas três aplicações + `20260903020000`                       |
+As **16 entregas da §44** estão cobertas. Quatro cortes verticais, cada um
+com schema, RLS, GRANT, pgTAP, app e painel:
 
-Detalhe e porquê de cada escolha: **D184 a D199** no decision log.
+| Corte                    | Entregas §44 | Onde                                                    |
+| ------------------------ | ------------ | ------------------------------------------------------- |
+| Álbum, figurinhas, Quest | 1–6, 11      | `app/album.tsx`, `app/quest.tsx`, Fly Ops → Álbum       |
+| Galeria e uso de imagem  | 8, 9, 10     | `app/galeria.tsx`, Fly Ops → Galeria                    |
+| Escuta ativa e surpresas | 12, 13, 14   | Fly Crew → Escuta, Fly Ops → Surpresas                  |
+| Modo Criador             | 15           | `app/influenciador.tsx`, Fly Ops → Criadores            |
+| Analytics de experiência | 16           | `packages/analytics/src/taxonomia.ts`                   |
+| Card de compartilhamento | 7            | `app/album/[figurinha].tsx` — card 9:16, **sem** export |
 
-### O que a Fase 8 NÃO tem, e é decisão registrada
+Porquês: **D200 a D219** no decision log.
 
-- **Mapa embutido.** O núcleo é rota abrindo no app de mapas instalado, que é
-  o que a §12.1 pede. Provedor de mapa continua sendo a P16. **D187.**
-- **Camada de Fly Quest.** É Fase 9 (§44, entrega 11). **D189.**
-- **Localização no aparelho.** Só no Expo web. Falta `expo-location` e o
-  texto de permissão do iOS, que é copy do dono. **P49 e D195.**
-- **Tabela de localização de funcionário.** Não existe e não vai existir
-  (D179). Não crie uma.
-- **Lugares no mapa.** `map_places` nasce vazia: endereço de hospital, clínica
-  e farmácia não se inventa (§33). Até alguém cadastrar no Fly Ops, o mapa
-  mostra só as Bases Fly. **P48 e D188.**
+### O que a Fase 9 NÃO tem, e é decisão registrada
+
+- **Câmera para ler QR** e **card exportado como imagem**. As duas exigem
+  dependência nativa que este ambiente não compila. Código é digitado, card é
+  print. **P50, D205 e D207.**
+- **Pagamento e contrapartida do criador.** Taxa e parceiro financeiro são da
+  §33, e o PSP continua sendo a P09/P38. **D219.**
+- **Métricas lidas de rede social.** O criador declara, e a coluna se chama
+  `_declared` para ninguém somar achando que mediu. **D219.**
+- **Reconhecimento facial na galeria.** Marcação é manual: rosto é dado
+  biométrico. **D211.**
+- **Conteúdo.** Capítulo, figurinha e missão nascem vazios, como o mapa.
+  **P52.**
 
 ### O que só o dono decide, e está travando
 
-| #       | O quê                                    | Trava                                                                    |
-| ------- | ---------------------------------------- | ------------------------------------------------------------------------ |
-| P47     | Regra de tax-free                        | a estimativa na tela de notas                                            |
-| —       | Quanto vale 1 Fly Point em dinheiro      | o "≈ R$ X" do design da Carteira                                         |
-| P45     | Catálogo real de benefícios              | os 6 dizem "(demonstração)"                                              |
-| P46     | Critérios e prêmios do ranking           | o período diz "(demonstração)"                                           |
-| P43     | Confirmar a moeda (assumi AED)           | rótulos de preço                                                         |
-| P09/P38 | Parceiro de pagamento                    | recarga, transferência e Fly Card                                        |
-| **P20** | **Prazo de aceite e de resposta**        | `support.sla_minutes` está `PENDENTE`; o Fly Ops mede e não acusa atraso |
-| **P48** | **Endereços do mapa**                    | camada de saúde e de parceiros                                           |
-| **P49** | **`expo-location` + texto de permissão** | localização no aparelho, inclusive no SOS                                |
+| #       | O quê                                 | Trava                                     |
+| ------- | ------------------------------------- | ----------------------------------------- |
+| P47     | Regra de tax-free                     | a estimativa na tela de notas             |
+| —       | Quanto vale 1 Fly Point em dinheiro   | o "≈ R$ X" do design da Carteira          |
+| P45     | Catálogo real de benefícios           | os 6 dizem "(demonstração)"               |
+| P46     | Critérios e prêmios do ranking        | o período diz "(demonstração)"            |
+| P43     | Confirmar a moeda (assumi AED)        | rótulos de preço                          |
+| P09/P38 | Parceiro de pagamento                 | recarga, transferência, Fly Card, criador |
+| P20     | Prazo de aceite e de resposta         | `support.sla_minutes` está `PENDENTE`     |
+| P48     | Endereços do mapa                     | camada de saúde e de parceiros            |
+| P49     | `expo-location` + texto de permissão  | localização no aparelho, inclusive no SOS |
+| **P50** | **`expo-camera` e `view-shot`**       | ler QR pela câmera; card como imagem      |
+| **P51** | **Teto do orçamento de encantamento** | limite por tarefa de surpresa             |
+| **P52** | **Conteúdo do álbum e do Fly Quest**  | álbum com o que ver                       |
 
 ---
 
@@ -97,10 +108,11 @@ Detalhe e porquê de cada escolha: **D184 a D199** no decision log.
 | **6** | **Carteira e fidelidade (§41)**                       | 🟢 **entregue — 2 bloqueios**  |
 | **7** | **Gastronomia, reservas e serviços (§42)**            | 🟢 **entregue**                |
 | **8** | **Mapa, Bases Fly, concierge e SOS (§43)**            | 🟡 **construída, sem prova**   |
+| **9** | **Álbum, Fly Quest, galeria e encantamento (§44)**    | 🟡 **construída, sem prova**   |
 
-Prova: `npm run verify` (**374 testes**, exit 0 nesta máquina) e a suíte
-pgTAP (**416 asserções**, 19 arquivos) — das quais **42 nunca rodaram**: as da
-Fase 8, que dependem das migrations acima. A esteira agora também roda `deno check` nas Edge
+Prova: `npm run verify` (**384 testes**, exit 0 nesta máquina) e a suíte
+pgTAP (**488 asserções**, 23 arquivos) — das quais **122 nunca rodaram**: as
+das Fases 8 e 9, que dependem das migrations acima. A esteira agora também roda `deno check` nas Edge
 Functions — elas não são workspace do npm e ficavam fora do `typecheck`.
 
 ---

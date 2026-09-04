@@ -1,6 +1,6 @@
 # Matriz de testes
 
-Estado em 03/09/2026, **Fase 8** (§43). As Fases 0 a 7 estao entregues.
+Estado em 04/09/2026, **Fase 9** (§44). As Fases 0 a 7 estao entregues; 8 e 9 estao construidas e sem prova de banco.
 
 ## O que roda hoje
 
@@ -12,13 +12,13 @@ npm run verify   # lint + typecheck + testes
 | --------------------------------------- | --------------------------------- | ------- | -------- |
 | Tokens, tipografia, contraste, dourado  | `packages/design-tokens/src`      | 66      | ✅ passa |
 | Ambiente, redação de log, health, sonda | `packages/config/src`             | 27      | ✅ passa |
-| Papéis, moedas, **ordem da fila**       | `packages/domain-types/src`       | **15**  | ✅ passa |
-| Consentimento, PII, taxonomia           | `packages/analytics/src`          | 15      | ✅ passa |
+| Papéis, moedas, ordem da fila           | `packages/domain-types/src`       | 15      | ✅ passa |
+| Consentimento, PII, taxonomia           | `packages/analytics/src`          | **19**  | ✅ passa |
 | Adapter de pagamento e assinatura       | `packages/payments/src`           | 25      | ✅ passa |
-| App cliente                             | `apps/fly-mobile/src`             | **203** | ✅ passa |
+| App cliente                             | `apps/fly-mobile/src`             | **209** | ✅ passa |
 | Fly Ops: tema, slug e tempo da fila     | `apps/fly-ops/src`                | **20**  | ✅ passa |
 | Tema do Fly Crew                        | `apps/fly-crew/src/theme.test.ts` | 3       | ✅ passa |
-| **Total**                               |                                   | **374** | ✅       |
+| **Total**                               |                                   | **384** | ✅       |
 
 Dentro do app cliente, os grupos que mais importam:
 
@@ -33,15 +33,15 @@ Dentro do app cliente, os grupos que mais importam:
 | **Falha de rede ≠ recusa do servidor**    | `src/rede/falha.test.ts`         |
 | **Cache de contatos para offline**        | `src/assist/cache.test.ts`       |
 
-## RLS e regra de negócio: 416 asserções
+## RLS e regra de negócio: 488 asserções
 
 A suíte pgTAP roda a cada push, no job **Migrations e RLS**.
 
-⚠️ **As 42 asserções da Fase 8 (`atendimento` e `mapa`) ainda não rodaram.**
-Elas foram escritas nesta máquina, que não tem Docker, e as migrations de
-03/09 ainda não estão aplicadas no projeto — nem há token da CLI aqui para
+⚠️ **As 122 asserções das Fases 8 e 9 ainda não rodaram.** Elas foram
+escritas nesta máquina, que não tem Docker, e as oito migrations de 03 e
+04/09 ainda não estão aplicadas no projeto — nem há token da CLI aqui para
 aplicá-las. A primeira prova delas será o job **Migrations e RLS** no push.
-As 374 anteriores estão verdes.
+As 366 anteriores estão verdes.
 
 | Arquivo                       | Asserções | Cobre                                                                                           |
 | ----------------------------- | --------- | ----------------------------------------------------------------------------------------------- |
