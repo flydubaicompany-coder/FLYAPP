@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  SITUACOES_EM_ABERTO,
   estaEmAberto,
   ordenarFila,
   type NivelDeAtendimento,
@@ -77,8 +78,6 @@ interface Caso {
   atribuidoA: string | null;
   atribuidoEm: string | null;
   /** De onde a conversa veio (§43, entrega 4). Nulo = conversa solta. */
-  atividadeId: string | null;
-  pedidoId: string | null;
   contexto: string | null;
   mensagens: Mensagem[];
   pontos: Ponto[];
@@ -92,6 +91,16 @@ interface Pessoa {
 
 /** O que uma ação muda num caso. Estreito de propósito: a tela não edita
  *  carimbo de tempo — quem carimba é o gatilho. */
+/**
+ * Uma constante, e não duas cópias na consulta.
+ *
+ * Precisa ser um literal inteiro: o supabase-js infere o formato da linha a
+ * partir do texto do `select`, e uma concatenação em tempo de execução deixa
+ * o tipo virar erro genérico.
+ */
+const CAMPOS =
+  'id, user_id, level, subject, status, opened_at, accepted_at, first_response_at, resolved_at, escalated_at, escalation_reason, assigned_to, assigned_at, activity_id, order_id, support_messages(id, author_id, body, is_system, created_at), case_locations(latitude, longitude, accuracy_m, captured_at)';
+
 interface Mudanca {
   status?: Situacao;
   escalation_reason?: string;
@@ -112,22 +121,38 @@ export function Atendimento() {
   const carregar = useCallback(async () => {
     const db = supabase();
 
-    const [{ data: sessao }, casosRes, cfgRes] = await Promise.all([
+    /**
+     * Duas consultas, e não uma com `limit`.
+     *
+     * Uma consulta só, ordenada por data e cortada em 200, deixaria de fora
+     * um caso **aberto** mais antigo que os 200 mais recentes — e um caso
+     * aberto que some da fila é o pior defeito possível numa tela de
+     * atendimento. A fila vem inteira, do mais antigo para o mais novo (é a
+     * ordem em que se atende); o histórico vem cortado, porque histórico
+     * cortado é só menos rolagem.
+     */
+    const [{ data: sessao }, abertosRes, fechadosRes, cfgRes] = await Promise.all([
       db.auth.getUser(),
       db
         .from('support_cases')
-        .select(
-          'id, user_id, level, subject, status, opened_at, accepted_at, first_response_at, resolved_at, escalated_at, escalation_reason, assigned_to, assigned_at, activity_id, order_id, support_messages(id, author_id, body, is_system, created_at), case_locations(latitude, longitude, accuracy_m, captured_at)',
-        )
+        .select(CAMPOS)
+        .in('status', SITUACOES_EM_ABERTO)
+        .order('opened_at', { ascending: true })
+        .limit(500),
+      db
+        .from('support_cases')
+        .select(CAMPOS)
+        .in('status', ['resolved', 'closed'])
         .order('opened_at', { ascending: false })
-        .limit(200),
+        .limit(100),
       db.from('app_config').select('key, value').eq('key', 'support.sla_minutes'),
     ]);
 
-    if (casosRes.error) return setErro(casosRes.error.message);
+    if (abertosRes.error) return setErro(abertosRes.error.message);
+    if (fechadosRes.error) return setErro(fechadosRes.error.message);
     setEuId(sessao.user?.id ?? null);
 
-    const linhas = casosRes.data ?? [];
+    const linhas = [...(abertosRes.data ?? []), ...(fechadosRes.data ?? [])];
     const ids = [...new Set(linhas.map((c) => c.user_id))];
     const { data: perfis } = await db
       .from('profiles')
@@ -135,8 +160,6 @@ export function Atendimento() {
       .in('id', ids.length > 0 ? ids : ['00000000-0000-0000-0000-000000000000']);
     const porId = new Map((perfis ?? []).map((p) => [p.id, p]));
 
-    // A lista da equipe é o que torna a atribuição possível. Se o papel não
-    // puder listar, a tela segue funcionando — só sem o seletor.
     // O contexto do caso (§43, entrega 4): qual atividade, qual pedido. Sem
     // isto a equipe vê "o transfer não chegou" e precisa perguntar qual.
     const atividadeIds = [
@@ -156,6 +179,8 @@ export function Atendimento() {
     const tituloDaAtividade = new Map((atividadesRes.data ?? []).map((a) => [a.id, a.title]));
     const refDoPedido = new Map((pedidosRes.data ?? []).map((o) => [o.id, o.reference]));
 
+    // A lista da equipe é o que torna a atribuição possível. Se o papel não
+    // puder listar, a tela segue funcionando — só sem o seletor.
     const { data: gente } = await db.rpc('equipe_de_atendimento');
     setEquipe((gente ?? []).map((g) => ({ id: g.user_id, nome: g.nome, papeis: g.papeis ?? [] })));
 
@@ -180,8 +205,6 @@ export function Atendimento() {
           motivoEscala: c.escalation_reason,
           atribuidoA: c.assigned_to,
           atribuidoEm: c.assigned_at,
-          atividadeId: c.activity_id,
-          pedidoId: c.order_id,
           // Um caso pode ter os dois: aberto a partir de uma atividade que
           // tinha um pedido ligado. Mostrar so um esconderia metade.
           contexto:
