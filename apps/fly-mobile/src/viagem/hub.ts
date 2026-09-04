@@ -108,6 +108,14 @@ export const HUB: readonly ItemDoHub[] = [
     fase: null,
     ref: '§12',
   },
+  {
+    chave: 'assistente',
+    rotulo: 'Assistente',
+    descricao: 'Pergunte sobre a sua viagem. Ele responde do seu roteiro.',
+    rota: '/assistente',
+    fase: null,
+    ref: '§15.1',
+  },
   // --- ainda não abertos -------------------------------------------------
   {
     chave: 'passeios',

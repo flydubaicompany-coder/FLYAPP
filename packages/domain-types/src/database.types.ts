@@ -390,6 +390,148 @@ export type Database = {
         }
         Relationships: []
       }
+      assistant_feedback: {
+        Row: {
+          created_at: string
+          id: string
+          motivo: string | null
+          run_id: string
+          user_id: string
+          util: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          motivo?: string | null
+          run_id: string
+          user_id: string
+          util: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          motivo?: string | null
+          run_id?: string
+          user_id?: string
+          util?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assistant_feedback_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "assistant_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assistant_runs: {
+        Row: {
+          created_at: string
+          custo_estimado_centavos: number | null
+          duracao_ms: number | null
+          erro: string | null
+          id: string
+          modelo: string | null
+          pergunta: string
+          provedor: string
+          resposta: string | null
+          resultado: Database["public"]["Enums"]["assistant_outcome"]
+          support_case_id: string | null
+          tokens_entrada: number | null
+          tokens_saida: number | null
+          trip_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          custo_estimado_centavos?: number | null
+          duracao_ms?: number | null
+          erro?: string | null
+          id?: string
+          modelo?: string | null
+          pergunta: string
+          provedor: string
+          resposta?: string | null
+          resultado?: Database["public"]["Enums"]["assistant_outcome"]
+          support_case_id?: string | null
+          tokens_entrada?: number | null
+          tokens_saida?: number | null
+          trip_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          custo_estimado_centavos?: number | null
+          duracao_ms?: number | null
+          erro?: string | null
+          id?: string
+          modelo?: string | null
+          pergunta?: string
+          provedor?: string
+          resposta?: string | null
+          resultado?: Database["public"]["Enums"]["assistant_outcome"]
+          support_case_id?: string | null
+          tokens_entrada?: number | null
+          tokens_saida?: number | null
+          trip_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assistant_runs_support_case_id_fkey"
+            columns: ["support_case_id"]
+            isOneToOne: false
+            referencedRelation: "support_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assistant_runs_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assistant_tool_calls: {
+        Row: {
+          autorizada: boolean
+          created_at: string
+          erro: string | null
+          ferramenta: string
+          id: number
+          linhas: number | null
+          run_id: string
+        }
+        Insert: {
+          autorizada: boolean
+          created_at?: string
+          erro?: string | null
+          ferramenta: string
+          id?: never
+          linhas?: number | null
+          run_id: string
+        }
+        Update: {
+          autorizada?: boolean
+          created_at?: string
+          erro?: string | null
+          ferramenta?: string
+          id?: never
+          linhas?: number | null
+          run_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assistant_tool_calls_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "assistant_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -5156,6 +5298,12 @@ export type Database = {
         | "done"
         | "changed"
         | "cancelled"
+      assistant_outcome:
+        | "respondeu"
+        | "sem_provedor"
+        | "sem_resposta"
+        | "handoff"
+        | "erro"
       companionship_kind: "family_lead" | "companion" | "guardian"
       deliverable_status:
         | "pendente"
@@ -5473,6 +5621,13 @@ export const Constants = {
         "done",
         "changed",
         "cancelled",
+      ],
+      assistant_outcome: [
+        "respondeu",
+        "sem_provedor",
+        "sem_resposta",
+        "handoff",
+        "erro",
       ],
       companionship_kind: ["family_lead", "companion", "guardian"],
       deliverable_status: [

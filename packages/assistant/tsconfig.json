@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["node"],
+    // Mesmo motivo do `@fly/payments`: o teste importa **o proprio arquivo**
+    // que a Edge Function executa (`supabase/functions/_shared/assistente.ts`),
+    // e import do Deno carrega a extensao. Copiar a logica para ca daria um
+    // teste verde sobre uma copia — e divergencia entre copia e original, numa
+    // barreira de dado pessoal, e passaporte no contexto do modelo.
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src/**/*.ts", "../../supabase/functions/_shared/**/*.ts"]
+}

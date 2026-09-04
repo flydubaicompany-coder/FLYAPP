@@ -420,6 +420,12 @@ verify_jwt = false
 [functions.pagamento-sandbox]
 verify_jwt = true
 
+# O assistente age em nome de quem pergunta: as ferramentas consultam o banco
+# com o JWT dele, e e a RLS que autoriza cada uma. Sem JWT nao ha o que
+# consultar — e nao ha assistente.
+[functions.assistente]
+verify_jwt = true
+
 [analytics]
 enabled = true
 port = 54327
