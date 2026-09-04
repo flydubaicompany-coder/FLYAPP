@@ -1,4 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  estaEmAberto,
+  ordenarFila,
+  type NivelDeAtendimento,
+  type SituacaoDeAtendimento,
+} from '@fly/domain-types';
 import { supabase } from '../auth/client';
 import { espera, lerAlvos, media, minutosEntre, type AlvosDeSla } from '../dominio/tempo';
 
@@ -19,8 +25,10 @@ import { espera, lerAlvos, media, minutosEntre, type AlvosDeSla } from '../domin
  * proíbe inventar. Enquanto estiver pendente, a tela mede e não acusa atraso.
  */
 
-type Nivel = 'chat' | 'urgent' | 'sos';
-type Situacao = 'open' | 'accepted' | 'in_progress' | 'escalated' | 'resolved' | 'closed';
+// A ordem da fila e o conjunto de situacoes vem de `@fly/domain-types`: a
+// mesma regra é lida aqui, no Fly Crew e no app, e três cópias divergem.
+type Nivel = NivelDeAtendimento;
+type Situacao = SituacaoDeAtendimento;
 
 const NOME_NIVEL: Record<Nivel, string> = {
   chat: 'Conversa',
@@ -36,11 +44,6 @@ const NOME_SITUACAO: Record<Situacao, string> = {
   resolved: 'Resolvido',
   closed: 'Encerrado',
 };
-
-/** SOS na frente, conversa atrás. Mesma ordem do índice da fila. */
-const PESO: Record<Nivel, number> = { sos: 3, urgent: 2, chat: 1 };
-
-const EM_ABERTO: Situacao[] = ['open', 'accepted', 'in_progress', 'escalated'];
 
 interface Mensagem {
   id: string;
@@ -287,16 +290,14 @@ export function Atendimento() {
     await mudar(c, { status: 'escalated', escalation_reason: motivo.trim() }, 'Caso escalado.');
   }
 
-  const fila = useMemo(() => {
-    const lista = (casos ?? []).filter((c) => !soFila || EM_ABERTO.includes(c.situacao));
-    return [...lista].sort(
-      (a, b) => PESO[b.nivel] - PESO[a.nivel] || a.abertoEm.localeCompare(b.abertoEm),
-    );
-  }, [casos, soFila]);
+  const fila = useMemo(
+    () => ordenarFila((casos ?? []).filter((c) => !soFila || estaEmAberto(c.situacao))),
+    [casos, soFila],
+  );
 
   const numeros = useMemo(() => {
     const todos = casos ?? [];
-    const abertos = todos.filter((c) => EM_ABERTO.includes(c.situacao));
+    const abertos = todos.filter((c) => estaEmAberto(c.situacao));
     const aceites = todos
       .filter((c) => c.aceitoEm !== null)
       .map((c) => minutosEntre(c.abertoEm, c.aceitoEm));

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import type { NivelDeAtendimento, SituacaoDeAtendimento } from '@fly/domain-types';
 import { supabase } from '@/auth/client';
 import { sessionStorage } from '@/auth/storage';
 import { ehFalhaDeRede } from '@/rede/falha';
@@ -12,9 +13,11 @@ import { CHAVE_CONTATOS, lerContatos, serializarContatos, type ContatosSalvos } 
  * historico e a thread.
  */
 
-export type Nivel = 'chat' | 'urgent' | 'sos';
-export type SituacaoDoCaso =
-  'open' | 'accepted' | 'in_progress' | 'escalated' | 'resolved' | 'closed';
+// Os tipos vem de `@fly/domain-types`, junto com a ordem da fila que o Fly Ops
+// e o Fly Crew leem. Os **rotulos** continuam aqui: o cliente le "A Fly
+// recebeu" onde a operacao le "Na fila", e e assim de proposito.
+export type Nivel = NivelDeAtendimento;
+export type SituacaoDoCaso = SituacaoDeAtendimento;
 
 export const ROTULO_NIVEL: Record<Nivel, string> = {
   chat: 'Conversa',

@@ -1,4 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  SITUACOES_EM_ABERTO,
+  ordenarFila,
+  type NivelDeAtendimento,
+  type SituacaoDeAtendimento,
+} from '@fly/domain-types';
 import { supabase } from '../auth/client';
 
 /**
@@ -15,8 +21,10 @@ import { supabase } from '../auth/client';
  * localização que o **cliente** enviou, e só porque ele tocou no botão.
  */
 
-type Nivel = 'chat' | 'urgent' | 'sos';
-type Situacao = 'open' | 'accepted' | 'in_progress' | 'escalated' | 'resolved' | 'closed';
+// Mesma fonte de verdade do Fly Ops e do app: a ordem da fila é uma só, e o
+// campo não pode ver uma ordem enquanto o escritório vê outra.
+type Nivel = NivelDeAtendimento;
+type Situacao = SituacaoDeAtendimento;
 
 const NOME_NIVEL: Record<Nivel, string> = {
   chat: 'Conversa',
@@ -32,11 +40,6 @@ const NOME_SITUACAO: Record<Situacao, string> = {
   resolved: 'Resolvido',
   closed: 'Encerrado',
 };
-
-/** SOS na frente. Mesma ordem do índice `support_cases_fila_idx`. */
-const PESO: Record<Nivel, number> = { sos: 3, urgent: 2, chat: 1 };
-
-const EM_ABERTO: Situacao[] = ['open', 'accepted', 'in_progress', 'escalated'];
 
 interface Mensagem {
   id: string;
@@ -91,7 +94,7 @@ export function Casos() {
         .select(
           'id, user_id, level, subject, status, opened_at, assigned_to, support_messages(id, author_id, body, is_system, created_at), case_locations(latitude, longitude, captured_at)',
         )
-        .in('status', EM_ABERTO)
+        .in('status', SITUACOES_EM_ABERTO)
         .order('opened_at', { ascending: true })
         .limit(100),
     ]);
@@ -251,9 +254,7 @@ export function Casos() {
       aba === 'meus'
         ? todos.filter((c) => c.atribuidoA !== null && c.atribuidoA === euId)
         : todos.filter((c) => c.atribuidoA === null);
-    return [...filtrado].sort(
-      (a, b) => PESO[b.nivel] - PESO[a.nivel] || a.abertoEm.localeCompare(b.abertoEm),
-    );
+    return ordenarFila(filtrado);
   }, [casos, aba, euId]);
 
   if (erro && !casos)

@@ -7,5 +7,6 @@
  */
 export * from './roles';
 export * from './moeda';
+export * from './atendimento';
 export type { Database, Json } from './database.types';
 export { Constants as DatabaseConstants } from './database.types';
