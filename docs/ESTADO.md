@@ -1,31 +1,26 @@
 # Onde o trabalho parou
 
-Atualizado em 04/09/2026.
+Atualizado em 04/09/2026, fim do dia.
 
 Este arquivo existe para uma sessão nova saber exatamente onde pegar, sem
 reler a conversa anterior. **Mantenha-o ao fim de cada fase.**
 
 ---
 
-## Onde retomar — 04/09/2026
+## Onde retomar — 04/09/2026, fim do dia
 
-**Fases 8 e 9 construídas. Nenhuma das duas foi provada contra banco.** Leia
-o bloqueio abaixo antes de qualquer coisa: ele vale para as duas fases.
+**Fases 8, 9 e 10 construídas. Nenhuma das três foi provada contra banco.**
+Leia o bloqueio abaixo antes de qualquer coisa: ele vale para as três.
 
-### 🔴 Bloqueio único — oito migrations não aplicadas
+### 🔴 Bloqueio único — onze migrations não aplicadas
 
-Nenhuma das oito está no projeto `ptmifjnfskwipjjxauns`:
+Nenhuma está no projeto `ptmifjnfskwipjjxauns`:
 
-| Arquivo                                       | O que traz                                         |
-| --------------------------------------------- | -------------------------------------------------- |
-| `20260903000000_fila_e_sla.sql`               | `assigned_to`, `equipe_de_atendimento()`, SLA      |
-| `20260903010000_mapa.sql`                     | `map_places`, enum `place_kind`                    |
-| `20260903020000_realtime_da_fila.sql`         | `support_cases` na publicação do Realtime          |
-| `20260903030000_atendimento_com_contexto.sql` | `abrir_atendimento` com atividade e pedido         |
-| `20260904000000_album_e_quest.sql`            | álbum, figurinhas, Dia Completo, Fly Quest, bucket |
-| `20260904010000_galeria.sql`                  | galeria, `image_use`, bucket, revogação de imagem  |
-| `20260904020000_encantamento.sql`             | escuta ativa, tarefas de surpresa, teto PENDENTE   |
-| `20260904030000_influenciador.sql`            | Modo Criador, entregáveis                          |
+| Fase | Arquivos                                                                                                       |
+| ---- | -------------------------------------------------------------------------------------------------------------- |
+| 8    | `20260903000000_fila_e_sla` · `_010000_mapa` · `_020000_realtime_da_fila` · `_030000_atendimento_com_contexto` |
+| 9    | `20260904000000_album_e_quest` · `_010000_galeria` · `_020000_encantamento` · `_030000_influenciador`          |
+| 10   | `20260905000000_assistente` · `_010000_planejador` · `_020000_mala`                                            |
 
 **Por que não apliquei:** não há token da CLI nesta máquina
 (`~/.supabase/access-token` não existe), não há Docker, e o MCP do Supabase
@@ -37,82 +32,76 @@ do IMMORTALS. Os `.env.local` têm só a chave publicável, como manda a regra.
 ```
 
 Enquanto não rodar, as telas novas abrem em estado de erro e **nenhuma das
-122 asserções pgTAP das Fases 8 e 9 foi executada**. A primeira prova delas
-será o job **Migrations e RLS** no push.
+149 asserções pgTAP das Fases 8, 9 e 10 foi executada**. A primeira prova
+delas será o job **Migrations e RLS** no push.
 
-### 🔴 Verificação visual logada não aconteceu
+### ⚠️ Risco novo na esteira: `deno check` com dependência npm
 
-Nada das duas fases foi visto com sessão. As rotas foram abertas deslogadas e
-renderizam o estado correto, sem erro de console — é o que dá para provar sem
-senha. O envio de nota fiscal logado continua sem teste, como já estava.
+A Edge Function `assistente` importa `npm:@anthropic-ai/sdk@0.123.0` — é o SDK
+oficial, e é a forma correta de falar com a API. Mas o passo **Tipos das Edge
+Functions** roda `deno check`, que precisa resolver esse pacote pela rede.
+Nenhuma função anterior tinha dependência npm (as outras usam `jsr:`). Se
+esse passo falhar no primeiro push, é aí. Não consegui testar: não há Deno
+nesta máquina.
 
-### Fase 9 — o que existe
+### Fase 10 — o que existe, e o que não
 
-As **16 entregas da §44** estão cobertas. Quatro cortes verticais, cada um
-com schema, RLS, GRANT, pgTAP, app e painel:
+Três cortes verticais entregues:
 
-| Corte                    | Entregas §44 | Onde                                                    |
-| ------------------------ | ------------ | ------------------------------------------------------- |
-| Álbum, figurinhas, Quest | 1–6, 11      | `app/album.tsx`, `app/quest.tsx`, Fly Ops → Álbum       |
-| Galeria e uso de imagem  | 8, 9, 10     | `app/galeria.tsx`, Fly Ops → Galeria                    |
-| Escuta ativa e surpresas | 12, 13, 14   | Fly Crew → Escuta, Fly Ops → Surpresas                  |
-| Modo Criador             | 15           | `app/influenciador.tsx`, Fly Ops → Criadores            |
-| Analytics de experiência | 16           | `packages/analytics/src/taxonomia.ts`                   |
-| Card de compartilhamento | 7            | `app/album/[figurinha].tsx` — card 9:16, **sem** export |
+| Corte                   | Entregas §45    | Estado                                              |
+| ----------------------- | --------------- | --------------------------------------------------- |
+| Assistente Fly          | 1, 2, 3, 10, 11 | construído e **desligado** — falta credencial (P53) |
+| Planejador financeiro   | 7               | funciona sozinho, sem integração nenhuma            |
+| Mala Pronta             | 8 (parcial)     | a parte do roteiro; clima é P54                     |
+| Recomendação + feedback | 4               | curadoria com motivo (Fase 5) + feedback (agora)    |
 
-Porquês: **D200 a D219** no decision log.
+**Não construídas:** tradução por adapter (5), Fly Social (6), Fly Capsule e
+Story do Dia (9). Motivos em **P54** e **P55** — as duas primeiras dependem de
+provedor homologado, e Fly Social depende de política de moderação escrita.
 
-### O que a Fase 9 NÃO tem, e é decisão registrada
-
-- **Câmera para ler QR** e **card exportado como imagem**. As duas exigem
-  dependência nativa que este ambiente não compila. Código é digitado, card é
-  print. **P50, D205 e D207.**
-- **Pagamento e contrapartida do criador.** Taxa e parceiro financeiro são da
-  §33, e o PSP continua sendo a P09/P38. **D219.**
-- **Métricas lidas de rede social.** O criador declara, e a coluna se chama
-  `_declared` para ninguém somar achando que mediu. **D219.**
-- **Reconhecimento facial na galeria.** Marcação é manual: rosto é dado
-  biométrico. **D211.**
-- **Conteúdo.** Capítulo, figurinha e missão nascem vazios, como o mapa.
-  **P52.**
+Porquês de cada escolha: **D220 a D230** no decision log.
 
 ### O que só o dono decide, e está travando
 
-| #       | O quê                                 | Trava                                     |
-| ------- | ------------------------------------- | ----------------------------------------- |
-| P47     | Regra de tax-free                     | a estimativa na tela de notas             |
-| —       | Quanto vale 1 Fly Point em dinheiro   | o "≈ R$ X" do design da Carteira          |
-| P45     | Catálogo real de benefícios           | os 6 dizem "(demonstração)"               |
-| P46     | Critérios e prêmios do ranking        | o período diz "(demonstração)"            |
-| P43     | Confirmar a moeda (assumi AED)        | rótulos de preço                          |
-| P09/P38 | Parceiro de pagamento                 | recarga, transferência, Fly Card, criador |
-| P20     | Prazo de aceite e de resposta         | `support.sla_minutes` está `PENDENTE`     |
-| P48     | Endereços do mapa                     | camada de saúde e de parceiros            |
-| P49     | `expo-location` + texto de permissão  | localização no aparelho, inclusive no SOS |
-| **P50** | **`expo-camera` e `view-shot`**       | ler QR pela câmera; card como imagem      |
-| **P51** | **Teto do orçamento de encantamento** | limite por tarefa de surpresa             |
-| **P52** | **Conteúdo do álbum e do Fly Quest**  | álbum com o que ver                       |
+| #       | O quê                                | Trava                                     |
+| ------- | ------------------------------------ | ----------------------------------------- |
+| P47     | Regra de tax-free                    | estimativa nas notas e no planejador      |
+| —       | Quanto vale 1 Fly Point em dinheiro  | o "≈ R$ X" do design da Carteira          |
+| P45     | Catálogo real de benefícios          | os 6 dizem "(demonstração)"               |
+| P46     | Critérios e prêmios do ranking       | o período diz "(demonstração)"            |
+| P43     | Confirmar a moeda (assumi AED)       | rótulos de preço                          |
+| P09/P38 | Parceiro de pagamento                | recarga, transferência, Fly Card, criador |
+| P20     | Prazo de aceite e de resposta        | `support.sla_minutes` está `PENDENTE`     |
+| P48     | Endereços do mapa                    | camada de saúde e de parceiros            |
+| P49     | `expo-location` + texto de permissão | localização no aparelho, inclusive no SOS |
+| P50     | `expo-camera` e `view-shot`          | ler QR pela câmera; card como imagem      |
+| P51     | Teto do orçamento de encantamento    | limite por tarefa de surpresa             |
+| P52     | Conteúdo do álbum e do Fly Quest     | álbum com o que ver                       |
+| **P53** | **Credencial do provedor de modelo** | **o Assistente Fly responder de verdade** |
+| **P54** | **Provedor de tradução e de clima**  | tradução; clima na Mala Pronta            |
+| **P55** | **Política de moderação**            | Fly Social                                |
 
 ---
 
 ## Fases
 
-| Fase  | O quê                                                 | Situação                       |
-| ----- | ----------------------------------------------------- | ------------------------------ |
-| 0     | Fundação, `/health`, esteira                          | ✅ concluída                   |
-| 1     | Design system, navegação de 5 abas                    | ✅ concluída                   |
-| 2     | Fly ID: convite, onboarding, perfil, consentimento    | ✅ concluída                   |
-| 3     | Home dinâmica, eventos, notificações, push, analytics | ✅ concluída                   |
-| 4     | Minha Viagem: roteiro, cofre, QR, presença            | ✅ concluída                   |
-| **5** | **Passeios, carrinho e pedidos**                      | 🟢 **entregue — uma ressalva** |
-| **6** | **Carteira e fidelidade (§41)**                       | 🟢 **entregue — 2 bloqueios**  |
-| **7** | **Gastronomia, reservas e serviços (§42)**            | 🟢 **entregue**                |
-| **8** | **Mapa, Bases Fly, concierge e SOS (§43)**            | 🟡 **construída, sem prova**   |
-| **9** | **Álbum, Fly Quest, galeria e encantamento (§44)**    | 🟡 **construída, sem prova**   |
+| Fase   | O quê                                                 | Situação                       |
+| ------ | ----------------------------------------------------- | ------------------------------ |
+| 0      | Fundação, `/health`, esteira                          | ✅ concluída                   |
+| 1      | Design system, navegação de 5 abas                    | ✅ concluída                   |
+| 2      | Fly ID: convite, onboarding, perfil, consentimento    | ✅ concluída                   |
+| 3      | Home dinâmica, eventos, notificações, push, analytics | ✅ concluída                   |
+| 4      | Minha Viagem: roteiro, cofre, QR, presença            | ✅ concluída                   |
+| **5**  | **Passeios, carrinho e pedidos**                      | 🟢 **entregue — uma ressalva** |
+| **6**  | **Carteira e fidelidade (§41)**                       | 🟢 **entregue — 2 bloqueios**  |
+| **7**  | **Gastronomia, reservas e serviços (§42)**            | 🟢 **entregue**                |
+| **8**  | **Mapa, Bases Fly, concierge e SOS (§43)**            | 🟡 **construída, sem prova**   |
+| **9**  | **Álbum, Fly Quest, galeria e encantamento (§44)**    | 🟡 **construída, sem prova**   |
+| **10** | **Inteligência e integrações avançadas (§45)**        | 🟡 **3 cortes, sem prova**     |
 
-Prova: `npm run verify` (**384 testes**, exit 0 nesta máquina) e a suíte
-pgTAP (**488 asserções**, 23 arquivos) — das quais **122 nunca rodaram**: as
-das Fases 8 e 9, que dependem das migrations acima. A esteira agora também roda `deno check` nas Edge
+Prova: `npm run verify` (**424 testes**, exit 0 nesta máquina) e a suíte
+pgTAP (**515 asserções**, 25 arquivos) — das quais **149 nunca rodaram**: as
+das Fases 8, 9 e 10, que dependem das migrations acima. A esteira agora também roda `deno check` nas Edge
 Functions — elas não são workspace do npm e ficavam fora do `typecheck`.
 
 ---

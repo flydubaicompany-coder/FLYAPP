@@ -1,6 +1,6 @@
 # Matriz de testes
 
-Estado em 04/09/2026, **Fase 9** (§44). As Fases 0 a 7 estao entregues; 8 e 9 estao construidas e sem prova de banco.
+Estado em 04/09/2026, **Fase 10** (§45). As Fases 0 a 7 estao entregues; 8, 9 e 10 estao construidas e sem prova de banco.
 
 ## O que roda hoje
 
@@ -15,10 +15,11 @@ npm run verify   # lint + typecheck + testes
 | Papéis, moedas, ordem da fila           | `packages/domain-types/src`       | 15      | ✅ passa |
 | Consentimento, PII, taxonomia           | `packages/analytics/src`          | **19**  | ✅ passa |
 | Adapter de pagamento e assinatura       | `packages/payments/src`           | 25      | ✅ passa |
-| App cliente                             | `apps/fly-mobile/src`             | **209** | ✅ passa |
+| App cliente                             | `apps/fly-mobile/src`             | **230** | ✅ passa |
 | Fly Ops: tema, slug e tempo da fila     | `apps/fly-ops/src`                | **20**  | ✅ passa |
 | Tema do Fly Crew                        | `apps/fly-crew/src/theme.test.ts` | 3       | ✅ passa |
-| **Total**                               |                                   | **384** | ✅       |
+| Assistente: barreira de dado e custo    | `packages/assistant/src`          | **19**  | ✅ passa |
+| **Total**                               |                                   | **424** | ✅       |
 
 Dentro do app cliente, os grupos que mais importam:
 
@@ -33,13 +34,13 @@ Dentro do app cliente, os grupos que mais importam:
 | **Falha de rede ≠ recusa do servidor**    | `src/rede/falha.test.ts`         |
 | **Cache de contatos para offline**        | `src/assist/cache.test.ts`       |
 
-## RLS e regra de negócio: 488 asserções
+## RLS e regra de negócio: 515 asserções
 
 A suíte pgTAP roda a cada push, no job **Migrations e RLS**.
 
-⚠️ **As 122 asserções das Fases 8 e 9 ainda não rodaram.** Elas foram
-escritas nesta máquina, que não tem Docker, e as oito migrations de 03 e
-04/09 ainda não estão aplicadas no projeto — nem há token da CLI aqui para
+⚠️ **As 149 asserções das Fases 8, 9 e 10 ainda não rodaram.** Elas foram
+escritas nesta máquina, que não tem Docker, e as onze migrations de 03 a
+05/09 ainda não estão aplicadas no projeto — nem há token da CLI aqui para
 aplicá-las. A primeira prova delas será o job **Migrations e RLS** no push.
 As 366 anteriores estão verdes.
 
