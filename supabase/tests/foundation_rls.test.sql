@@ -130,18 +130,30 @@ select is(
   'NEGATIVO: cliente nao le config interna'
 );
 
--- ATENCAO: RLS em UPDATE **filtra linhas**, nao lanca excecao. `throws_ok`
--- daria falso negativo aqui e alguem poderia "consertar" a policy por engano.
--- O que prova o bloqueio e o efeito: zero linhas afetadas e valor intacto.
-select lives_ok(
+-- Ate a Fase 11 isto era `lives_ok`, e o comentario dizia por que: RLS em
+-- UPDATE **filtra linhas** em vez de lancar, entao `throws_ok` daria falso
+-- negativo. Continua verdade sobre RLS — mas deixou de ser o que acontece
+-- aqui.
+--
+-- A Fase 11 (D232) tirou o GRANT de UPDATE de `app_config` de
+-- `authenticated`: config passou a ter uma porta so, a RPC `definir_config`,
+-- que grava o valor anterior na trilha. Sem GRANT, o Postgres recusa **antes**
+-- de a RLS filtrar, e recusa lancando.
+--
+-- O bloqueio ficou mais forte, e a asercao acompanha. O comentario sobre
+-- `throws_ok` em UPDATE sob RLS continua valendo para toda tabela onde o
+-- GRANT existe — e sao quase todas.
+select throws_ok(
   $$ update public.app_config set value = '"adulterado"'::jsonb where key = 'teste.publico' $$,
-  'cliente pode tentar o UPDATE — o RLS filtra em silencio'
+  '42501',
+  null,
+  'NEGATIVO: cliente nao tem nem GRANT de UPDATE em app_config (D232)'
 );
 
 select is(
   (select value::text from public.app_config where key = 'teste.publico'),
   '"visivel"',
-  'NEGATIVO: o UPDATE do cliente nao alterou app_config'
+  'NEGATIVO: e o valor continua intacto'
 );
 
 -- INSERT, ao contrario, esbarra em WITH CHECK e no GRANT — e lanca.

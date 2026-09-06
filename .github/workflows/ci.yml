@@ -62,7 +62,11 @@ jobs:
       # Glob explícito em vez de `**`: sem `globstar`, o bash expande `**`
       # como `*` e o passo checaria pastas de menos sem reclamar.
       - name: Tipos das Edge Functions
-        run: deno check supabase/functions/*/index.ts
+        # `--node-modules-dir=auto`: o job roda `npm ci` antes, e com um
+        # `node_modules/` presente o Deno tenta resolver as dependencias npm
+        # das libs JSR ali dentro em vez de baixa-las. Sem a flag ele para em
+        # "Could not find a matching package for 'npm:@supabase/realtime-js'".
+        run: deno check --node-modules-dir=auto supabase/functions/*/index.ts
 
       # A esteira falha se alguém versionar um .env. O .gitignore já cobre,
       # mas o .gitignore é editável e este passo não.
