@@ -9,6 +9,7 @@ import { Entrar } from './paginas/Entrar';
 import { Entregas } from './paginas/Entregas';
 import { Casos } from './paginas/Casos';
 import { Escuta } from './paginas/Escuta';
+import { Turno } from './paginas/Turno';
 
 /**
  * Fly Crew — o app de campo (§42, entrega 12).
@@ -19,14 +20,20 @@ import { Escuta } from './paginas/Escuta';
  *
  * A navegacao e curta de proposito. Este app e usado **em pe, com uma mao**,
  * do lado de uma cozinha ou de um ponto de encontro. Cada aba a mais e uma
- * chance de tocar na errada — sao duas, e a segunda so entrou porque a Fase 8
- * pede que a equipe de campo **receba e opere casos** (§43, entrega 9).
+ * chance de tocar na errada — sao quatro, e cada uma entrou por uma razao
+ * escrita: casos porque a §43 pede que a equipe de campo receba e opere
+ * atendimento; escuta porque a §13.4 pede anotacao no corredor; turno porque
+ * a §46 pede passagem e entrega de brinde, e as duas acontecem no campo.
  */
 
 const ABAS = [
   { para: '/entregas', rotulo: 'Entregas' },
   { para: '/casos', rotulo: 'Casos' },
   { para: '/escuta', rotulo: 'Escuta' },
+  // A quarta entrou na Fase 11: passagem de turno e entrega de brinde
+  // acontecem no campo, com o celular na mao. No Fly Ops elas chegariam
+  // depois de alguem transcrever, que e o mesmo que nao chegar.
+  { para: '/turno', rotulo: 'Turno' },
 ] as const;
 
 function Casca({ children }: { children: React.ReactNode }) {
@@ -95,6 +102,14 @@ function Rotas({ env }: { env: PublicEnv }) {
         element={
           <Protegido>
             <Escuta />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/turno"
+        element={
+          <Protegido>
+            <Turno />
           </Protegido>
         }
       />
