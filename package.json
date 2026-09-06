@@ -29,7 +29,8 @@
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
     "db:lint": "supabase db lint",
-    "check:sql": "node scripts/checar-uuids-sql.mjs"
+    "check:sql": "node scripts/checar-uuids-sql.mjs",
+    "paridade": "node scripts/paridade.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

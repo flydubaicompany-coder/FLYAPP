@@ -1917,6 +1917,98 @@ export type Database = {
           },
         ]
       }
+      inventory_items: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          kind: Database["public"]["Enums"]["inventory_kind"]
+          low_stock_at: number | null
+          name: string
+          trip_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          kind: Database["public"]["Enums"]["inventory_kind"]
+          low_stock_at?: number | null
+          name: string
+          trip_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["inventory_kind"]
+          low_stock_at?: number | null
+          name?: string
+          trip_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_items_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_movements: {
+        Row: {
+          created_by: string | null
+          delta: number
+          id: string
+          item_id: string
+          note: string | null
+          occurred_at: string
+          reason: Database["public"]["Enums"]["inventory_reason"]
+          recipient_id: string | null
+        }
+        Insert: {
+          created_by?: string | null
+          delta: number
+          id?: string
+          item_id: string
+          note?: string | null
+          occurred_at?: string
+          reason: Database["public"]["Enums"]["inventory_reason"]
+          recipient_id?: string | null
+        }
+        Update: {
+          created_by?: string | null
+          delta?: number
+          id?: string
+          item_id?: string
+          note?: string | null
+          occurred_at?: string
+          reason?: Database["public"]["Enums"]["inventory_reason"]
+          recipient_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_movements_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_balance"
+            referencedColumns: ["item_id"]
+          },
+          {
+            foreignKeyName: "inventory_movements_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invitations: {
         Row: {
           accepted_at: string | null
@@ -3800,6 +3892,50 @@ export type Database = {
           },
         ]
       }
+      shift_handoffs: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          from_user: string
+          id: string
+          open_items: string | null
+          summary: string
+          to_user: string | null
+          trip_id: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          from_user: string
+          id?: string
+          open_items?: string | null
+          summary: string
+          to_user?: string | null
+          trip_id?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          from_user?: string
+          id?: string
+          open_items?: string | null
+          summary?: string
+          to_user?: string | null
+          trip_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shift_handoffs_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staff_assignments: {
         Row: {
           assigned_at: string
@@ -3831,6 +3967,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "staff_assignments_trip_fk"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staff_shifts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          ends_at: string
+          id: string
+          notes: string | null
+          role: Database["public"]["Enums"]["fly_role"]
+          starts_at: string
+          trip_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          ends_at: string
+          id?: string
+          notes?: string | null
+          role: Database["public"]["Enums"]["fly_role"]
+          starts_at: string
+          trip_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          ends_at?: string
+          id?: string
+          notes?: string | null
+          role?: Database["public"]["Enums"]["fly_role"]
+          starts_at?: string
+          trip_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_shifts_trip_id_fkey"
             columns: ["trip_id"]
             isOneToOne: false
             referencedRelation: "trips"
@@ -4784,6 +4964,45 @@ export type Database = {
           },
         ]
       }
+      trip_feature_flags: {
+        Row: {
+          is_enabled: boolean
+          key: string
+          trip_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          is_enabled: boolean
+          key: string
+          trip_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          is_enabled?: boolean
+          key?: string
+          trip_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_feature_flags_key_fkey"
+            columns: ["key"]
+            isOneToOne: false
+            referencedRelation: "feature_flags"
+            referencedColumns: ["key"]
+          },
+          {
+            foreignKeyName: "trip_feature_flags_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trip_inclusions: {
         Row: {
           category: Database["public"]["Enums"]["inclusion_category"]
@@ -5071,6 +5290,28 @@ export type Database = {
           },
         ]
       }
+      inventory_balance: {
+        Row: {
+          entregues: number | null
+          is_active: boolean | null
+          item_id: string | null
+          kind: Database["public"]["Enums"]["inventory_kind"] | null
+          low_stock_at: number | null
+          name: string | null
+          saldo: number | null
+          trip_id: string | null
+          ultimo_movimento: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_items_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       points_balance: {
         Row: {
           balance: number | null
@@ -5121,6 +5362,13 @@ export type Database = {
           ok: boolean
         }[]
       }
+      aceitar_passagem: {
+        Args: { p_handoff: string }
+        Returns: {
+          motivo: string
+          ok: boolean
+        }[]
+      }
       advance_onboarding: {
         Args: { p_to: string }
         Returns: {
@@ -5157,12 +5405,47 @@ export type Database = {
           ok: boolean
         }[]
       }
+      atribuir_a_viagem: {
+        Args: {
+          p_role: Database["public"]["Enums"]["fly_role"]
+          p_trip: string
+          p_user: string
+        }
+        Returns: {
+          motivo: string
+          ok: boolean
+        }[]
+      }
       cancelar_pedido: {
         Args: { p_order: string; p_reason?: string }
         Returns: {
           motivo: string
           ok: boolean
           politica: string
+        }[]
+      }
+      comercio_divergencias: {
+        Args: { p_ate: string; p_de: string; p_trip?: string }
+        Returns: {
+          capturado_cents: number
+          currency: string
+          diferenca_cents: number
+          estornado_cents: number
+          order_id: string
+          placed_at: string
+          reference: string
+          status: Database["public"]["Enums"]["order_status"]
+          total_cents: number
+        }[]
+      }
+      conceder_papel: {
+        Args: {
+          p_role: Database["public"]["Enums"]["fly_role"]
+          p_user: string
+        }
+        Returns: {
+          motivo: string
+          ok: boolean
         }[]
       }
       conferir_passaporte: {
@@ -5192,6 +5475,32 @@ export type Database = {
           total_cents: number
         }[]
       }
+      definir_config: {
+        Args: {
+          p_description?: string
+          p_is_public?: boolean
+          p_key: string
+          p_value: Json
+        }
+        Returns: {
+          motivo: string
+          ok: boolean
+        }[]
+      }
+      definir_flag: {
+        Args: { p_description?: string; p_enabled: boolean; p_key: string }
+        Returns: {
+          motivo: string
+          ok: boolean
+        }[]
+      }
+      definir_flag_da_viagem: {
+        Args: { p_enabled: boolean; p_key: string; p_trip: string }
+        Returns: {
+          motivo: string
+          ok: boolean
+        }[]
+      }
       definir_participantes: {
         Args: { p_nomes: string[]; p_order_item: string }
         Returns: {
@@ -5214,6 +5523,24 @@ export type Database = {
           token: string
         }[]
       }
+      enviar_aviso: {
+        Args: {
+          p_body?: string
+          p_category: string
+          p_dedupe?: string
+          p_deep_link?: string
+          p_expires_at?: string
+          p_title: string
+          p_trip: string
+          p_users?: string[]
+        }
+        Returns: {
+          enviados: number
+          motivo: string
+          ok: boolean
+          silenciados: number
+        }[]
+      }
       enviar_entregavel: {
         Args: {
           p_deliverable: string
@@ -5233,6 +5560,10 @@ export type Database = {
           papeis: string[]
           user_id: string
         }[]
+      }
+      flag_da_viagem: {
+        Args: { p_key: string; p_trip: string }
+        Returns: boolean
       }
       home_events: {
         Args: { p_limit?: number }
@@ -5317,6 +5648,20 @@ export type Database = {
           ok: boolean
         }[]
       }
+      movimentar_estoque: {
+        Args: {
+          p_delta: number
+          p_item: string
+          p_note?: string
+          p_reason: Database["public"]["Enums"]["inventory_reason"]
+          p_recipient?: string
+        }
+        Returns: {
+          motivo: string
+          ok: boolean
+          saldo: number
+        }[]
+      }
       passaporte_para_viagem: {
         Args: { p_trip: string }
         Returns: {
@@ -5368,6 +5713,92 @@ export type Database = {
           resultado: string
         }[]
       }
+      registrar_exportacao: {
+        Args: { p_escopo?: Json; p_linhas?: number; p_relatorio: string }
+        Returns: undefined
+      }
+      relatorio_comercio: {
+        Args: { p_ate: string; p_de: string; p_trip?: string }
+        Returns: {
+          bruto_cents: number
+          capturado_cents: number
+          currency: string
+          desconto_cents: number
+          divergencia_cents: number
+          estornado_cents: number
+          liquido_cents: number
+          pedidos: number
+          pedidos_divergentes: number
+        }[]
+      }
+      relatorio_eventos: {
+        Args: { p_ate: string; p_de: string }
+        Returns: {
+          event_id: string
+          interessados: number
+          is_published: boolean
+          na_home: boolean
+          slug: string
+          starts_at: string
+          status: Database["public"]["Enums"]["event_status"]
+          title: string
+        }[]
+      }
+      relatorio_experiencia: {
+        Args: { p_trip: string }
+        Returns: {
+          dias_completos: number
+          figurinhas: number
+          figurinhas_desbloqueadas: number
+          insights: number
+          midia_com_revogacao: number
+          midia_liberada: number
+          missoes: number
+          missoes_concluidas: number
+          pessoas_com_figurinha: number
+          surpresas_entregues: number
+          surpresas_sugeridas: number
+        }[]
+      }
+      relatorio_patrocinio: {
+        Args: { p_ate: string; p_de: string; p_trip?: string }
+        Returns: {
+          currency: string
+          custo_cents: number
+          entregues: number
+          orcado_cents: number
+          sponsor: string
+          tarefas: number
+        }[]
+      }
+      relatorio_suporte: {
+        Args: { p_ate: string; p_de: string; p_trip?: string }
+        Returns: {
+          abertos: number
+          aceite_medio_min: number
+          aceite_p90_min: number
+          level: Database["public"]["Enums"]["support_level"]
+          resolucao_media_min: number
+          resolvidos: number
+          resposta_media_min: number
+          sem_aceite: number
+        }[]
+      }
+      relatorio_viagem: {
+        Args: { p_trip: string }
+        Returns: {
+          atividades: number
+          casos_abertos: number
+          dias: number
+          midia_liberada: number
+          participantes: number
+          pedidos: number
+          presenca_esperada: number
+          presencas: number
+          refeicoes_escolhidas: number
+          refeicoes_servicos: number
+        }[]
+      }
       reservar_no_carrinho: {
         Args: { p_people: number; p_slot: string }
         Returns: {
@@ -5397,6 +5828,23 @@ export type Database = {
           ja_tinha: boolean
           missao: string
           missao_titulo: string
+          motivo: string
+          ok: boolean
+        }[]
+      }
+      revogar_atribuicao: {
+        Args: { p_assignment: string }
+        Returns: {
+          motivo: string
+          ok: boolean
+        }[]
+      }
+      revogar_papel: {
+        Args: {
+          p_role: Database["public"]["Enums"]["fly_role"]
+          p_user: string
+        }
+        Returns: {
           motivo: string
           ok: boolean
         }[]
@@ -5543,6 +5991,13 @@ export type Database = {
         | "incomodo"
         | "outro"
       insight_urgency: "baixa" | "normal" | "alta"
+      inventory_kind: "press_kit" | "gift" | "reward"
+      inventory_reason:
+        | "entrada"
+        | "entrega"
+        | "perda"
+        | "devolucao"
+        | "ajuste"
       meal_kind: "breakfast" | "lunch" | "dinner" | "snack"
       meal_service_status:
         | "draft"
@@ -5882,6 +6337,8 @@ export const Constants = {
         "outro",
       ],
       insight_urgency: ["baixa", "normal", "alta"],
+      inventory_kind: ["press_kit", "gift", "reward"],
+      inventory_reason: ["entrada", "entrega", "perda", "devolucao", "ajuste"],
       meal_kind: ["breakfast", "lunch", "dinner", "snack"],
       meal_service_status: [
         "draft",
