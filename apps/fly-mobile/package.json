@@ -45,9 +45,10 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build": "expo export --platform web",
+    "build": "EXPO_PUBLIC_FLY_TRIP_MODE=true expo export --platform web",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "build:completo": "expo export --platform web"
   },
   "private": true
 }
