@@ -1,18 +1,19 @@
 # Onde o trabalho parou
 
-Atualizado em 04/09/2026, fim do dia.
+Atualizado em 06/09/2026, fim do dia.
 
 Este arquivo existe para uma sessão nova saber exatamente onde pegar, sem
 reler a conversa anterior. **Mantenha-o ao fim de cada fase.**
 
 ---
 
-## Onde retomar — 04/09/2026, fim do dia
+## Onde retomar — 06/09/2026, fim do dia
 
-**Fases 8, 9 e 10 construídas. Nenhuma das três foi provada contra banco.**
-Leia o bloqueio abaixo antes de qualquer coisa: ele vale para as três.
+**Fases 8, 9, 10 e 11 construídas. Nenhuma das quatro foi provada contra
+banco.** Leia o bloqueio abaixo antes de qualquer coisa: ele vale para as
+quatro.
 
-### 🔴 Bloqueio único — onze migrations não aplicadas
+### 🔴 Bloqueio único — quinze migrations não aplicadas
 
 Nenhuma está no projeto `ptmifjnfskwipjjxauns`:
 
@@ -21,6 +22,7 @@ Nenhuma está no projeto `ptmifjnfskwipjjxauns`:
 | 8    | `20260903000000_fila_e_sla` · `_010000_mapa` · `_020000_realtime_da_fila` · `_030000_atendimento_com_contexto` |
 | 9    | `20260904000000_album_e_quest` · `_010000_galeria` · `_020000_encantamento` · `_030000_influenciador`          |
 | 10   | `20260905000000_assistente` · `_010000_planejador` · `_020000_mala`                                            |
+| 11   | `20260906000000_operacao` · `_010000_escala_e_inventario` · `_020000_relatorios` · `_030000_cofre_da_equipe`   |
 
 **Por que não apliquei:** não há token da CLI nesta máquina
 (`~/.supabase/access-token` não existe), não há Docker, e o MCP do Supabase
@@ -31,55 +33,77 @@ do IMMORTALS. Os `.env.local` têm só a chave publicável, como manda a regra.
 ./node_modules/.bin/supabase login && ./node_modules/.bin/supabase db push
 ```
 
-Enquanto não rodar, as telas novas abrem em estado de erro e **nenhuma das
-149 asserções pgTAP das Fases 8, 9 e 10 foi executada**. A primeira prova
-delas será o job **Migrations e RLS** no push.
+Enquanto não rodar, as telas novas abrem em estado de erro e **238 das 604
+asserções pgTAP nunca foram executadas**. A primeira prova delas será o job
+**Migrations e RLS** no push.
 
-### ⚠️ Risco novo na esteira: `deno check` com dependência npm
+### ⚠️ Duas migrations da Fase 11 mudam comportamento existente
+
+Ao contrário de todas as anteriores, estas duas **tiram** coisas:
+
+1. `20260906000000_operacao` remove as policies de escrita de `app_config` e
+   de `feature_flags`, e revoga `insert/update/delete` de `authenticated` nas
+   duas. Qualquer código que escrevesse nelas direto passa a falhar. Nenhum
+   escrevia — conferido —, mas se alguém escrever depois, é aqui.
+2. A mesma migration troca a policy de leitura de `audit_logs`: era `admin`,
+   passa a ser operador global.
+
+### ⚠️ Risco que continua: `deno check` com dependência npm
 
 A Edge Function `assistente` importa `npm:@anthropic-ai/sdk@0.123.0` — é o SDK
-oficial, e é a forma correta de falar com a API. Mas o passo **Tipos das Edge
-Functions** roda `deno check`, que precisa resolver esse pacote pela rede.
-Nenhuma função anterior tinha dependência npm (as outras usam `jsr:`). Se
-esse passo falhar no primeiro push, é aí. Não consegui testar: não há Deno
-nesta máquina.
+oficial, e é a forma correta. Mas o passo **Tipos das Edge Functions** roda
+`deno check`, que precisa resolver esse pacote pela rede. Nenhuma função
+anterior tinha dependência npm. Não consegui testar: não há Deno nesta máquina.
 
-### Fase 10 — o que existe, e o que não
+### Fase 11 — o que existe, e o que não
 
-Três cortes verticais entregues:
+A entrega 1 é uma **auditoria de paridade** (`docs/quality/PARIDADE.md`): ela
+cruzou os nomes de schema tocados pelo app com os tocados pelos painéis e achou
+**23 lacunas reais de operação**. Dezessete foram fechadas nesta fase; seis
+estão registradas como P56 a P59.
 
-| Corte                   | Entregas §45    | Estado                                              |
-| ----------------------- | --------------- | --------------------------------------------------- |
-| Assistente Fly          | 1, 2, 3, 10, 11 | construído e **desligado** — falta credencial (P53) |
-| Planejador financeiro   | 7               | funciona sozinho, sem integração nenhuma            |
-| Mala Pronta             | 8 (parcial)     | a parte do roteiro; clima é P54                     |
-| Recomendação + feedback | 4               | curadoria com motivo (Fase 5) + feedback (agora)    |
+| Entrega §46                     | Estado                                                    |
+| ------------------------------- | --------------------------------------------------------- |
+| 1 Auditoria de paridade         | ✅ documento + `npm run paridade`                         |
+| 2 Dashboard Hoje                | ✅ `/hoje`                                                |
+| 3 Busca global                  | ✅ no topo do painel                                      |
+| 4 Filas, tarefas e SLAs         | 🟡 fila e tempos sim; **SLA não existe** (P20)            |
+| 5 Papéis e atribuições          | ✅ `/equipe`                                              |
+| 6 Relatórios                    | 🟡 cinco dos seis; patrocinadores é P56                   |
+| 7 Inventário                    | ✅ `/inventario` + entrega no Crew                        |
+| 8 Escala e handoff              | ✅ `/equipe` e Crew `/turno`                              |
+| 9 Logs de auditoria legíveis    | ✅ `/auditoria`, quatro trilhas                           |
+| 10 Feature flags e configuração | ✅ `/configuracao`, com sobreposição por viagem           |
+| 11 Exportações autorizadas      | ✅ registradas — e a tela diz que registro não é porteiro |
+| 12 Runbooks e treinamento       | ✅ `docs/operations/RUNBOOKS.md`                          |
+| 13 Simulação de um dia          | 🟡 escrita como teste pgTAP; **nunca rodou**              |
 
-**Não construídas:** tradução por adapter (5), Fly Social (6), Fly Capsule e
-Story do Dia (9). Motivos em **P54** e **P55** — as duas primeiras dependem de
-provedor homologado, e Fly Social depende de política de moderação escrita.
+Telas novas no Fly Ops: Hoje, ficha do hóspede (`/clientes/:id`), Logística,
+Avisos, Equipe, Configuração, Auditoria, Relatórios e Inventário. No Fly Crew:
+Turno.
 
-Porquês de cada escolha: **D220 a D230** no decision log.
+Porquês de cada escolha: **D231 a D251** no decision log.
 
 ### O que só o dono decide, e está travando
 
-| #       | O quê                                | Trava                                     |
-| ------- | ------------------------------------ | ----------------------------------------- |
-| P47     | Regra de tax-free                    | estimativa nas notas e no planejador      |
-| —       | Quanto vale 1 Fly Point em dinheiro  | o "≈ R$ X" do design da Carteira          |
-| P45     | Catálogo real de benefícios          | os 6 dizem "(demonstração)"               |
-| P46     | Critérios e prêmios do ranking       | o período diz "(demonstração)"            |
-| P43     | Confirmar a moeda (assumi AED)       | rótulos de preço                          |
-| P09/P38 | Parceiro de pagamento                | recarga, transferência, Fly Card, criador |
-| P20     | Prazo de aceite e de resposta        | `support.sla_minutes` está `PENDENTE`     |
-| P48     | Endereços do mapa                    | camada de saúde e de parceiros            |
-| P49     | `expo-location` + texto de permissão | localização no aparelho, inclusive no SOS |
-| P50     | `expo-camera` e `view-shot`          | ler QR pela câmera; card como imagem      |
-| P51     | Teto do orçamento de encantamento    | limite por tarefa de surpresa             |
-| P52     | Conteúdo do álbum e do Fly Quest     | álbum com o que ver                       |
-| **P53** | **Credencial do provedor de modelo** | **o Assistente Fly responder de verdade** |
-| **P54** | **Provedor de tradução e de clima**  | tradução; clima na Mala Pronta            |
-| **P55** | **Política de moderação**            | Fly Social                                |
+| #       | O quê                                  | Trava                                     |
+| ------- | -------------------------------------- | ----------------------------------------- |
+| P47     | Regra de tax-free                      | estimativa nas notas e no planejador      |
+| —       | Quanto vale 1 Fly Point em dinheiro    | o "≈ R$ X" do design da Carteira          |
+| P45     | Catálogo real de benefícios            | os 6 dizem "(demonstração)"               |
+| P46     | Critérios e prêmios do ranking         | o período diz "(demonstração)"            |
+| P43     | Confirmar a moeda (assumi AED)         | rótulos de preço                          |
+| P09/P38 | Parceiro de pagamento                  | recarga, transferência, Fly Card, criador |
+| P20     | Prazo de aceite e de resposta          | `support.sla_minutes` está `PENDENTE`     |
+| P48     | Endereços do mapa                      | camada de saúde e de parceiros            |
+| P49     | `expo-location` + texto de permissão   | localização no aparelho, inclusive no SOS |
+| P50     | `expo-camera` e `view-shot`            | ler QR pela câmera; card como imagem      |
+| P51     | Teto do orçamento de encantamento      | limite por tarefa de surpresa             |
+| P52     | Conteúdo do álbum e do Fly Quest       | álbum com o que ver                       |
+| P53     | Credencial do provedor de modelo       | o Assistente Fly responder de verdade     |
+| P54     | Provedor de tradução e de clima        | tradução; clima na Mala Pronta            |
+| P55     | Política de moderação                  | Fly Social                                |
+| **P56** | **Existe patrocinador como entidade?** | **relatório de patrocínio de verdade**    |
 
 ---
 
@@ -98,10 +122,11 @@ Porquês de cada escolha: **D220 a D230** no decision log.
 | **8**  | **Mapa, Bases Fly, concierge e SOS (§43)**            | 🟡 **construída, sem prova**   |
 | **9**  | **Álbum, Fly Quest, galeria e encantamento (§44)**    | 🟡 **construída, sem prova**   |
 | **10** | **Inteligência e integrações avançadas (§45)**        | 🟡 **3 cortes, sem prova**     |
+| **11** | **Consolidação Fly Ops e Fly Crew (§46)**             | 🟡 **construída, sem prova**   |
 
-Prova: `npm run verify` (**424 testes**, exit 0 nesta máquina) e a suíte
-pgTAP (**515 asserções**, 25 arquivos) — das quais **149 nunca rodaram**: as
-das Fases 8, 9 e 10, que dependem das migrations acima. A esteira agora também roda `deno check` nas Edge
+Prova: `npm run verify` (**434 testes**, exit 0 nesta máquina) e a suíte
+pgTAP (**604 asserções**, 29 arquivos) — das quais **238 nunca rodaram**: as
+das Fases 8, 9, 10 e 11, que dependem das migrations acima. A esteira agora também roda `deno check` nas Edge
 Functions — elas não são workspace do npm e ficavam fora do `typecheck`.
 
 ---

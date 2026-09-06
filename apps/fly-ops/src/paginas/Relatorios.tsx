@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../auth/client';
+import { paraCsv } from '../dominio/csv';
 
 /**
  * Relatórios (§46, entrega 6) com exportação registrada (entrega 11).
@@ -37,16 +38,6 @@ interface Viagem {
 }
 
 type Linhas = Record<string, unknown>[];
-
-function paraCsv(linhas: Linhas): string {
-  const primeira = linhas[0];
-  if (primeira === undefined) return '';
-  const colunas = Object.keys(primeira);
-  const celula = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  return [colunas.join(','), ...linhas.map((l) => colunas.map((c) => celula(l[c])).join(','))].join(
-    '\n',
-  );
-}
 
 function dinheiro(centavos: unknown, moeda = ''): string {
   if (typeof centavos !== 'number') return '—';

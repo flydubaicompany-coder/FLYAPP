@@ -1,6 +1,6 @@
 # Matriz de testes
 
-Estado em 04/09/2026, **Fase 10** (§45). As Fases 0 a 7 estao entregues; 8, 9 e 10 estao construidas e sem prova de banco.
+Estado em 06/09/2026, **Fase 11** (§46). As Fases 0 a 7 estao entregues; 8, 9, 10 e 11 estao construidas e sem prova de banco.
 
 ## O que roda hoje
 
@@ -16,10 +16,10 @@ npm run verify   # lint + typecheck + testes
 | Consentimento, PII, taxonomia           | `packages/analytics/src`          | **19**  | ✅ passa |
 | Adapter de pagamento e assinatura       | `packages/payments/src`           | 25      | ✅ passa |
 | App cliente                             | `apps/fly-mobile/src`             | **230** | ✅ passa |
-| Fly Ops: tema, slug e tempo da fila     | `apps/fly-ops/src`                | **20**  | ✅ passa |
+| Fly Ops: tema, slug, tempo da fila, CSV | `apps/fly-ops/src`                | **30**  | ✅ passa |
 | Tema do Fly Crew                        | `apps/fly-crew/src/theme.test.ts` | 3       | ✅ passa |
 | Assistente: barreira de dado e custo    | `packages/assistant/src`          | **19**  | ✅ passa |
-| **Total**                               |                                   | **424** | ✅       |
+| **Total**                               |                                   | **434** | ✅       |
 
 Dentro do app cliente, os grupos que mais importam:
 
@@ -34,37 +34,50 @@ Dentro do app cliente, os grupos que mais importam:
 | **Falha de rede ≠ recusa do servidor**    | `src/rede/falha.test.ts`         |
 | **Cache de contatos para offline**        | `src/assist/cache.test.ts`       |
 
-## RLS e regra de negócio: 515 asserções
+## RLS e regra de negócio: 604 asserções em 29 arquivos
 
 A suíte pgTAP roda a cada push, no job **Migrations e RLS**.
 
-⚠️ **As 149 asserções das Fases 8, 9 e 10 ainda não rodaram.** Elas foram
-escritas nesta máquina, que não tem Docker, e as onze migrations de 03 a
-05/09 ainda não estão aplicadas no projeto — nem há token da CLI aqui para
+⚠️ **238 asserções nunca rodaram** — as das Fases 8, 9, 10 e 11. Elas foram
+escritas nesta máquina, que não tem Docker, e as quinze migrations de 03 a
+06/09 ainda não estão aplicadas no projeto — nem há token da CLI aqui para
 aplicá-las. A primeira prova delas será o job **Migrations e RLS** no push.
 As 366 anteriores estão verdes.
 
-| Arquivo                       | Asserções | Cobre                                                                                           |
-| ----------------------------- | --------- | ----------------------------------------------------------------------------------------------- |
-| `foundation_rls.test.sql`     | 31        | espinha de sistema, papéis, auditoria append-only                                               |
-| `fly_id_rls.test.sql`         | 39        | isolamento entre clientes, atribuição, vínculo familiar, consentimento                          |
-| `advance_onboarding.test.sql` | 9         | transição de onboarding decidida no servidor                                                    |
-| `invitations_rpc.test.sql`    | 8         | quem pode convidar, e com qual papel                                                            |
-| `account_deletion.test.sql`   | 7         | exclusão de conta, inclusive de conta nascida de convite                                        |
-| `home_events.test.sql`        | 21        | estado da Home no fuso do destino, publicação, categoria crítica                                |
-| `isolamento_viagens.test.sql` | 10        | **uma viagem não vaza para outra** — ver abaixo                                                 |
-| `minha_viagem.test.sql`       | 52        | roteiro, cofre, QR, presença                                                                    |
-| `passaporte.test.sql`         | 18        | quem lê o número, e o registro de quem leu                                                      |
-| `passeios.test.sql`           | 67        | catálogo, carrinho, pedido, pagamento, webhook, participantes, reembolso, vitrine               |
-| `carteira.test.sql`           | 41        | ledger append-only, nível, benefício, resgate atômico, privilégio                               |
-| `ranking.test.sql`            | 18        | opt-in, pontuação normalizada, premiação, finalistas depois do fim                              |
-| `vencimento.test.sql`         | 9         | vencimento FIFO de pontos                                                                       |
-| `notas.test.sql`              | 11        | nota fiscal, duplicidade, tax-free ainda sem regra                                              |
-| `documentos_equipe.test.sql`  | 7         | equipe lê documento de quem opera, e não escreve                                                |
-| `refeicoes.test.sql`          | 14        | prazo gravado, exceção com justificativa, opção da refeição certa                               |
-| `restaurantes.test.sql`       | 12        | reserva é pedido, recusa exige motivo, pedido não se apaga                                      |
-| **`atendimento.test.sql`**    | **31**    | **os três níveis, thread, estranho negado, tempos, atribuição, contexto conferido, privilégio** |
-| **`mapa.test.sql`**           | **11**    | **mapa nasce vazio, ativo exige coordenada, cliente não publica**                               |
+Tudo que este documento afirma sobre RLS, GRANT e reconciliação nas quatro
+últimas fases é **leitura de código**, e não execução.
+
+| Arquivo                            | Asserções | Cobre                                                                                            |
+| ---------------------------------- | --------- | ------------------------------------------------------------------------------------------------ |
+| `foundation_rls.test.sql`          | 31        | espinha de sistema, papéis, auditoria append-only                                                |
+| `fly_id_rls.test.sql`              | 39        | isolamento entre clientes, atribuição, vínculo familiar, consentimento                           |
+| `advance_onboarding.test.sql`      | 9         | transição de onboarding decidida no servidor                                                     |
+| `invitations_rpc.test.sql`         | 8         | quem pode convidar, e com qual papel                                                             |
+| `account_deletion.test.sql`        | 7         | exclusão de conta, inclusive de conta nascida de convite                                         |
+| `home_events.test.sql`             | 21        | estado da Home no fuso do destino, publicação, categoria crítica                                 |
+| `isolamento_viagens.test.sql`      | 10        | **uma viagem não vaza para outra** — ver abaixo                                                  |
+| `minha_viagem.test.sql`            | 52        | roteiro, cofre, QR, presença                                                                     |
+| `passaporte.test.sql`              | 18        | quem lê o número, e o registro de quem leu                                                       |
+| `passeios.test.sql`                | 67        | catálogo, carrinho, pedido, pagamento, webhook, participantes, reembolso, vitrine                |
+| `carteira.test.sql`                | 41        | ledger append-only, nível, benefício, resgate atômico, privilégio                                |
+| `ranking.test.sql`                 | 18        | opt-in, pontuação normalizada, premiação, finalistas depois do fim                               |
+| `vencimento.test.sql`              | 9         | vencimento FIFO de pontos                                                                        |
+| `notas.test.sql`                   | 11        | nota fiscal, duplicidade, tax-free ainda sem regra                                               |
+| `documentos_equipe.test.sql`       | 7         | equipe lê documento de quem opera, e não escreve                                                 |
+| `refeicoes.test.sql`               | 14        | prazo gravado, exceção com justificativa, opção da refeição certa                                |
+| `restaurantes.test.sql`            | 12        | reserva é pedido, recusa exige motivo, pedido não se apaga                                       |
+| **`atendimento.test.sql`**         | **31**    | **os três níveis, thread, estranho negado, tempos, atribuição, contexto conferido, privilégio**  |
+| **`mapa.test.sql`**                | **11**    | **mapa nasce vazio, ativo exige coordenada, cliente não publica**                                |
+| `album.test.sql`                   | 27        | figurinha, Dia Completo, resgate de código, bucket privado do álbum                              |
+| `galeria.test.sql`                 | 16        | liberação de mídia, autorização de imagem, revogação retroativa                                  |
+| `encantamento.test.sql`            | 15        | escuta ativa que o cliente não lê, aprovação por papel, teaser                                   |
+| `influenciador.test.sql`           | 14        | modo criador por pessoa e por viagem, entregável sem auto-aprovação                              |
+| `assistente.test.sql`              | 15        | corrida e chamada de ferramenta, recusa registrada, cliente não escreve custo                    |
+| `planejador.test.sql`              | 12        | gasto anotado que **nem a equipe lê**, orçamento próprio                                         |
+| **`operacao.test.sql`**            | **30**    | **papel, atribuição, último admin, config e flag sem policy de escrita, aviso, exportação**      |
+| **`escala_e_inventario.test.sql`** | **21**    | **escala que o cliente não lê, passagem assumida, estoque append-only, saldo negativo recusado** |
+| **`relatorios.test.sql`**          | **14**    | **papel mínimo por relatório, e a reconciliação: o pedido que não fecha aparece**                |
+| **`dia_completo.test.sql`**        | **24**    | **um dia inteiro de operação, na ordem — §46, entrega 13**                                       |
 
 Antes de a esteira existir, as 22 asserções equivalentes já tinham sido
 executadas via SQL direto no projeto `ewgbseesocekvhiiscnb`, dentro de uma
@@ -99,6 +112,23 @@ Para rodar na máquina (exige Docker):
 ```bash
 npm run db:start && npm run db:reset && npm run db:test
 ```
+
+### A simulação de um dia (§46, entrega 13)
+
+A §46 pede uma simulação de um dia completo de operação, e o critério é
+"simulação encontra e resolve bloqueadores". Uma simulação escrita em documento
+não encontra nada — ela descreve o que deveria acontecer, e quem lê concorda.
+
+Por isso ela é um teste: `dia_completo.test.sql` percorre o dia na ordem em que
+a operação o vive, com os papéis de verdade e a RLS ligada. Chega um guia,
+recebe papel, atribuição e turno; a operação avisa a viagem; o guia registra
+presença; o cliente abre um SOS e alguém assume e resolve; a equipe ouve algo e
+vira surpresa aprovada; entrega um press kit; o pedido do dia fecha com o
+pagamento; o turno é passado e alguém assume; o relatório conta o dia; a trilha
+registra quem fez o quê.
+
+Cada passo depende do anterior — se o primeiro estiver errado, o terceiro não
+roda. **Ela ainda não rodou**, pela mesma razão das outras 238.
 
 ## Verificação manual feita
 

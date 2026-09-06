@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '../auth/client';
+import { paraCsv } from '../dominio/csv';
 
 /**
  * Trilha legível (§46, entrega 9) e exportação registrada (entrega 11).
@@ -95,17 +96,6 @@ const ROTULO_QR: Record<string, string> = {
 
 function quando(iso: string): string {
   return new Date(iso).toLocaleString('pt-BR');
-}
-
-/** CSV com aspas dobradas: nome de cliente com vírgula é comum. */
-function paraCsv(linhas: Record<string, unknown>[]): string {
-  const primeira = linhas[0];
-  if (primeira === undefined) return '';
-  const colunas = Object.keys(primeira);
-  const celula = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  return [colunas.join(','), ...linhas.map((l) => colunas.map((c) => celula(l[c])).join(','))].join(
-    '\n',
-  );
 }
 
 export function Auditoria() {
