@@ -5,6 +5,7 @@ import { AppHeader, EmptyState, ErrorState, LoadingSkeleton, Screen, Text } from
 import { CardPasseio } from '@/passeios/CardPasseio';
 import { usePasseios } from '@/passeios/usePasseios';
 import { useSuporteFly } from '@/trip';
+import { useSession } from '@/auth/session';
 
 /**
  * Mais experiências — Trip Mode.
@@ -23,6 +24,7 @@ import { useSuporteFly } from '@/trip';
  * viagem em que alguém vai clicar de verdade.
  */
 export default function MaisExperiencias() {
+  const { state: sessao } = useSession();
   const { pagina, carregando, erro, carregarMais, acabou } = usePasseios({});
   const suporte = useSuporteFly();
   const [pedindo, setPedindo] = useState<string | null>(null);
@@ -52,10 +54,23 @@ export default function MaisExperiencias() {
       </Text>
 
       {recado ? <ErrorState description={recado} /> : null}
-      {erro ? <ErrorState description={erro} /> : null}
-      {carregando && pagina.itens.length === 0 ? <LoadingSkeleton /> : null}
 
-      {!carregando && pagina.itens.length === 0 && !erro ? (
+      {/* Deslogado, o catalogo responde "permission denied for table tours" —
+          texto do Postgres, que nunca deve chegar ao cliente. A causa e uma
+          so e tem nome: falta sessao. */}
+      {sessao.kind !== 'signedIn' ? (
+        <EmptyState
+          title="Entre para ver as experiências"
+          description="As experiências da sua viagem aparecem aqui depois que você entra na conta."
+        />
+      ) : erro ? (
+        <ErrorState description={erro} />
+      ) : null}
+      {sessao.kind === 'signedIn' && carregando && pagina.itens.length === 0 ? (
+        <LoadingSkeleton />
+      ) : null}
+
+      {sessao.kind === 'signedIn' && !carregando && pagina.itens.length === 0 && !erro ? (
         <EmptyState
           title="Nada por aqui ainda"
           description="A Fly publica as experiências da viagem por aqui. Fale com a equipe se quiser algo específico."

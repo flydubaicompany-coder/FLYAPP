@@ -1,7 +1,17 @@
 import { useState } from 'react';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import { palette, radius, space, touchTarget } from '@/theme';
-import { AppHeader, Botao, Card, ErrorState, Kicker, LoadingSkeleton, Screen, Text } from '@/ui';
+import {
+  AppHeader,
+  Botao,
+  Card,
+  EmptyState,
+  ErrorState,
+  Kicker,
+  LoadingSkeleton,
+  Screen,
+  Text,
+} from '@/ui';
 import { useSession } from '@/auth/session';
 import { useViagem } from '@/viagem/useViagem';
 import {
@@ -79,10 +89,20 @@ export default function DocumentosDaViagem() {
         </Text>
       ) : null}
 
-      {data.kind === 'loading' ? <LoadingSkeleton /> : null}
+      {/* Sem sessao o hook fica em `loading` para sempre — nao ha dono para
+          consultar. Um "Carregando" eterno e o pior estado possivel: parece
+          lentidao, e e falta de login. */}
+      {sessao.kind !== 'signedIn' ? (
+        <EmptyState
+          title="Entre para ver seus documentos"
+          description="Seu passaporte e sua CNH ficam no cofre da sua conta Fly."
+        />
+      ) : null}
+
+      {sessao.kind === 'signedIn' && data.kind === 'loading' ? <LoadingSkeleton /> : null}
       {data.kind === 'error' ? <ErrorState description={data.message} /> : null}
 
-      {data.kind === 'ready'
+      {sessao.kind === 'signedIn' && data.kind === 'ready'
         ? TIPOS.map((tipo) => {
             const doc = data.porTipo[tipo];
             return (
