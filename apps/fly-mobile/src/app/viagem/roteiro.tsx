@@ -1,3 +1,5 @@
+import { emModoViagem } from '@/trip';
+import TripRoteiro from '@/trip/TripRoteiro';
 import { useCallback, useEffect, useState } from 'react';
 import { router, Link } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -66,7 +68,16 @@ interface Dia {
   comprados: Comprado[];
 }
 
-export default function RoteiroScreen() {
+/**
+ * Trip Mode desenha o roteiro em timeline (`Fly Trip Mode.dc.html`). A tela
+ * completa fica inteira abaixo e volta quando a variavel sair.
+ */
+export default function Roteiro() {
+  if (emModoViagem()) return <TripRoteiro />;
+  return <RoteiroScreen />;
+}
+
+function RoteiroScreen() {
   const { data: viagemData } = useViagem();
   const [dias, setDias] = useState<Dia[] | null>(null);
   const [erro, setErro] = useState<string | null>(null);

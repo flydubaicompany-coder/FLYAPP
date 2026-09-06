@@ -96,6 +96,9 @@ export const raio = {
   caixa: 20,
   pilula: 18,
   chip: 14,
+  chipDia: 16,
+  nota: 14,
+  foto: 18,
   icone: 16,
   iconePequeno: 11,
   barra: 33,
@@ -112,7 +115,13 @@ export const raio = {
 export const fonte = {
   destaque: { tamanho: 40, peso: '700', altura: 0.98, espaco: -0.042 },
   titulo: { tamanho: 34, peso: '700', altura: 1.03, espaco: -0.04 },
+  /** O título de tela interna: 26px, mais leve que o destaque da Home. */
+  tituloTela: { tamanho: 26, peso: '600', altura: 1.06, espaco: -0.032 },
   secao: { tamanho: 18, peso: '650', altura: 1.2, espaco: -0.024 },
+  /** O número do dia no seletor do roteiro. */
+  numeroDia: { tamanho: 16, peso: '650', altura: 1.1, espaco: -0.02 },
+  /** "QUI", "SEX" — o rótulo acima do número. Espaçamento positivo. */
+  diaDaSemana: { tamanho: 9, peso: '700', altura: 1.2, espaco: 0.1 },
   cartaoTitulo: { tamanho: 17, peso: '650', altura: 1.2, espaco: -0.022 },
   corpo: { tamanho: 14, peso: '400', altura: 1.5, espaco: -0.012 },
   corpoForte: { tamanho: 14, peso: '600', altura: 1.4, espaco: -0.012 },

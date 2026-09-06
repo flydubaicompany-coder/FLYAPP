@@ -36,6 +36,15 @@ export interface SuporteFly {
   abrirSuporte: (assunto: AssuntoDeSuporte) => Promise<boolean>;
   /** Abre o WhatsApp pedindo uma experiência. */
   pedirExperiencia: (nome: string) => Promise<boolean>;
+  /**
+   * A mensagem exata que será enviada, para a folha mostrar antes de enviar.
+   *
+   * É o detalhe mais generoso do arquivo de design: quem pede ajuda às onze da
+   * noite vê o que a Fly vai receber, e não descobre depois que mandou só
+   * "Olá". Também é o que torna a mensagem editável na conversa, se a pessoa
+   * quiser acrescentar algo antes de tocar em enviar.
+   */
+  previa: (assunto: AssuntoDeSuporte) => string;
 }
 
 export function useSuporteFly(): SuporteFly {
@@ -101,5 +110,6 @@ export function useSuporteFly(): SuporteFly {
     carregando,
     abrirSuporte: (assunto) => abrir(mensagemDeSuporte(assunto, contexto())),
     pedirExperiencia: (nome) => abrir(mensagemDeExperiencia(nome, contexto())),
+    previa: (assunto) => mensagemDeSuporte(assunto, contexto()),
   };
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { usePathname, useRouter } from 'expo-router';
 import { View } from 'react-native';
-import { AssistSheet } from '@/navigation';
+import { AssistSheet, FloatingActionRail } from '@/navigation';
 import { ASSUNTOS, type AssuntoDeSuporte } from './whatsapp';
 import { TripChrome } from './TripChrome';
 import { emModoViagem } from './modo';
@@ -60,6 +60,15 @@ export function CascaDaViagem() {
       style={{ position: 'absolute', left: 0, right: 0, bottom: 0, top: 0 }}
       pointerEvents="box-none"
     >
+      {/* A boia do Fly Assist, como sempre foi. O carrinho nao aparece: nao ha
+          checkout nesta viagem, e um carrinho que nunca enche ensina a
+          ignorar o canto da tela onde tambem mora o pedido de ajuda. */}
+      <FloatingActionRail
+        showCart={false}
+        onOpenCart={() => undefined}
+        onOpenAssist={() => setFolhaAberta(true)}
+      />
+
       <TripChrome
         ativo={destinoDoCaminho(caminho)}
         onIr={(destino) => {
@@ -69,7 +78,6 @@ export function CascaDaViagem() {
           if (destino === 'roteiro') roteador.push('/viagem/roteiro');
           else roteador.replace(alvo as '/' | '/viagem' | '/carteira' | '/perfil');
         }}
-        onAjuda={() => setFolhaAberta(true)}
       />
 
       <AssistSheet
@@ -78,6 +86,7 @@ export function CascaDaViagem() {
         onChoose={() => setFolhaAberta(false)}
         assuntosDaViagem={ASSUNTOS.map((a) => ({ chave: a.chave, rotulo: a.rotulo }))}
         canalPronto={suporte.pronto}
+        previaDaMensagem={(chave) => suporte.previa(chave as AssuntoDeSuporte)}
         onEscolherAssunto={(chave) => {
           void suporte.abrirSuporte(chave as AssuntoDeSuporte);
         }}

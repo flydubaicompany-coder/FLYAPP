@@ -1,3 +1,5 @@
+import { emModoViagem } from '@/trip';
+import TripCarteiraBloqueada from '@/trip/TripCarteiraBloqueada';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
@@ -157,7 +159,16 @@ function dataCurta(iso: string): string {
   return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
 }
 
-export default function WalletScreen() {
+/**
+ * No Trip Mode a Carteira e a tela bloqueada do desenho: a aba continua na
+ * barra, com cadeado, e abre isto. A Carteira completa fica intacta abaixo.
+ */
+export default function Carteira() {
+  if (emModoViagem()) return <TripCarteiraBloqueada />;
+  return <WalletScreen />;
+}
+
+function WalletScreen() {
   const { state } = useSession();
   const router = useRouter();
   const userId = state.kind === 'signedIn' ? state.profile.id : null;

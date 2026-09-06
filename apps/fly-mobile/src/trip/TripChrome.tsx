@@ -17,6 +17,17 @@ import { casca, cor, marca, raio, sombra, tipo } from './design';
  *
  * O botão central é a asa dourada, sem rótulo — é o único item da barra sem
  * texto, e é assim que ele se lê como botão e não como aba.
+ *
+ * ## O botão de ajuda não está aqui
+ *
+ * O arquivo de design põe uma pílula verde de WhatsApp acima da barra. Ela foi
+ * construída e **substituída pela boia** que o app já tinha, por decisão do
+ * dono: a boia é a marca do Fly Assist desde a Fase 1, tem o anel que pulsa, e
+ * a §4.2 já a exige presente nas telas críticas. O WhatsApp passou para dentro
+ * da folha que ela abre — que é onde o próprio arquivo de design já o coloca,
+ * no botão "Abrir WhatsApp da Fly".
+ *
+ * Resultado: um botão de ajuda no produto, e não dois.
  */
 
 type Destino = 'home' | 'roteiro' | 'viagem' | 'carteira' | 'perfil';
@@ -24,7 +35,6 @@ type Destino = 'home' | 'roteiro' | 'viagem' | 'carteira' | 'perfil';
 export interface TripChromeProps {
   ativo: Destino;
   onIr: (destino: Destino) => void;
-  onAjuda: () => void;
   /** Carteira aparece com cadeado enquanto a regra de pontos for pendência. */
   carteiraBloqueada?: boolean;
 }
@@ -174,7 +184,7 @@ function Aba({
   );
 }
 
-export function TripChrome({ ativo, onIr, onAjuda, carteiraBloqueada = true }: TripChromeProps) {
+export function TripChrome({ ativo, onIr, carteiraBloqueada = true }: TripChromeProps) {
   const insets = useSafeAreaInsets();
   const naViagem = ativo === 'viagem';
 
@@ -188,29 +198,6 @@ export function TripChrome({ ativo, onIr, onAjuda, carteiraBloqueada = true }: T
         style={[estilos.veu, { height: casca.veuAltura + insets.bottom }]}
         pointerEvents="none"
       />
-
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Preciso de ajuda"
-        accessibilityHint="Abre o suporte da Fly pelo WhatsApp"
-        onPress={onAjuda}
-        style={({ pressed }) => [
-          estilos.zap,
-          { bottom: casca.zapDeBaixo + insets.bottom },
-          sombra.zap,
-          pressed && estilos.apertado,
-        ]}
-        testID="trip-ajuda"
-      >
-        {/* O gradiente **envolve** o conteudo, em vez de ficar atras dele por
-            `absoluteFill`. No React Native Web um filho posicionado pinta
-            acima dos irmaos estaticos: o glifo existia, tinha 18x18 e o `fill`
-            certo, e ficava embaixo do proprio fundo do botao. */}
-        <LinearGradient colors={[cor.zapTopo, cor.zapBase]} style={estilos.zapConteudo}>
-          <GlifoWhatsapp />
-          <Text style={[tipo('legenda'), estilos.zapTexto]}>Preciso de ajuda</Text>
-        </LinearGradient>
-      </Pressable>
 
       <View
         style={[estilos.barra, { bottom: casca.barraInferior + insets.bottom }, sombra.barra]}
@@ -276,25 +263,6 @@ const estilos = StyleSheet.create({
     right: 0,
     bottom: 0,
     zIndex: 70,
-  },
-  zap: {
-    position: 'absolute',
-    right: casca.zapDireita,
-    zIndex: 78,
-    height: casca.zapAltura,
-    borderRadius: casca.zapAltura / 2,
-    overflow: 'hidden',
-  },
-  zapConteudo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 9,
-    height: '100%',
-    paddingHorizontal: 18,
-  },
-  zapTexto: {
-    color: cor.zapTexto,
-    fontWeight: '700',
   },
   barra: {
     position: 'absolute',

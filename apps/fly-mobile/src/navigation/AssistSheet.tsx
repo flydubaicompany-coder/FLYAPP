@@ -1,6 +1,8 @@
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { palette, radius, shadowStyle, space, touchTarget } from '@/theme';
+import Svg, { Path } from 'react-native-svg';
 import { Kicker, Text } from '@/ui';
 
 /**
@@ -50,6 +52,8 @@ export interface AssistSheetProps {
   onEscolherAssunto?: (chave: string) => void;
   /** Falso = nao ha numero configurado, e a folha diz isso em vez de agir. */
   canalPronto?: boolean;
+  /** O texto que sera enviado, para a pessoa ler antes de tocar em enviar. */
+  previaDaMensagem?: (chave: string) => string;
 }
 
 interface Option {
@@ -96,9 +100,17 @@ export function AssistSheet({
   assuntosDaViagem,
   onEscolherAssunto,
   canalPronto = true,
+  previaDaMensagem,
 }: AssistSheetProps) {
   const insets = useSafeAreaInsets();
   const modoViagem = assuntosDaViagem !== undefined && assuntosDaViagem.length > 0;
+  const [assuntoEscolhido, setAssuntoEscolhido] = useState<string | null>(null);
+
+  // Reabrir a folha nao pode trazer a escolha da vez passada: quem abre de novo
+  // costuma ter outro problema.
+  useEffect(() => {
+    if (!visible) setAssuntoEscolhido(null);
+  }, [visible]);
 
   return (
     <Modal
@@ -143,13 +155,12 @@ export function AssistSheet({
                 accessibilityLabel={assunto.rotulo}
                 accessibilityHint="Abre o WhatsApp da Fly com a mensagem pronta"
                 disabled={!canalPronto}
-                onPress={() => {
-                  onClose();
-                  onEscolherAssunto?.(assunto.chave);
-                }}
+                accessibilityState={{ selected: assuntoEscolhido === assunto.chave }}
+                onPress={() => setAssuntoEscolhido(assunto.chave)}
                 style={({ pressed }) => [
                   styles.option,
                   assunto.chave === 'urgente' && styles.optionSos,
+                  assuntoEscolhido === assunto.chave && styles.optionConfirming,
                   pressed && styles.optionPressed,
                   !canalPronto && styles.optionDesligada,
                 ]}
@@ -171,6 +182,43 @@ export function AssistSheet({
                 </View>
               </Pressable>
             ))}
+
+            {assuntoEscolhido && previaDaMensagem ? (
+              <>
+                <View style={styles.previa}>
+                  <Text variant="caption" style={styles.previaTitulo}>
+                    MENSAGEM QUE SERÁ ENVIADA
+                  </Text>
+                  <ScrollView style={styles.previaRolagem} nestedScrollEnabled>
+                    <Text variant="body" tone="muted" style={styles.previaTexto}>
+                      {previaDaMensagem(assuntoEscolhido)}
+                    </Text>
+                  </ScrollView>
+                </View>
+
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Abrir WhatsApp da Fly"
+                  onPress={() => {
+                    const escolha = assuntoEscolhido;
+                    onClose();
+                    onEscolherAssunto?.(escolha);
+                  }}
+                  style={({ pressed }) => [styles.zap, pressed && styles.zapApertado]}
+                  testID="trip-abrir-whatsapp"
+                >
+                  <Svg width={18} height={18} viewBox="0 0 24 24">
+                    <Path
+                      fill="#06280F"
+                      d="M12 2.2A9.7 9.7 0 0 0 3.7 17l-1.3 4.8 5-1.3A9.7 9.7 0 1 0 12 2.2zm0 1.8a7.9 7.9 0 1 1-4 14.7l-.5-.3-2.9.8.8-2.8-.3-.5A7.9 7.9 0 0 1 12 4z"
+                    />
+                  </Svg>
+                  <Text variant="body" style={styles.zapTexto}>
+                    Abrir WhatsApp da Fly
+                  </Text>
+                </Pressable>
+              </>
+            ) : null}
           </>
         ) : null}
 
@@ -290,6 +338,35 @@ const styles = StyleSheet.create({
   optionDesligada: {
     opacity: 0.45,
   },
+  previa: {
+    marginTop: 14,
+    paddingVertical: 13,
+    paddingHorizontal: 15,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,.035)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,.07)',
+  },
+  previaTitulo: {
+    color: 'rgba(245,245,247,.35)',
+    letterSpacing: 1.3,
+  },
+  // Teto de altura: a mensagem cresce com o contexto, e sem isto ela empurra
+  // o botao de enviar para fora da folha — que e o unico botao que importa.
+  previaRolagem: { marginTop: 8, maxHeight: 96 },
+  previaTexto: { color: 'rgba(245,245,247,.62)', lineHeight: 19 },
+  zap: {
+    marginTop: 14,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#1DB954',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 9,
+  },
+  zapApertado: { opacity: 0.85 },
+  zapTexto: { color: '#06280F', fontWeight: '700' },
   optionPressed: {
     opacity: 0.75,
   },
