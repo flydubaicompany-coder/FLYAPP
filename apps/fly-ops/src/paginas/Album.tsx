@@ -107,6 +107,30 @@ export function Album() {
     pontos: '0',
   });
   const [novaFig, setNovaFig] = useState<Record<string, typeof FIG_VAZIA>>({});
+  /**
+   * Fly Quest entrou na Fase 11.
+   *
+   * A auditoria de paridade (lacuna 10) achou que o Álbum operava capítulo e
+   * figurinha, e a **missão** — que é o outro lado da §14 — não tinha tela
+   * nenhuma. O cliente via a aba de Quest e a operação não conseguia criar uma
+   * missão sem abrir o banco.
+   */
+  const [missoes, setMissoes] = useState<
+    {
+      id: string;
+      codigo: string;
+      titulo: string;
+      pontos: number;
+      publicada: boolean;
+      concluidas: number;
+    }[]
+  >([]);
+  const [novaMissao, setNovaMissao] = useState({
+    codigo: '',
+    titulo: '',
+    briefing: '',
+    pontos: '10',
+  });
 
   const carregarViagens = useCallback(async () => {
     const { data, error } = await supabase()
@@ -123,7 +147,7 @@ export function Album() {
     if (!viagemId) return setCapitulos([]);
     const db = supabase();
 
-    const [capsRes, diasRes, ativRes] = await Promise.all([
+    const [capsRes, diasRes, ativRes, missoesRes] = await Promise.all([
       db
         .from('album_chapters')
         .select(
@@ -137,6 +161,11 @@ export function Album() {
         .select('id, activities(id, title)')
         .eq('trip_id', viagemId)
         .order('day_number'),
+      db
+        .from('quest_missions')
+        .select('id, code, title, points_reward, is_published, quest_completions(id)')
+        .eq('trip_id', viagemId)
+        .order('sort_order'),
     ]);
 
     if (capsRes.error) return setErro(capsRes.error.message);
@@ -186,6 +215,17 @@ export function Album() {
     for (const u of unlocks ?? []) {
       porFigurinha.set(u.sticker_id, (porFigurinha.get(u.sticker_id) ?? 0) + 1);
     }
+
+    setMissoes(
+      (missoesRes.data ?? []).map((m) => ({
+        id: m.id,
+        codigo: m.code,
+        titulo: m.title,
+        pontos: m.points_reward,
+        publicada: m.is_published,
+        concluidas: (m.quest_completions ?? []).length,
+      })),
+    );
 
     const numeroDoDia = new Map((diasRes.data ?? []).map((d) => [d.id, d.day_number]));
 
@@ -328,6 +368,47 @@ export function Album() {
       .eq('id', f.id);
     if (error) setErro(error.message);
     else setRecado(publicada ? 'Figurinha publicada.' : 'Figurinha escondida.');
+    await carregar();
+    setOcupado(false);
+  }
+
+  async function publicarMissao(id: string, publicada: boolean) {
+    setOcupado(true);
+    setErro(null);
+    const { error } = await supabase()
+      .from('quest_missions')
+      .update({ is_published: publicada })
+      .eq('id', id);
+    if (error) setErro(error.message);
+    else setRecado(publicada ? 'Missão publicada.' : 'Missão escondida.');
+    await carregar();
+    setOcupado(false);
+  }
+
+  async function criarMissao() {
+    setOcupado(true);
+    setErro(null);
+    const pontos = Number(novaMissao.pontos);
+    // A constraint do banco recusa missão que não entrega nada. Dizer isso
+    // aqui é melhor do que devolver o erro do Postgres para a tela.
+    if (!Number.isInteger(pontos) || pontos < 1) {
+      setOcupado(false);
+      return setErro('Missão sem ponto e sem figurinha não é missão, é texto.');
+    }
+    const { error } = await supabase()
+      .from('quest_missions')
+      .insert({
+        trip_id: viagemId,
+        code: novaMissao.codigo.trim(),
+        title: novaMissao.titulo.trim(),
+        briefing: novaMissao.briefing.trim() || null,
+        points_reward: pontos,
+      });
+    if (error) setErro(error.message);
+    else {
+      setNovaMissao({ codigo: '', titulo: '', briefing: '', pontos: '10' });
+      setRecado('Missão criada, e escondida até você publicar.');
+    }
     await carregar();
     setOcupado(false);
   }
@@ -642,6 +723,92 @@ export function Album() {
           );
         })
       )}
+
+      <section className="secao">
+        <h2>Fly Quest</h2>
+        <p className="muted">
+          Missão nasce escondida e só aparece quando alguém publica. O código é a prova aceita hoje
+          — geofence é a §14.1 futura, e não há provedor de mapa homologado (P16).
+        </p>
+
+        <div className="tabela-envolvente">
+          <table className="tabela">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Missão</th>
+                <th>Pontos</th>
+                <th>Concluíram</th>
+                <th>Publicada</th>
+              </tr>
+            </thead>
+            <tbody>
+              {missoes.map((m) => (
+                <tr key={m.id}>
+                  <td className="mono">{m.codigo}</td>
+                  <td>{m.titulo}</td>
+                  <td className="mono">{m.pontos}</td>
+                  <td className="mono">{m.concluidas}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className={m.publicada ? 'botao botao--fantasma' : 'botao'}
+                      disabled={ocupado}
+                      onClick={() => void publicarMissao(m.id, !m.publicada)}
+                    >
+                      {m.publicada ? 'Esconder' : 'Publicar'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {missoes.length === 0 ? <p className="muted">Nenhuma missão nesta viagem.</p> : null}
+
+        <div className="form form--linha">
+          <label className="field">
+            <span>Código</span>
+            <input
+              className="mono"
+              placeholder="marina-ao-por-do-sol"
+              value={novaMissao.codigo}
+              onChange={(e) => setNovaMissao({ ...novaMissao, codigo: e.target.value })}
+            />
+          </label>
+          <label className="field">
+            <span>Missão</span>
+            <input
+              value={novaMissao.titulo}
+              onChange={(e) => setNovaMissao({ ...novaMissao, titulo: e.target.value })}
+            />
+          </label>
+          <label className="field">
+            <span>Briefing</span>
+            <input
+              value={novaMissao.briefing}
+              onChange={(e) => setNovaMissao({ ...novaMissao, briefing: e.target.value })}
+            />
+          </label>
+          <label className="field">
+            <span>Pontos</span>
+            <input
+              type="number"
+              min={1}
+              value={novaMissao.pontos}
+              onChange={(e) => setNovaMissao({ ...novaMissao, pontos: e.target.value })}
+            />
+          </label>
+          <button
+            type="button"
+            className="botao"
+            disabled={ocupado || !novaMissao.codigo.trim() || !novaMissao.titulo.trim()}
+            onClick={() => void criarMissao()}
+          >
+            Criar missão
+          </button>
+        </div>
+      </section>
     </>
   );
 }

@@ -64,6 +64,8 @@ interface Conversa {
   saida: number | null;
   centavos: number | null;
   recusadas: number;
+  /** `null` = a pessoa não opinou. Diferente de "achou ruim". */
+  util: boolean | null;
 }
 
 const ROTULO_ACAO: Record<string, string> = {
@@ -119,7 +121,7 @@ export function Auditoria() {
 
   const carregar = useCallback(async () => {
     const db = supabase();
-    const [trilhaRes, qrRes, cofreRes, runsRes, callsRes] = await Promise.all([
+    const [trilhaRes, qrRes, cofreRes, runsRes, callsRes, feedbackRes] = await Promise.all([
       db
         .from('audit_logs')
         .select('id, occurred_at, actor_id, actor_role, action, entity_type, entity_id, metadata')
@@ -143,6 +145,7 @@ export function Auditoria() {
         .order('created_at', { ascending: false })
         .limit(100),
       db.from('assistant_tool_calls').select('run_id, autorizada').limit(1000),
+      db.from('assistant_feedback').select('run_id, util').limit(500),
     ]);
 
     if (trilhaRes.error) return setErro(trilhaRes.error.message);
@@ -163,6 +166,8 @@ export function Auditoria() {
     const nomeDe = new Map(
       (perfis ?? []).map((p) => [p.id, p.preferred_name ?? p.display_name ?? 'Sem nome']),
     );
+
+    const utilPorRun = new Map((feedbackRes.data ?? []).map((f) => [f.run_id, f.util]));
 
     const recusadasPorRun = new Map<string, number>();
     for (const c of callsRes.data ?? []) {
@@ -212,6 +217,7 @@ export function Auditoria() {
         saida: r.tokens_saida,
         centavos: r.custo_estimado_centavos,
         recusadas: recusadasPorRun.get(r.id) ?? 0,
+        util: utilPorRun.get(r.id) ?? null,
       })),
     );
   }, []);
@@ -465,6 +471,7 @@ export function Auditoria() {
                   <th>Resultado</th>
                   <th>Tokens</th>
                   <th>Custo estimado</th>
+                  <th>Serviu?</th>
                   <th>Recusas</th>
                 </tr>
               </thead>
@@ -481,6 +488,7 @@ export function Auditoria() {
                     <td className="mono">
                       {c.centavos === null ? '—' : `${(c.centavos / 100).toFixed(2)}`}
                     </td>
+                    <td>{c.util === null ? '—' : c.util ? 'Sim' : 'Não'}</td>
                     <td className={c.recusadas > 0 ? 'mono pendente' : 'mono'}>{c.recusadas}</td>
                   </tr>
                 ))}

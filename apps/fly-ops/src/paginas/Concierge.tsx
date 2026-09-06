@@ -60,11 +60,33 @@ export function Concierge() {
   const [ocupado, setOcupado] = useState(false);
   const [nota, setNota] = useState<Record<string, string>>({});
   const [soPendentes, setSoPendentes] = useState(true);
+  /**
+   * Propostas entraram na Fase 11.
+   *
+   * A auditoria de paridade (lacuna 14) achou o pior tipo de lacuna: o cliente
+   * pedia um passeio sob medida e **ninguém recebia**. O pedido ficava no
+   * banco, sem tela, esperando alguém que não sabia que existia.
+   */
+  const [propostas, setPropostas] = useState<
+    {
+      id: string;
+      cliente: string;
+      passeio: string | null;
+      mensagem: string | null;
+      data: string | null;
+      pessoas: number | null;
+      situacao: string;
+      quando: string;
+    }[]
+  >([]);
+  const [orcamento, setOrcamento] = useState<
+    Record<string, { valor: string; moeda: string; nota: string }>
+  >({});
 
   const carregar = useCallback(async () => {
     const db = supabase();
 
-    const [res, ped] = await Promise.all([
+    const [res, ped, props] = await Promise.all([
       db
         .from('restaurant_reservations')
         .select('id, user_id, party_size, desired_at, occasion, notes, status, restaurants(name)')
@@ -73,6 +95,13 @@ export function Concierge() {
         .from('service_requests')
         .select('id, user_id, details, deliver_to, status, lifestyle_services(name)')
         .order('created_at', { ascending: false }),
+      db
+        .from('proposal_requests')
+        .select(
+          'id, user_id, message, desired_date, people, status, created_at, quoted_price_cents, quoted_currency, tours(title)',
+        )
+        .order('created_at', { ascending: false })
+        .limit(100),
     ]);
 
     if (res.error) return setErro(res.error.message);
@@ -81,6 +110,7 @@ export function Concierge() {
       ...new Set([
         ...(res.data ?? []).map((r) => r.user_id),
         ...(ped.data ?? []).map((p) => p.user_id),
+        ...(props.data ?? []).map((p) => p.user_id),
       ]),
     ];
     const { data: perfis } = await db
@@ -89,6 +119,19 @@ export function Concierge() {
       .in('id', ids.length > 0 ? ids : ['00000000-0000-0000-0000-000000000000']);
     const nome = new Map(
       (perfis ?? []).map((p) => [p.id, p.preferred_name ?? p.display_name ?? p.public_id]),
+    );
+
+    setPropostas(
+      (props.data ?? []).map((p) => ({
+        id: p.id,
+        cliente: nome.get(p.user_id) ?? 'Cliente',
+        passeio: (p.tours as { title: string } | null)?.title ?? null,
+        mensagem: p.message,
+        data: p.desired_date,
+        pessoas: p.people,
+        situacao: p.status,
+        quando: p.created_at,
+      })),
     );
 
     setReservas(
@@ -152,6 +195,48 @@ export function Concierge() {
       .eq('id', p.id);
     if (error) setErro(error.message);
     else setRecado(`${p.servico} · ${p.cliente}: ${S_ROTULO[situacao].toLowerCase()}.`);
+    await carregar();
+    setOcupado(false);
+  }
+
+  async function responderProposta(id: string) {
+    const linha = orcamento[id];
+    const centavos = Number(linha?.valor);
+    if (!Number.isInteger(centavos) || centavos < 0) return setErro('Valor inválido.');
+    if (!linha?.moeda || linha.moeda.length !== 3) {
+      return setErro('Moeda de três letras. Número sem moeda não é preço.');
+    }
+    setOcupado(true);
+    setErro(null);
+    setRecado(null);
+    const { data: sessao } = await supabase().auth.getUser();
+    const { error } = await supabase()
+      .from('proposal_requests')
+      .update({
+        status: 'quoted',
+        quoted_price_cents: centavos,
+        quoted_currency: linha.moeda,
+        quoted_notes: linha.nota.trim() || null,
+        quoted_by: sessao.user?.id ?? null,
+        quoted_at: new Date().toISOString(),
+      })
+      .eq('id', id);
+    if (error) setErro(error.message);
+    else setRecado('Proposta enviada. Ela vira pedido quando o cliente aceitar.');
+    await carregar();
+    setOcupado(false);
+  }
+
+  async function recusarProposta(id: string) {
+    setOcupado(true);
+    setErro(null);
+    setRecado(null);
+    const { error } = await supabase()
+      .from('proposal_requests')
+      .update({ status: 'declined', quoted_notes: (orcamento[id]?.nota ?? '').trim() || null })
+      .eq('id', id);
+    if (error) setErro(error.message);
+    else setRecado('Proposta recusada.');
     await carregar();
     setOcupado(false);
   }
@@ -347,6 +432,110 @@ export function Concierge() {
                 </>
               ) : null}
             </div>
+          ))
+        )}
+      </section>
+      <section className="secao">
+        <div className="cabecalho">
+          <h2>Passeios sob medida</h2>
+          <p className="muted">
+            {propostas.filter((p) => p.situacao === 'requested').length} sem resposta
+          </p>
+        </div>
+        <p className="muted">
+          Preço aqui é <strong>proposta</strong>, e não cobrança: vira pedido quando o cliente
+          aceita. Quem responde precisa dizer o valor e a moeda juntos — a constraint recusa um sem
+          o outro, e o motivo é o de sempre: número sem moeda não é preço.
+        </p>
+
+        {propostas.length === 0 ? (
+          <p className="muted">Nenhum pedido de proposta.</p>
+        ) : (
+          propostas.map((p) => (
+            <article key={p.id} className="bloco">
+              <p className="kicker">
+                {p.situacao} · {new Date(p.quando).toLocaleString('pt-BR')}
+              </p>
+              <p>
+                <strong>{p.cliente}</strong>
+                {p.passeio ? ` · sobre ${p.passeio}` : ' · passeio novo'}
+                {p.pessoas ? ` · ${p.pessoas} pessoa${p.pessoas === 1 ? '' : 's'}` : ''}
+                {p.data ? ` · ${new Date(`${p.data}T12:00:00`).toLocaleDateString('pt-BR')}` : ''}
+              </p>
+              {p.mensagem ? <p>{p.mensagem}</p> : null}
+
+              {p.situacao === 'requested' || p.situacao === 'in_review' ? (
+                <div className="form form--linha">
+                  <label className="field">
+                    <span>Valor (centavos)</span>
+                    <input
+                      type="number"
+                      min={0}
+                      value={orcamento[p.id]?.valor ?? ''}
+                      onChange={(e) =>
+                        setOrcamento((o) => ({
+                          ...o,
+                          [p.id]: {
+                            valor: e.target.value,
+                            moeda: o[p.id]?.moeda ?? 'AED',
+                            nota: o[p.id]?.nota ?? '',
+                          },
+                        }))
+                      }
+                    />
+                  </label>
+                  <label className="field">
+                    <span>Moeda</span>
+                    <input
+                      maxLength={3}
+                      value={orcamento[p.id]?.moeda ?? 'AED'}
+                      onChange={(e) =>
+                        setOrcamento((o) => ({
+                          ...o,
+                          [p.id]: {
+                            valor: o[p.id]?.valor ?? '',
+                            moeda: e.target.value.toUpperCase(),
+                            nota: o[p.id]?.nota ?? '',
+                          },
+                        }))
+                      }
+                    />
+                  </label>
+                  <label className="field">
+                    <span>Observação</span>
+                    <input
+                      value={orcamento[p.id]?.nota ?? ''}
+                      onChange={(e) =>
+                        setOrcamento((o) => ({
+                          ...o,
+                          [p.id]: {
+                            valor: o[p.id]?.valor ?? '',
+                            moeda: o[p.id]?.moeda ?? 'AED',
+                            nota: e.target.value,
+                          },
+                        }))
+                      }
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    className="botao"
+                    disabled={ocupado || !orcamento[p.id]?.valor}
+                    onClick={() => void responderProposta(p.id)}
+                  >
+                    Enviar proposta
+                  </button>
+                  <button
+                    type="button"
+                    className="botao botao--fantasma"
+                    disabled={ocupado}
+                    onClick={() => void recusarProposta(p.id)}
+                  >
+                    Recusar
+                  </button>
+                </div>
+              ) : null}
+            </article>
           ))
         )}
       </section>

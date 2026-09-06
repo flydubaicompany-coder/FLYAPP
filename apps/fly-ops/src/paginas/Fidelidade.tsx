@@ -111,6 +111,23 @@ export function Fidelidade() {
     Record<string, { de: string; ate: string; rotulo: string }>
   >({});
   const [vouchers, setVouchers] = useState<VoucherOps[]>([]);
+  /**
+   * Resgates entraram na Fase 11.
+   *
+   * A auditoria de paridade (lacuna 11) achou que o cliente resgatava um
+   * benefício e a equipe não tinha onde ver o código para honrá-lo. O resgate
+   * existia no banco e morria lá.
+   */
+  const [resgates, setResgates] = useState<
+    {
+      id: string;
+      codigo: string;
+      cliente: string;
+      beneficio: string;
+      pontos: number;
+      quando: string;
+    }[]
+  >([]);
   const [vCliente, setVCliente] = useState('');
   const [vCupom, setVCupom] = useState('');
   const [regra, setRegra] = useState<Regra | null>(null);
@@ -131,7 +148,7 @@ export function Fidelidade() {
   const carregar = useCallback(async () => {
     const db = supabase();
 
-    const [perfis, pacotes, saldos, carteiras, bens, config, pers, scores, prz, cups, vchs] =
+    const [perfis, pacotes, saldos, carteiras, bens, config, pers, scores, prz, cups, vchs, resg] =
       await Promise.all([
         db.from('profiles').select('id, public_id, preferred_name, display_name').limit(200),
         db.from('customer_packages').select('user_id, package'),
@@ -161,6 +178,11 @@ export function Fidelidade() {
           .from('customer_vouchers')
           .select('id, user_id, coupon_code, granted_at, used_at')
           .order('granted_at', { ascending: false })
+          .limit(50),
+        db
+          .from('benefit_redemptions')
+          .select('id, code, user_id, benefit_id, points_spent, redeemed_at')
+          .order('redeemed_at', { ascending: false })
           .limit(50),
       ]);
 
@@ -250,6 +272,18 @@ export function Fidelidade() {
         codigo: v.coupon_code,
         entregueEm: v.granted_at,
         usadoEm: v.used_at,
+      })),
+    );
+
+    const tituloDoBeneficio = new Map((bens.data ?? []).map((b) => [b.id, b.title]));
+    setResgates(
+      (resg.data ?? []).map((r) => ({
+        id: r.id,
+        codigo: r.code,
+        cliente: nomePorId.get(r.user_id) ?? 'Cliente',
+        beneficio: tituloDoBeneficio.get(r.benefit_id) ?? 'Benefício removido',
+        pontos: r.points_spent,
+        quando: r.redeemed_at,
       })),
     );
 
@@ -887,6 +921,45 @@ export function Fidelidade() {
           Benefício ativo aparece na Carteira do cliente. Estoque zero mostra “esgotado” em vez de
           sumir — o cliente precisa saber que existe.
         </p>
+      </section>
+
+      <section className="secao">
+        <div className="cabecalho">
+          <h2>Resgates</h2>
+          <p className="muted">O código que o cliente apresenta</p>
+        </div>
+        <div className="tabela-envolvente">
+          <table className="tabela">
+            <thead>
+              <tr>
+                <th>Quando</th>
+                <th>Cliente</th>
+                <th>Benefício</th>
+                <th>Código</th>
+                <th>Pontos</th>
+              </tr>
+            </thead>
+            <tbody>
+              {resgates.map((r) => (
+                <tr key={r.id}>
+                  <td className="mono">{new Date(r.quando).toLocaleString('pt-BR')}</td>
+                  <td>{r.cliente}</td>
+                  <td>{r.beneficio}</td>
+                  <td className="mono destaque">{r.codigo}</td>
+                  <td className="mono">{formatar(r.pontos)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {resgates.length === 0 ? (
+          <p className="muted">Nenhum resgate ainda.</p>
+        ) : (
+          <p className="muted">
+            O resgate é append-only: não há como desfazê-lo aqui. Devolver ponto é lançamento novo,
+            com motivo — e é assim que o extrato do cliente continua explicando a si mesmo.
+          </p>
+        )}
       </section>
 
       <section className="secao">

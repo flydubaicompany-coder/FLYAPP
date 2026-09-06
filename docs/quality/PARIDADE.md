@@ -88,12 +88,19 @@ mas há caminho manual aceitável.
 - **P58 e P59 — evento completo e finalidades de consentimento.** O conteúdo de
   ambos é texto que o dono escreve (§33: texto jurídico, campanha).
 
-## O que ninguém lê, depois desta fase
+## O que sobrou, item a item
 
-Sobram seis, e as seis são infraestrutura: `idempotency_keys`,
-`payment_events`, `carts`, `event_interests`, `event_categories` e
-`document_grants` fora do que `/logistica` usa. Nenhuma delas é função do
-cliente sem dono — são tabelas de apoio.
+| Nome                                                                  | Por quê continua fora                                                                                                               |
+| --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `flight_passengers`                                                   | O voo é operável; **quem está nele**, não. Fica com P57                                                                             |
+| `cancellation_policies`                                               | O texto da política é copiado para dentro do pedido na compra; editar o catálogo de políticas é cadastro, e vai com P57             |
+| `consent_purposes`                                                    | P59 — o texto de uma finalidade é jurídico, e é do dono (§33)                                                                       |
+| `event_ctas`, `event_media`, `event_participants`, `event_categories` | P58                                                                                                                                 |
+| `idempotency_keys`, `payment_events`, `carts`                         | Infraestrutura. Não é tela                                                                                                          |
+| `activity_acks`                                                       | O "li e entendi" de uma mudança de roteiro. A Presença mostra quem apareceu; quem **leu** o aviso ainda não tem coluna. Vai com P58 |
+
+Nenhuma delas é função do cliente sem dono. As quatro primeiras linhas são
+cadastro e texto; as outras são apoio.
 
 ## Proprietário operacional por tela
 

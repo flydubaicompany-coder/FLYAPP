@@ -34,6 +34,22 @@ interface Pedido {
   politicaTexto: string | null;
   politicaVersao: number | null;
   itens: { titulo: string; variante: string; pessoas: number; comeca: string | null }[];
+  /**
+   * Pagamentos e participantes entraram na Fase 11.
+   *
+   * A auditoria de paridade (lacuna 13) achou que esta tela mostrava o pedido
+   * e nao mostrava **se ele foi pago** nem **quem vai**. Quem atende um
+   * cliente no telefone precisa das duas coisas antes de qualquer outra.
+   */
+  pagamentos: {
+    id: string;
+    provedor: string;
+    situacao: string;
+    valorCentavos: number;
+    quando: string;
+  }[];
+  participantes: string[];
+  capturadoCentavos: number;
   reembolsos: Reembolso[];
   reembolsadoCentavos: number;
 }
@@ -71,7 +87,7 @@ export function Pedidos() {
     const { data, error } = await db
       .from('orders')
       .select(
-        'id, reference, status, user_id, total_cents, discount_cents, currency, coupon_code, placed_at, cancellation_policy_text, cancellation_policy_version, order_items(tour_title, variant_label, people, starts_at), refunds(id, amount_cents, currency, reason, created_at)',
+        'id, reference, status, user_id, total_cents, discount_cents, currency, coupon_code, placed_at, cancellation_policy_text, cancellation_policy_version, order_items(tour_title, variant_label, people, starts_at, order_participants(full_name)), refunds(id, amount_cents, currency, reason, created_at), payments(id, provider, status, amount_cents, created_at)',
       )
       .order('placed_at', { ascending: false })
       .limit(100);
@@ -99,6 +115,13 @@ export function Pedidos() {
           motivo: r.reason,
           em: r.created_at,
         }));
+        const pagamentos = (o.payments ?? []).map((pg) => ({
+          id: pg.id,
+          provedor: pg.provider,
+          situacao: pg.status,
+          valorCentavos: pg.amount_cents,
+          quando: pg.created_at,
+        }));
         return {
           id: o.id,
           referencia: o.reference,
@@ -117,6 +140,15 @@ export function Pedidos() {
             pessoas: i.people,
             comeca: i.starts_at,
           })),
+          pagamentos,
+          // Só o capturado conta. Um pagamento `created` ou `authorized` não é
+          // dinheiro que entrou, e somá-lo faria a tela dizer que fechou.
+          capturadoCentavos: pagamentos
+            .filter((pg) => pg.situacao === 'captured')
+            .reduce((s, pg) => s + pg.valorCentavos, 0),
+          participantes: (o.order_items ?? []).flatMap((i) =>
+            (i.order_participants ?? []).map((pa) => pa.full_name),
+          ),
           reembolsos,
           reembolsadoCentavos: reembolsos.reduce((s, r) => s + r.valorCentavos, 0),
         };
@@ -306,6 +338,50 @@ export function Pedidos() {
               </table>
             </div>
           </div>
+
+          <div className="bloco">
+            <h3>Pagamento</h3>
+            {pedido.pagamentos.length === 0 ? (
+              <p className="muted">Nenhuma tentativa de pagamento registrada.</p>
+            ) : (
+              <div className="tabela-envolvente">
+                <table className="tabela">
+                  <thead>
+                    <tr>
+                      <th>Quando</th>
+                      <th>Provedor</th>
+                      <th>Situação</th>
+                      <th>Valor</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pedido.pagamentos.map((pg) => (
+                      <tr key={pg.id}>
+                        <td className="mono">{new Date(pg.quando).toLocaleString('pt-BR')}</td>
+                        <td className="muted">{pg.provedor}</td>
+                        <td>{pg.situacao}</td>
+                        <td className="mono">{preco(pg.valorCentavos, pedido.moeda)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {pedido.capturadoCentavos !== pedido.totalCentavos - pedido.reembolsadoCentavos ? (
+              <p className="pendente">
+                Este pedido não fecha: capturado {preco(pedido.capturadoCentavos, pedido.moeda)}{' '}
+                contra {preco(pedido.totalCentavos - pedido.reembolsadoCentavos, pedido.moeda)}{' '}
+                esperados. O relatório de comércio lista todos os pedidos nessa situação.
+              </p>
+            ) : null}
+          </div>
+
+          {pedido.participantes.length > 0 ? (
+            <div className="bloco">
+              <h3>Quem vai</h3>
+              <p className="muted">{pedido.participantes.join(' · ')}</p>
+            </div>
+          ) : null}
 
           {pedido.politicaTexto ? (
             <div className="bloco">
