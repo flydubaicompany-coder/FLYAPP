@@ -9,33 +9,56 @@ reler a conversa anterior. **Mantenha-o ao fim de cada fase.**
 
 ## Onde retomar — 06/09/2026, fim do dia
 
-**Fases 8, 9, 10 e 11 construídas. Nenhuma das quatro foi provada contra
-banco.** Leia o bloqueio abaixo antes de qualquer coisa: ele vale para as
-quatro.
+**Fases 8, 9, 10 e 11 construídas.** As duas primeiras estão no banco; as duas
+últimas não. Nenhuma das quatro foi provada por teste.
 
-### 🔴 Bloqueio único — quinze migrations não aplicadas
+### 🔴 Bloqueio 1 — sete migrations não aplicadas (Fases 10 e 11)
 
-Nenhuma está no projeto `ptmifjnfskwipjjxauns`:
+**Correção de 06/09:** este arquivo dizia que quinze migrations estavam
+pendentes. Estava errado. Conferi contra `ptmifjnfskwipjjxauns` pelo PostgREST,
+com a chave publicável e só leitura: uma tabela que existe e é protegida
+responde `401/42501`; uma que não existe responde `404/PGRST205`.
 
-| Fase | Arquivos                                                                                                       |
-| ---- | -------------------------------------------------------------------------------------------------------------- |
-| 8    | `20260903000000_fila_e_sla` · `_010000_mapa` · `_020000_realtime_da_fila` · `_030000_atendimento_com_contexto` |
-| 9    | `20260904000000_album_e_quest` · `_010000_galeria` · `_020000_encantamento` · `_030000_influenciador`          |
-| 10   | `20260905000000_assistente` · `_010000_planejador` · `_020000_mala`                                            |
-| 11   | `20260906000000_operacao` · `_010000_escala_e_inventario` · `_020000_relatorios` · `_030000_cofre_da_equipe`   |
+| Fase | Situação no banco   | Evidência                                                                                                                        |
+| ---- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| 8    | ✅ **aplicada**     | `map_places` 401/42501; `abrir_atendimento` resolve com `p_activity`/`p_order`; `equipe_de_atendimento` existe                   |
+| 9    | ✅ **aplicada**     | `stickers`, `quest_missions`, `guest_insights`, `influencer_profiles`, `media_tags` 401/42501; `liberar_figurinha` existe        |
+| 10   | 🔴 **não aplicada** | `assistant_runs`, `manual_expenses`, `trip_budgets`, `packing_items` 404/PGRST205                                                |
+| 11   | 🔴 **não aplicada** | `trip_feature_flags`, `staff_shifts`, `inventory_items`, `shift_handoffs` 404; `rpc/relatorio_viagem` e `rpc/flag_da_viagem` 404 |
 
-**Por que não apliquei:** não há token da CLI nesta máquina
-(`~/.supabase/access-token` não existe), não há Docker, e o MCP do Supabase
-está logado na conta antiga — ele só enxerga `ewgbseesocekvhiiscnb`, o projeto
-do IMMORTALS. Os `.env.local` têm só a chave publicável, como manda a regra.
+Faltam sete: `20260905000000_assistente` · `_010000_planejador` ·
+`_020000_mala` · `20260906000000_operacao` · `_010000_escala_e_inventario` ·
+`_020000_relatorios` · `_030000_cofre_da_equipe`.
 
 ```bash
 ./node_modules/.bin/supabase login && ./node_modules/.bin/supabase db push
 ```
 
-Enquanto não rodar, as telas novas abrem em estado de erro e **238 das 604
-asserções pgTAP nunca foram executadas**. A primeira prova delas será o job
-**Migrations e RLS** no push.
+Alternativa sem CLI: `docs/handoff/fases-10-e-11-migrations.sql`, em transação,
+**só com as sete** — reaplicar as Fases 8 e 9 derrubaria tudo.
+
+**Por que não apliquei:** não há token da CLI nesta máquina, não há Docker, e o
+MCP do Supabase está logado na conta antiga (só enxerga `ewgbseesocekvhiiscnb`).
+
+Enquanto não rodar, **treze telas abrem em erro**: onze do Fly Ops (Hoje,
+Logística, Avisos, Equipe, Configuração, Auditoria, Relatórios, Inventário,
+busca global, ficha do hóspede), uma do Crew (Turno) e duas do app (planejador
+e Mala Pronta).
+
+### 🔴 Bloqueio 2 — 27 commits não estão no GitHub
+
+`origin/main` está em `0fe2f60`, de 03/09. Tudo das Fases 8 a 11 é local. A
+última execução de CI foi **27/08/2026** — antes da Fase 8. Consequência: as
+**238 asserções pgTAP** das quatro últimas fases nunca rodaram em lugar nenhum.
+
+```bash
+git push origin main
+```
+
+### 🔴 Bloqueio 3 — nenhuma tela logada foi vista
+
+Nem no app, nem no Ops, nem no Crew, em nenhuma das quatro fases. Falta
+credencial.
 
 ### ⚠️ Duas migrations da Fase 11 mudam comportamento existente
 

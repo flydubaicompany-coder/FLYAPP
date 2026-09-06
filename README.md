@@ -6,14 +6,20 @@ Monorepo do ecossistema Fly: **Fly App** (cliente), **Fly Ops** (operação) e
 Fonte oficial do produto: [docs/product/FLY_APP_MASTER_SPEC.md](docs/product/FLY_APP_MASTER_SPEC.md).
 Regras para quem for mexer no código: [CLAUDE.md](CLAUDE.md).
 
-> **Estado: Fase 0 — fundação.** Nenhuma tela de produto existe ainda. As três
-> aplicações sobem, se identificam e reportam saúde. É isso, de propósito.
+> **Estado em 06/09/2026: Fase 11 construída.** As Fases 0 a 7 estão entregues
+> e provadas; 8 e 9 estão no banco e sem prova de teste; 10 e 11 aguardam sete
+> migrations. **Leia [docs/ESTADO.md](docs/ESTADO.md) antes de mexer em
+> qualquer coisa** — ele diz o que está provado, o que não está e o que
+> depende do dono do produto.
+>
+> Para uma visão completa do estado real, incluindo screenshots e as
+> divergências entre documentação e código: [HANDOFF_APP.md](HANDOFF_APP.md).
 
 ## Começar
 
 ```bash
 npm install
-npm run verify       # lint + typecheck + 64 testes
+npm run verify       # lint + format + check:sql + typecheck + 434 testes
 ```
 
 | Aplicação | Comando              | Endereço              |
@@ -35,6 +41,9 @@ packages/
   design-tokens/   tokens do Claude Design, conferidos por teste
   domain-types/    papéis, superfícies e tipos gerados do banco
   config/          ambiente, logger com redação, health
+  analytics/       taxonomia de eventos com guarda de consentimento
+  payments/        adapter de pagamento e verificação de assinatura
+  assistant/       barreira de dado do assistente
 supabase/
   migrations/      versionadas, formato da CLI
   rollback/        reversão para desenvolvimento
