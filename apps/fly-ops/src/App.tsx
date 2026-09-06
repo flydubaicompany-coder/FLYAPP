@@ -5,6 +5,7 @@ import { HealthPage } from './HealthPage';
 import { SERVICE_NAME, SERVICE_TAGLINE } from './service';
 import { loadEnv } from './env';
 import { SessaoProvider, useSessao } from './auth/sessao';
+import { Busca } from './componentes/Busca';
 import {
   Catalogo,
   Clientes,
@@ -28,6 +29,15 @@ import {
   Galeria,
   Encantamento,
   Criadores,
+  Hoje,
+  Cliente,
+  Logistica,
+  Avisos,
+  Equipe,
+  Configuracao,
+  Auditoria,
+  Relatorios,
+  Inventario,
 } from './paginas';
 
 /**
@@ -41,51 +51,106 @@ import {
  * não segurança: cada consulta ainda passa pela RLS, que decide de novo.
  */
 
-const ABAS = [
-  { para: '/clientes', rotulo: 'Clientes' },
-  { para: '/convites', rotulo: 'Convites' },
-  { para: '/viagens', rotulo: 'Viagens' },
-  { para: '/presenca', rotulo: 'Presença' },
-  { para: '/passaportes', rotulo: 'Passaportes' },
-  { para: '/scanner', rotulo: 'Leitor' },
-  { para: '/catalogo', rotulo: 'Catálogo' },
-  { para: '/vitrine', rotulo: 'Vitrine' },
-  { para: '/pedidos', rotulo: 'Pedidos' },
-  { para: '/fidelidade', rotulo: 'Fidelidade' },
-  { para: '/notas', rotulo: 'Notas' },
-  { para: '/refeicoes', rotulo: 'Refeições' },
-  { para: '/concierge', rotulo: 'Concierge' },
-  { para: '/atendimento', rotulo: 'Atendimento' },
-  { para: '/mapa', rotulo: 'Mapa e Bases' },
-  { para: '/album', rotulo: 'Álbum' },
-  { para: '/galeria', rotulo: 'Galeria' },
-  { para: '/encantamento', rotulo: 'Surpresas' },
-  { para: '/criadores', rotulo: 'Criadores' },
-  { para: '/eventos', rotulo: 'Eventos' },
-  { para: '/consentimentos', rotulo: 'Consentimentos' },
+/**
+ * A navegacao virou de dois niveis na Fase 11.
+ *
+ * Eram 21 abas numa fila so, e a fase acrescentou oito. Vinte e nove itens
+ * lado a lado deixam de ser navegacao e viram uma parede: ninguem le, todo
+ * mundo procura. Os grupos sao os da auditoria de paridade — sao os donos
+ * operacionais de cada tela, e nao categorias inventadas para caber.
+ */
+const GRUPOS = [
+  {
+    rotulo: 'Operação',
+    abas: [
+      { para: '/hoje', rotulo: 'Hoje' },
+      { para: '/atendimento', rotulo: 'Atendimento' },
+      { para: '/presenca', rotulo: 'Presença' },
+      { para: '/scanner', rotulo: 'Leitor' },
+      { para: '/concierge', rotulo: 'Concierge' },
+      { para: '/avisos', rotulo: 'Avisos' },
+    ],
+  },
+  {
+    rotulo: 'Viagens',
+    abas: [
+      { para: '/viagens', rotulo: 'Viagens' },
+      { para: '/logistica', rotulo: 'Logística' },
+      { para: '/refeicoes', rotulo: 'Refeições' },
+      { para: '/mapa', rotulo: 'Mapa e Bases' },
+    ],
+  },
+  {
+    rotulo: 'Pessoas',
+    abas: [
+      { para: '/clientes', rotulo: 'Clientes' },
+      { para: '/convites', rotulo: 'Convites' },
+      { para: '/passaportes', rotulo: 'Passaportes' },
+      { para: '/consentimentos', rotulo: 'Consentimentos' },
+      { para: '/criadores', rotulo: 'Criadores' },
+    ],
+  },
+  {
+    rotulo: 'Comércio',
+    abas: [
+      { para: '/catalogo', rotulo: 'Catálogo' },
+      { para: '/vitrine', rotulo: 'Vitrine' },
+      { para: '/pedidos', rotulo: 'Pedidos' },
+      { para: '/fidelidade', rotulo: 'Fidelidade' },
+      { para: '/notas', rotulo: 'Notas' },
+    ],
+  },
+  {
+    rotulo: 'Experiência',
+    abas: [
+      { para: '/album', rotulo: 'Álbum' },
+      { para: '/galeria', rotulo: 'Galeria' },
+      { para: '/encantamento', rotulo: 'Surpresas' },
+      { para: '/inventario', rotulo: 'Inventário' },
+      { para: '/eventos', rotulo: 'Eventos' },
+    ],
+  },
+  {
+    rotulo: 'Plataforma',
+    abas: [
+      { para: '/relatorios', rotulo: 'Relatórios' },
+      { para: '/equipe', rotulo: 'Equipe' },
+      { para: '/configuracao', rotulo: 'Configuração' },
+      { para: '/auditoria', rotulo: 'Auditoria' },
+    ],
+  },
 ] as const;
 
 function Casca({ children }: { children: React.ReactNode }) {
   const { estado, sair } = useSessao();
+  const local = useLocation();
   const nome = estado.tipo === 'logado' ? estado.nome : null;
+
+  // O grupo aberto vem da rota, e nao de estado proprio: assim um link vindo
+  // do painel Hoje abre a secao certa, e recarregar a pagina nao volta para a
+  // primeira aba.
+  const grupo =
+    GRUPOS.find((g) => g.abas.some((a) => local.pathname.startsWith(a.para))) ?? GRUPOS[0];
 
   return (
     <div className="app">
       <header className="topo">
         <div className="topo__marca">
           <p className="kicker">Fly Ops</p>
-          <nav className="abas" aria-label="Seções do painel">
-            {ABAS.map((a) => (
+          <nav className="abas" aria-label="Áreas do painel">
+            {GRUPOS.map((g) => (
               <NavLink
-                key={a.para}
-                to={a.para}
-                className={({ isActive }) => (isActive ? 'aba aba--ativa' : 'aba')}
+                key={g.rotulo}
+                to={g.abas[0].para}
+                className={g === grupo ? 'aba aba--ativa' : 'aba'}
               >
-                {a.rotulo}
+                {g.rotulo}
               </NavLink>
             ))}
           </nav>
         </div>
+
+        <Busca />
 
         <div className="topo__conta">
           {nome ? <span className="muted">{nome}</span> : null}
@@ -94,6 +159,18 @@ function Casca({ children }: { children: React.ReactNode }) {
           </button>
         </div>
       </header>
+
+      <nav className="subabas" aria-label={`Telas de ${grupo.rotulo}`}>
+        {grupo.abas.map((a) => (
+          <NavLink
+            key={a.para}
+            to={a.para}
+            className={({ isActive }) => (isActive ? 'aba aba--ativa' : 'aba')}
+          >
+            {a.rotulo}
+          </NavLink>
+        ))}
+      </nav>
 
       <main className="page">{children}</main>
     </div>
@@ -161,7 +238,7 @@ function Rotas() {
       <Route path="/health" element={<HealthPage env={env.env} />} />
       <Route
         path="/entrar"
-        element={estado.tipo === 'logado' ? <Navigate to="/clientes" replace /> : <Entrar />}
+        element={estado.tipo === 'logado' ? <Navigate to="/hoje" replace /> : <Entrar />}
       />
       <Route
         path="/clientes"
@@ -331,7 +408,79 @@ function Rotas() {
           </Protegido>
         }
       />
-      <Route path="/" element={<Navigate to="/clientes" replace />} />
+      <Route
+        path="/hoje"
+        element={
+          <Protegido>
+            <Hoje />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/clientes/:id"
+        element={
+          <Protegido>
+            <Cliente />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/logistica"
+        element={
+          <Protegido>
+            <Logistica />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/avisos"
+        element={
+          <Protegido>
+            <Avisos />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/inventario"
+        element={
+          <Protegido>
+            <Inventario />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/equipe"
+        element={
+          <Protegido>
+            <Equipe />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/configuracao"
+        element={
+          <Protegido>
+            <Configuracao />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/auditoria"
+        element={
+          <Protegido>
+            <Auditoria />
+          </Protegido>
+        }
+      />
+      <Route
+        path="/relatorios"
+        element={
+          <Protegido>
+            <Relatorios />
+          </Protegido>
+        }
+      />
+      <Route path="/" element={<Navigate to="/hoje" replace />} />
       <Route
         path="*"
         element={

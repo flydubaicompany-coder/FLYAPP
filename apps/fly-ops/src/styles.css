@@ -483,3 +483,85 @@ a:hover {
 .resultado--erro {
   border-left-color: var(--fly-danger);
 }
+
+/* Busca global (§46, entrega 3).
+   Fica no topo, ao lado das abas, porque quem busca já sabe o que quer e não
+   deveria escolher a aba antes. A lista sobrepõe: ela é temporária, e empurrar
+   a página inteira para baixo a cada tecla faria o conteúdo pular. */
+.busca {
+  position: relative;
+  min-width: 16rem;
+  flex: 1 1 16rem;
+  max-width: 26rem;
+}
+
+.busca__campo {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0 0.875rem;
+  border-radius: 1.0625rem;
+  border: 1px solid var(--fly-stroke);
+  background: var(--fly-bg);
+  color: var(--fly-text);
+  font: inherit;
+}
+
+.busca__campo::placeholder {
+  color: var(--fly-text-muted);
+}
+
+.busca__resultados {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  max-height: 24rem;
+  overflow-y: auto;
+  padding: 0.5rem;
+  border-radius: 14px;
+  border: 1px solid var(--fly-stroke);
+  background: var(--fly-graphite);
+  display: grid;
+  gap: 0.25rem;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+}
+
+.busca__item {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--fly-text);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.busca__item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.busca__tipo {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fly-text-muted);
+}
+
+/* Segunda fila de navegação (Fase 11).
+   As telas do grupo aberto. Fica fora do `.topo` para que a barra de cima
+   continue tendo altura fixa: com as duas filas juntas, escolher um grupo com
+   muitas telas empurraria o conteúdo da página para baixo. */
+.subabas {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--fly-stroke);
+}
