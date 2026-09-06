@@ -7,7 +7,7 @@ import { Text } from '@/ui';
 import { casca, cor, marca, raio, sombra, tipo } from './design';
 
 /**
- * A casca do Trip Mode: barra inferior, botão do WhatsApp e o véu.
+ * A casca do Trip Mode: o véu e a barra inferior.
  *
  * Cinco destinos, como o design manda — e **Carteira continua na barra, com
  * cadeado**. Foi a correção mais importante desta rodada: eu a tinha removido,
