@@ -528,6 +528,7 @@ as $$
 declare
   v_critica boolean;
   v_alvo uuid[];
+  v_permitidos uuid[];
   v_enviados int := 0;
   v_silenciados int := 0;
 begin
@@ -572,28 +573,40 @@ begin
    * silenciado — e o painel precisa dizer quantas pessoas não receberam, ou o
    * operador acha que avisou todo mundo.
    */
-  with alvo as (select unnest(v_alvo) as user_id),
-  permitidos as (
-    select a.user_id from alvo a
-    where v_critica or coalesce(
-      (select np.is_enabled from public.notification_preferences np
-        where np.user_id = a.user_id and np.category_key = p_category),
-      true
-    )
-  ),
-  inseridos as (
+  select array_agg(a.user_id) into v_permitidos
+  from unnest(v_alvo) as a(user_id)
+  where v_critica or coalesce(
+    (select np.is_enabled from public.notification_preferences np
+      where np.user_id = a.user_id and np.category_key = p_category),
+    true
+  );
+
+  v_silenciados := coalesce(array_length(v_alvo, 1), 0)
+                 - coalesce(array_length(v_permitidos, 1), 0);
+
+  if v_permitidos is null then
+    perform fly_private.registrar(
+      'aviso.enviado', 'notifications', p_trip::text,
+      jsonb_build_object('categoria', p_category, 'enviados', 0,
+                         'silenciados', v_silenciados)
+    );
+    return query select true, 0, v_silenciados, null::text;
+    return;
+  end if;
+
+  -- O CTE que escreve é referenciado direto no FROM do SELECT, e não dentro de
+  -- um sub-select: é a forma canônica, e a única que não depende de como o
+  -- plpgsql resolve o INTO de uma consulta que começa com WITH.
+  with inseridos as (
     insert into public.notifications
       (category_key, user_id, title, body, deep_link, expires_at, dedupe_key)
     select p_category, p.user_id, btrim(p_title), nullif(btrim(coalesce(p_body, '')), ''),
            p_deep_link, p_expires_at, p_dedupe
-    from permitidos p
+    from unnest(v_permitidos) as p(user_id)
     on conflict (user_id, dedupe_key) where dedupe_key is not null do nothing
     returning 1
   )
-  select
-    (select count(*) from inseridos),
-    (select count(*) from alvo) - (select count(*) from permitidos)
-  into v_enviados, v_silenciados;
+  select count(*) into v_enviados from inseridos;
 
   perform fly_private.registrar(
     'aviso.enviado', 'notifications', p_trip::text,

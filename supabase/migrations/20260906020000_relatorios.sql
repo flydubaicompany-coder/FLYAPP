@@ -163,7 +163,7 @@ begin
     sum(c.capturado)::bigint,
     sum(c.estornado)::bigint,
     sum(c.diferenca)::bigint,
-    count(*) filter (where c.diferenca <> 0)::int
+    (count(*) filter (where c.diferenca <> 0))::int
   from conferido c
   group by c.currency
   order by c.currency;
@@ -276,8 +276,8 @@ begin
   select
     sc.level,
     count(*)::int,
-    count(*) filter (where sc.status in ('resolved', 'closed'))::int,
-    count(*) filter (where sc.accepted_at is null)::int,
+    (count(*) filter (where sc.status in ('resolved', 'closed')))::int,
+    (count(*) filter (where sc.accepted_at is null))::int,
     round(avg(extract(epoch from (sc.accepted_at - sc.opened_at)) / 60.0)::numeric, 1),
     round(
       percentile_cont(0.9) within group (
@@ -436,7 +436,7 @@ begin
   select
     st.sponsor,
     count(*)::int,
-    count(*) filter (where st.status = 'entregue')::int,
+    (count(*) filter (where st.status = 'entregue'))::int,
     st.currency,
     coalesce(sum(st.budget_cents), 0)::bigint,
     coalesce(sum(st.cost_cents), 0)::bigint
