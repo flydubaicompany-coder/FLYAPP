@@ -6,6 +6,7 @@ import { palette } from '@/theme';
 import { AppHeader, EmptyState, ErrorState, FlyQR, LoadingSkeleton, Screen, Text } from '@/ui';
 import { useSession } from '@/auth/session';
 import { CartaoDePontos } from '@/carteira/CarteiraBlocos';
+import { emModoViagem } from '@/trip';
 import { ehPacote } from '@/carteira/pacote';
 import { progressoDoSaldo } from '@/carteira/nivel';
 import { useCarteira } from '@/carteira/useCarteira';
@@ -127,6 +128,19 @@ export default function ProfileScreen() {
   const nome = profile.displayName ?? profile.preferredName ?? 'Viajante Fly';
   const versao = Application.nativeApplicationVersion ?? Constants.expoConfig?.version ?? null;
 
+  /**
+   * Trip Mode — o que some do Perfil, e por que.
+   *
+   * Pontos e Ranking saem da tela porque as duas regras que os governam sao
+   * pendencia do dono: quanto vale um ponto (P45) e por qual criterio se
+   * ranqueia (P46). Mostrar um saldo cuja escala ninguem definiu e mostrar um
+   * numero que nao significa nada — e numa viagem de influenciador esse numero
+   * vira print.
+   *
+   * As telas continuam existindo em `/perfil/ranking` e na Carteira. Some o
+   * caminho, nao o codigo.
+   */
+  const modoViagem = emModoViagem();
   return (
     <Screen bleed testID="screen-perfil">
       <CabecalhoDoPerfil
@@ -150,7 +164,7 @@ export default function ProfileScreen() {
           "Standard/Black/Billionaire", misturando as duas escalas que a D95
           separou — aqui ela e basic → prime → ELITE, que e o que de fato se
           conquista acumulando. O pacote fica no selo acima, na cor dele. */}
-      {carteira.kind === 'ready' ? (
+      {carteira.kind === 'ready' && !modoViagem ? (
         <CartaoDePontos
           saldo={carteira.carteira.saldo}
           progresso={progressoDoSaldo(carteira.carteira.saldo, carteira.carteira.limiares)}
@@ -181,8 +195,8 @@ export default function ProfileScreen() {
         <Divisor />
         <Linha
           icone={<DocumentoIcon />}
-          rotulo="Passaporte e documentos"
-          onPress={ir('/perfil/passaporte')}
+          rotulo={modoViagem ? 'Passaporte e CNH' : 'Passaporte e documentos'}
+          onPress={ir(modoViagem ? '/viagem/documentos' : '/perfil/passaporte')}
         />
         <Divisor />
         <Linha
@@ -223,8 +237,12 @@ export default function ProfileScreen() {
           rotulo="Privacidade e consentimentos"
           onPress={ir('/perfil/privacidade')}
         />
-        <Divisor />
-        <Linha icone={<TrofeuIcon />} rotulo="Ranking Fly" onPress={ir('/perfil/ranking')} />
+        {modoViagem ? null : (
+          <>
+            <Divisor />
+            <Linha icone={<TrofeuIcon />} rotulo="Ranking Fly" onPress={ir('/perfil/ranking')} />
+          </>
+        )}
         <Divisor />
         <Linha icone={<EscudoIcon />} rotulo="Segurança" onPress={ir('/perfil/seguranca')} />
         <Divisor />

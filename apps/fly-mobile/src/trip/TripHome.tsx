@@ -183,14 +183,22 @@ function SeuDia({ itens }: { itens: readonly AtividadeParaAlerta[] }) {
   );
 }
 
-/** Os seis destinos que a viagem usa todo dia. */
+/**
+ * Os destinos que a viagem usa todo dia.
+ *
+ * Sete, e cada um e uma tela que ja existia — nenhum atalho leva a algo
+ * construido para este release, exceto Documentos e Mais experiencias. E a
+ * ordem e a do dia: roteiro e passeios de manha, voo e hotel na chegada e na
+ * saida, galeria no fim.
+ */
 const ATALHOS = [
   { rotulo: 'Meu roteiro', destino: '/viagem/roteiro' },
   { rotulo: 'Meus passeios', destino: '/passeios/meus' },
-  { rotulo: 'Documentos', destino: '/viagem/cofre' },
+  { rotulo: 'Documentos', destino: '/viagem/documentos' },
   { rotulo: 'Voo', destino: '/viagem/voos' },
   { rotulo: 'Hotel', destino: '/viagem/hotel' },
   { rotulo: 'Galeria', destino: '/galeria' },
+  { rotulo: 'Mais experiências', destino: '/experiencias' },
 ] as const;
 
 function Atalhos() {

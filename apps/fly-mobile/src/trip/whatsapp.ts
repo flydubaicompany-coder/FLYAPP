@@ -16,13 +16,7 @@
  */
 
 export type AssuntoDeSuporte =
-  | 'urgente'
-  | 'duvida'
-  | 'transporte'
-  | 'passeio'
-  | 'hotel'
-  | 'perdido'
-  | 'outro';
+  'urgente' | 'duvida' | 'transporte' | 'passeio' | 'hotel' | 'perdido' | 'outro';
 
 export const ASSUNTOS: readonly { chave: AssuntoDeSuporte; rotulo: string }[] = [
   { chave: 'urgente', rotulo: 'Preciso de ajuda urgente' },
@@ -71,15 +65,10 @@ export interface ContextoDaMensagem {
  * atual: —" ocupa espaço e não diz nada. O que não se sabe simplesmente não
  * entra.
  */
-export function mensagemDeSuporte(
-  assunto: AssuntoDeSuporte,
-  contexto: ContextoDaMensagem,
-): string {
+export function mensagemDeSuporte(assunto: AssuntoDeSuporte, contexto: ContextoDaMensagem): string {
   const linhas = ['Olá, equipe Fly.'];
 
-  linhas.push(
-    contexto.nome ? `Sou ${contexto.nome}.` : 'Sou participante da viagem.',
-  );
+  linhas.push(contexto.nome ? `Sou ${contexto.nome}.` : 'Sou participante da viagem.');
   if (contexto.viagem) linhas.push(`Estou participando da ${contexto.viagem}.`);
 
   linhas.push('', `Preciso de ajuda com: ${ROTULO[assunto]}`);

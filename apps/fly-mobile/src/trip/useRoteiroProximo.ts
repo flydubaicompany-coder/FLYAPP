@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/auth/client';
-import { alertasDoRoteiro, proximoCompromisso, type Alerta, type AtividadeParaAlerta } from './alertas';
+import {
+  alertasDoRoteiro,
+  proximoCompromisso,
+  type Alerta,
+  type AtividadeParaAlerta,
+} from './alertas';
 
 /**
  * O roteiro perto de agora: ontem, hoje e amanhã.
@@ -20,7 +25,12 @@ import { alertasDoRoteiro, proximoCompromisso, type Alerta, type AtividadeParaAl
 
 export type RoteiroProximo =
   | { kind: 'loading' }
-  | { kind: 'ready'; alertas: Alerta[]; proximo: AtividadeParaAlerta | null; doDia: AtividadeParaAlerta[] }
+  | {
+      kind: 'ready';
+      alertas: Alerta[];
+      proximo: AtividadeParaAlerta | null;
+      doDia: AtividadeParaAlerta[];
+    }
   | { kind: 'error'; message: string };
 
 interface AtividadeCrua {

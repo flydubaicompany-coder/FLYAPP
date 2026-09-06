@@ -80,18 +80,21 @@ export function useSuporteFly(): SuporteFly {
     };
   }, [sessao, viagem]);
 
-  const abrir = useCallback(async (texto: string) => {
-    const url = linkDeWhatsapp(numero, texto);
-    if (!url) return false;
-    // `canOpenURL` mente em alguns aparelhos sem o esquema declarado; abrir e
-    // tratar a falha é mais confiável do que perguntar antes.
-    try {
-      await Linking.openURL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  }, [numero]);
+  const abrir = useCallback(
+    async (texto: string) => {
+      const url = linkDeWhatsapp(numero, texto);
+      if (!url) return false;
+      // `canOpenURL` mente em alguns aparelhos sem o esquema declarado; abrir e
+      // tratar a falha é mais confiável do que perguntar antes.
+      try {
+        await Linking.openURL(url);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    [numero],
+  );
 
   return {
     pronto: linkDeWhatsapp(numero, 'x') !== null,

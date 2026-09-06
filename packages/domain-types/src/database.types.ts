@@ -5944,6 +5944,7 @@ export type Database = {
         | "voucher"
         | "authorization"
         | "other"
+        | "driver_license"
       event_cta_kind:
         | "view_event"
         | "buy_ticket"
@@ -6284,6 +6285,7 @@ export const Constants = {
         "voucher",
         "authorization",
         "other",
+        "driver_license",
       ],
       event_cta_kind: [
         "view_event",

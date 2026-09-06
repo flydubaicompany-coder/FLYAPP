@@ -66,10 +66,7 @@ describe('alertasDoRoteiro', () => {
   });
 
   it('e some depois disso', () => {
-    const a = alertasDoRoteiro(
-      [atividade({ id: 'a1', saidaEm: '2026-09-12T09:00:00' })],
-      AGORA,
-    );
+    const a = alertasDoRoteiro([atividade({ id: 'a1', saidaEm: '2026-09-12T09:00:00' })], AGORA);
     expect(a).toHaveLength(0);
   });
 
@@ -118,10 +115,7 @@ describe('alertasDoRoteiro', () => {
   });
 
   it('sem orientacao escrita, nao ha alerta IMPORTANTE', () => {
-    const a = alertasDoRoteiro(
-      [atividade({ id: 'a1', comecaEm: '2026-09-12T18:00:00' })],
-      AGORA,
-    );
+    const a = alertasDoRoteiro([atividade({ id: 'a1', comecaEm: '2026-09-12T18:00:00' })], AGORA);
     expect(a.every((x) => x.nivel !== 'importante')).toBe(true);
   });
 

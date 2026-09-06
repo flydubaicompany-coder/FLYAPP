@@ -176,43 +176,43 @@ export function AssistSheet({
 
         {!modoViagem &&
           OPTIONS.map((option) => {
-          const isSos = option.choice === 'sos';
-          const confirming = isSos && sosConfirming;
+            const isSos = option.choice === 'sos';
+            const confirming = isSos && sosConfirming;
 
-          return (
-            <Pressable
-              key={option.choice}
-              accessibilityRole="button"
-              accessibilityLabel={confirming ? `Confirmar ${option.title}` : option.title}
-              accessibilityHint={
-                confirming ? 'Toque de novo para enviar o SOS' : option.description
-              }
-              onPress={() => {
-                if (isSos && !confirming && onRequestSosConfirm) {
-                  onRequestSosConfirm();
-                  return;
+            return (
+              <Pressable
+                key={option.choice}
+                accessibilityRole="button"
+                accessibilityLabel={confirming ? `Confirmar ${option.title}` : option.title}
+                accessibilityHint={
+                  confirming ? 'Toque de novo para enviar o SOS' : option.description
                 }
-                onChoose(option.choice);
-              }}
-              style={({ pressed }) => [
-                styles.option,
-                isSos && styles.optionSos,
-                confirming && styles.optionConfirming,
-                pressed && styles.optionPressed,
-              ]}
-              testID={`assist-option-${option.choice}`}
-            >
-              <View style={[styles.dot, { backgroundColor: TONE_COLOR[option.tone] }]} />
-              <View style={styles.optionTexts}>
-                <Text variant="body" style={styles.optionTitle}>
-                  {confirming ? 'Toque de novo para confirmar' : option.title}
-                </Text>
-                <Text variant="body" tone="muted">
-                  {confirming ? 'A equipe Fly será acionada imediatamente.' : option.description}
-                </Text>
-              </View>
-            </Pressable>
-          );
+                onPress={() => {
+                  if (isSos && !confirming && onRequestSosConfirm) {
+                    onRequestSosConfirm();
+                    return;
+                  }
+                  onChoose(option.choice);
+                }}
+                style={({ pressed }) => [
+                  styles.option,
+                  isSos && styles.optionSos,
+                  confirming && styles.optionConfirming,
+                  pressed && styles.optionPressed,
+                ]}
+                testID={`assist-option-${option.choice}`}
+              >
+                <View style={[styles.dot, { backgroundColor: TONE_COLOR[option.tone] }]} />
+                <View style={styles.optionTexts}>
+                  <Text variant="body" style={styles.optionTitle}>
+                    {confirming ? 'Toque de novo para confirmar' : option.title}
+                  </Text>
+                  <Text variant="body" tone="muted">
+                    {confirming ? 'A equipe Fly será acionada imediatamente.' : option.description}
+                  </Text>
+                </View>
+              </Pressable>
+            );
           })}
 
         {emergencyPhoneLabel ? (
