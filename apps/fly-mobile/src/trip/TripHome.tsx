@@ -1,227 +1,168 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, View } from 'react-native';
-import { palette, radius, shadowStyle, space, touchTarget } from '@/theme';
-import { Card, EmptyState, ErrorState, Kicker, LoadingSkeleton, Screen, Text } from '@/ui';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import Svg, { Circle, Path, Rect } from 'react-native-svg';
+import { EmptyState, ErrorState, LoadingSkeleton, Text } from '@/ui';
 import { useSession } from '@/auth/session';
 import { useViagem } from '@/viagem/useViagem';
-import { faltaTexto, type Alerta, type AtividadeParaAlerta } from './alertas';
+import { faltaTexto } from './alertas';
+import { casca, cor, tipo } from './design';
+import {
+  AvisoImportante,
+  BannerDaViagem,
+  CartaoProximo,
+  GradeDeAtalhos,
+  ListaDoDia,
+  TituloDeSecao,
+  TopoDaHome,
+  type LinhaDoDia,
+} from './TripHomeBlocos';
 import { useRoteiroProximo } from './useRoteiroProximo';
 
 /**
- * A Home do Trip Mode — Dubai, setembro de 2026.
+ * Home do Trip Mode — Dubai, setembro de 2026.
  *
- * A pergunta que ela responde é uma só, e é a mesma que a Home completa
- * responde: **o que importa agora?** O que muda é a resposta: aqui não há
- * evento, oferta nem ponto. Há uma viagem acontecendo.
+ * Montada sobre `Fly Trip Mode.dc.html`. A ordem dos blocos é a do arquivo, e
+ * é a mesma ordem que a §5.4 já pedia: operacional antes de promoção.
  *
- * A ordem é deliberada e é a da §5.4 — operacional antes de promoção:
+ *   topo · banner · próximo compromisso · aviso · seu dia · atalhos
  *
- *   1. onde você está (o banner, que também diz que a viagem começou);
- *   2. o que acontece **agora** (alertas, quando houver);
- *   3. o **próximo compromisso**, um só, grande;
- *   4. o resto do dia;
- *   5. os atalhos.
- *
- * Nada aqui inventa conteúdo. Destino, datas, horários e "o que levar" vêm do
- * roteiro que a operação escreveu — o app só decide o que é urgente, e decide
- * por hora, não por adivinhação.
+ * O conteúdo vem do banco. O design mostra "Jet Ski · Kite Beach" e "dia 4 de
+ * 8" porque é um mock; aqui esses valores saem de `viagem_atual()` e do
+ * roteiro. Onde o banco não tiver o dado, o bloco **não aparece** — é
+ * preferível uma Home mais curta do que uma Home com texto de exemplo.
  */
 
-const COR_DO_ALERTA: Record<Alerta['nivel'], string> = {
-  agora: palette.gold,
-  mudou: palette.warning,
-  importante: palette.warning,
-  hoje: palette.textMuted,
-  amanha: palette.textMuted,
-};
+function IconeRoteiro() {
+  return (
+    <Svg
+      width={19}
+      height={19}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={cor.ouro}
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <Rect x={3.2} y={4.6} width={17.6} height={16.2} rx={3} />
+      <Path d="M3.2 9.4h17.6M8.2 2.6v3.4M15.8 2.6v3.4" />
+    </Svg>
+  );
+}
+
+function IconePasseios() {
+  return (
+    <Svg
+      width={19}
+      height={19}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={cor.ouro}
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <Path d="M2.8 17.2c1.7 0 2.5-1.3 4.2-1.3s2.5 1.3 4.2 1.3 2.5-1.3 4.2-1.3 2.5 1.3 4.2 1.3" />
+      <Path d="M6.4 12.2V6.6a1.8 1.8 0 0 1 1.8-1.8h7.6a1.8 1.8 0 0 1 1.8 1.8v5.6" />
+      <Path d="M12 4.8V2.4" />
+    </Svg>
+  );
+}
+
+function IconeDocumento() {
+  return (
+    <Svg
+      width={19}
+      height={19}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={cor.ouro}
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <Path d="M6.4 2.8h7l4.2 4.2v14.2H6.4z" />
+      <Path d="M13.4 2.8V7h4.2" />
+    </Svg>
+  );
+}
+
+function IconeVoo() {
+  return (
+    <Svg
+      width={19}
+      height={19}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={cor.ouro}
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <Path d="M10.2 20.4l1.8-5.4 7.4-2.2a1.8 1.8 0 0 0 .4-3.3l-2-1.2-3 .9-4.4-4.6-1.9.6 2.5 5.3-3.4 1-2.2-1.7-1.4.4 1.9 3.4-.6 2.2 2.1-1.5z" />
+    </Svg>
+  );
+}
+
+function IconeHotel() {
+  return (
+    <Svg
+      width={19}
+      height={19}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={cor.ouro}
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <Path d="M3.4 20.6V5.4a1.8 1.8 0 0 1 1.8-1.8h9.6a1.8 1.8 0 0 1 1.8 1.8v15.2" />
+      <Path d="M16.6 10.2h2.2a1.8 1.8 0 0 1 1.8 1.8v8.6M2 20.6h20" />
+      <Path d="M7 7.6h1.4M11.6 7.6H13M7 11.6h1.4M11.6 11.6H13M7 15.6h1.4M11.6 15.6H13" />
+    </Svg>
+  );
+}
+
+function IconeGaleria() {
+  return (
+    <Svg
+      width={19}
+      height={19}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={cor.ouro}
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <Rect x={3.4} y={3.4} width={17.2} height={17.2} rx={3} />
+      <Path d="M3.4 16l4.2-4a1.8 1.8 0 0 1 2.5 0l4.7 4.6" />
+      <Circle cx={15} cy={8.6} r={1.4} />
+    </Svg>
+  );
+}
+
+const HORA = new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
 function hora(iso: string | null): string {
-  if (!iso) return '';
-  return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  return iso ? HORA.format(new Date(iso)) : '--:--';
 }
 
-function intervaloCurto(inicio: string, fim: string): string {
+/** "10 – 17 SETEMBRO 2026", como o design. */
+function periodoLongo(inicio: string, fim: string): string {
   const a = new Date(inicio);
   const b = new Date(fim);
-  const mes = (d: Date) =>
-    d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase();
-  return a.getMonth() === b.getMonth()
-    ? `${a.getDate()}–${b.getDate()} ${mes(b)} ${b.getFullYear()}`
-    : `${a.getDate()} ${mes(a)} – ${b.getDate()} ${mes(b)} ${b.getFullYear()}`;
+  const mes = b.toLocaleDateString('pt-BR', { month: 'long' }).toUpperCase();
+  return `${a.getDate()} – ${b.getDate()} ${mes} ${b.getFullYear()}`;
 }
 
-/**
- * O banner.
- *
- * Gradiente e não imagem: uma foto de Dubai teria de vir de algum lugar, e
- * `trips` não guarda capa. Inventar uma imagem de banco de imagens seria
- * exatamente o "protótipo barato" que este release não pode parecer — o
- * gradiente dourado sobre grafite é a assinatura que o app já tem.
- */
-function Banner({
-  destino,
-  periodo,
-  nome,
-  emAndamento,
-}: {
-  destino: string;
-  periodo: string;
-  nome: string | null;
-  emAndamento: boolean;
-}) {
-  return (
-    <View style={[styles.banner, shadowStyle('card')]}>
-      <LinearGradient
-        colors={[palette.goldFill, 'transparent']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
-      <View style={styles.bannerConteudo}>
-        {nome ? <Kicker>Olá, {nome}</Kicker> : <Kicker>Fly</Kicker>}
-        <Text variant="largeTitle" style={styles.bannerDestino}>
-          {destino}
-        </Text>
-        <Text variant="body" style={styles.bannerPeriodo}>
-          {periodo}
-        </Text>
-        <Text variant="body" tone="muted" style={styles.bannerFrase}>
-          {emAndamento ? 'Sua experiência Fly começou.' : 'Sua experiência Fly está chegando.'}
-        </Text>
-      </View>
-    </View>
-  );
-}
-
-function FaixaDeAlertas({ alertas }: { alertas: readonly Alerta[] }) {
-  if (alertas.length === 0) return null;
-  return (
-    <View style={styles.secao}>
-      {alertas.slice(0, 4).map((a) => (
-        <View
-          key={a.id}
-          style={[styles.alerta, { borderLeftColor: COR_DO_ALERTA[a.nivel] }]}
-          accessibilityRole="alert"
-        >
-          <Text variant="caption" style={{ color: COR_DO_ALERTA[a.nivel] }}>
-            {a.titulo}
-          </Text>
-          <Text variant="body">{a.corpo}</Text>
-        </View>
-      ))}
-    </View>
-  );
-}
-
-function CartaoDoProximo({ atividade }: { atividade: AtividadeParaAlerta }) {
-  const referencia = atividade.saidaEm ?? atividade.comecaEm;
-  const faltam = referencia
-    ? Math.round((new Date(referencia).getTime() - Date.now()) / 60000)
-    : null;
-
-  return (
-    <View style={styles.secao}>
-      <Kicker>Próximo compromisso</Kicker>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={`Ver detalhes de ${atividade.titulo}`}
-        onPress={() => router.push(`/viagem/atividade/${atividade.id}`)}
-        style={({ pressed }) => [pressed && styles.pressionado]}
-      >
-        <Card>
-          <Text variant="section" style={styles.proximoTitulo}>
-            {atividade.titulo}
-          </Text>
-          <Text variant="body" style={styles.proximoQuando}>
-            {referencia ? hora(referencia) : 'Horário a confirmar'}
-            {faltam !== null && faltam <= 720 ? ` · ${faltaTexto(faltam)}` : ''}
-          </Text>
-          {atividade.local ? (
-            <Text variant="body" tone="muted">
-              {atividade.local}
-            </Text>
-          ) : null}
-          <Text variant="caption" style={styles.verDetalhes}>
-            VER DETALHES
-          </Text>
-        </Card>
-      </Pressable>
-    </View>
-  );
-}
-
-function SeuDia({ itens }: { itens: readonly AtividadeParaAlerta[] }) {
-  if (itens.length === 0) return null;
-  return (
-    <View style={styles.secao}>
-      <Kicker>Seu dia</Kicker>
-      <Card padding={space.lg}>
-        {itens.map((a, i) => (
-          <Pressable
-            key={a.id}
-            accessibilityRole="button"
-            accessibilityLabel={a.titulo}
-            onPress={() => router.push(`/viagem/atividade/${a.id}`)}
-            style={[styles.linhaDoDia, i > 0 && styles.linhaComTopo]}
-          >
-            <Text variant="body" style={styles.horaDoDia}>
-              {hora(a.comecaEm ?? a.saidaEm) || '—'}
-            </Text>
-            <View style={styles.tituloDoDia}>
-              <Text variant="body">{a.titulo}</Text>
-              {a.local ? (
-                <Text variant="body" tone="muted">
-                  {a.local}
-                </Text>
-              ) : null}
-            </View>
-          </Pressable>
-        ))}
-      </Card>
-    </View>
-  );
-}
-
-/**
- * Os destinos que a viagem usa todo dia.
- *
- * Sete, e cada um e uma tela que ja existia — nenhum atalho leva a algo
- * construido para este release, exceto Documentos e Mais experiencias. E a
- * ordem e a do dia: roteiro e passeios de manha, voo e hotel na chegada e na
- * saida, galeria no fim.
- */
-const ATALHOS = [
-  { rotulo: 'Meu roteiro', destino: '/viagem/roteiro' },
-  { rotulo: 'Meus passeios', destino: '/passeios/meus' },
-  { rotulo: 'Documentos', destino: '/viagem/documentos' },
-  { rotulo: 'Voo', destino: '/viagem/voos' },
-  { rotulo: 'Hotel', destino: '/viagem/hotel' },
-  { rotulo: 'Galeria', destino: '/galeria' },
-  { rotulo: 'Mais experiências', destino: '/experiencias' },
-] as const;
-
-function Atalhos() {
-  return (
-    <View style={styles.secao}>
-      <Kicker>Atalhos</Kicker>
-      <View style={styles.grade}>
-        {ATALHOS.map((a) => (
-          <Pressable
-            key={a.destino}
-            accessibilityRole="button"
-            accessibilityLabel={a.rotulo}
-            onPress={() => router.push(a.destino)}
-            style={({ pressed }) => [styles.atalho, pressed && styles.pressionado]}
-          >
-            <Text variant="body" style={styles.atalhoTexto}>
-              {a.rotulo}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
-    </View>
-  );
+/** "RO" — as iniciais do avatar. Uma letra quando só há um nome. */
+function iniciaisDe(nome: string | null): string {
+  if (!nome) return 'FL';
+  const partes = nome.trim().split(/\s+/);
+  const primeira = partes[0]?.[0] ?? 'F';
+  const ultima = partes.length > 1 ? (partes[partes.length - 1]?.[0] ?? '') : '';
+  return (primeira + ultima).toUpperCase();
 }
 
 export function TripHome() {
@@ -232,143 +173,169 @@ export function TripHome() {
 
   const perfil = sessao.kind === 'signedIn' ? sessao.profile : null;
   const nome = perfil?.preferredName ?? perfil?.displayName ?? null;
+  const primeiroNome = nome?.trim().split(/\s+/)[0] ?? null;
 
   if (viagem.kind === 'loading') {
     return (
-      <Screen>
+      <View style={e.tela}>
         <LoadingSkeleton />
-      </Screen>
+      </View>
     );
   }
 
   if (viagem.kind === 'error') {
     return (
-      <Screen>
+      <View style={e.tela}>
         <ErrorState description={viagem.message} />
-      </Screen>
+      </View>
     );
   }
 
   if (viagem.kind === 'semViagem') {
     return (
-      <Screen>
+      <View style={e.tela}>
         <EmptyState
           title="Sua viagem ainda não começou"
           description="Quando a Fly montar sua viagem, tudo o que você precisa aparece aqui."
         />
-      </Screen>
+      </View>
     );
   }
 
   const v = viagem.viagem;
   const emAndamento = v.diaAtual !== null;
+  const progresso =
+    v.diaAtual !== null && v.totalDias > 0 ? Math.min(1, v.diaAtual / v.totalDias) : undefined;
+
+  const frase = emAndamento
+    ? `Sua experiência Fly começou · dia ${v.diaAtual} de ${v.totalDias}`
+    : 'Sua experiência Fly está chegando.';
+
+  const proximo = roteiro.kind === 'ready' ? roteiro.proximo : null;
+  const referencia = proximo?.saidaEm ?? proximo?.comecaEm ?? null;
+  const faltam = referencia
+    ? Math.round((new Date(referencia).getTime() - Date.now()) / 60000)
+    : null;
+
+  // O aviso da Home é o primeiro "IMPORTANTE" do roteiro. Um só: a Home
+  // destaca, o roteiro lista.
+  const aviso =
+    roteiro.kind === 'ready' ? roteiro.alertas.find((a) => a.nivel === 'importante') : undefined;
+
+  const agora = Date.now();
+  const doDia: LinhaDoDia[] =
+    roteiro.kind === 'ready'
+      ? roteiro.doDia.map((a) => {
+          const ref = a.comecaEm ?? a.saidaEm;
+          const t = ref ? new Date(ref).getTime() : agora;
+          const ehProximo = proximo?.id === a.id;
+          return {
+            id: a.id,
+            hora: hora(ref),
+            titulo: a.local ? `${a.titulo} · ${a.local}` : a.titulo,
+            estado: ehProximo ? 'agora' : t < agora ? 'passou' : 'depois',
+          };
+        })
+      : [];
 
   return (
-    <Screen scroll>
-      <Banner
+    <ScrollView
+      style={e.tela}
+      contentContainerStyle={e.conteudo}
+      showsVerticalScrollIndicator={false}
+    >
+      <TopoDaHome
+        primeiroNome={primeiroNome}
+        iniciais={iniciaisDe(nome)}
+        onPerfil={() => router.push('/perfil')}
+      />
+
+      <BannerDaViagem
         destino={v.destino}
-        periodo={intervaloCurto(v.comecaEm, v.terminaEm)}
-        nome={nome}
+        bandeira="🇦🇪"
+        periodo={periodoLongo(v.comecaEm, v.terminaEm)}
+        frase={frase}
+        progresso={progresso}
         emAndamento={emAndamento}
       />
 
-      {roteiro.kind === 'ready' ? (
+      {proximo ? (
+        <CartaoProximo
+          titulo={proximo.local ? `${proximo.titulo} · ${proximo.local}` : proximo.titulo}
+          quando={
+            referencia
+              ? `${emAndamento ? 'Hoje' : 'Em breve'} · ${hora(referencia)}${
+                  faltam !== null && faltam >= 0 && faltam <= 720 ? ` · ${faltaTexto(faltam)}` : ''
+                }`
+              : 'Horário a confirmar'
+          }
+          onPress={() => router.push(`/viagem/atividade/${proximo.id}`)}
+        />
+      ) : null}
+
+      {aviso ? <AvisoImportante texto={aviso.corpo} /> : null}
+
+      {doDia.length > 0 ? (
         <>
-          <FaixaDeAlertas alertas={roteiro.alertas} />
-          {roteiro.proximo ? <CartaoDoProximo atividade={roteiro.proximo} /> : null}
-          <SeuDia itens={roteiro.doDia} />
+          <TituloDeSecao
+            titulo="Seu dia"
+            acao="Ver roteiro"
+            onAcao={() => router.push('/viagem/roteiro')}
+          />
+          <ListaDoDia itens={doDia} onItem={(id) => router.push(`/viagem/atividade/${id}`)} />
         </>
       ) : null}
 
-      {/* Os atalhos aparecem mesmo enquanto o roteiro carrega: eles não
-          dependem dele, e são o que a pessoa toca quando abriu o app para
-          buscar o voucher, não para saber a hora. */}
-      <Atalhos />
-    </Screen>
+      <View style={e.tituloAtalhos}>
+        <Text style={[tipo('secao'), { color: cor.texto }]}>Atalhos</Text>
+      </View>
+
+      <GradeDeAtalhos
+        atalhos={[
+          {
+            chave: 'roteiro',
+            rotulo: 'Roteiro',
+            desenho: <IconeRoteiro />,
+            onPress: () => router.push('/viagem/roteiro'),
+          },
+          {
+            chave: 'passeios',
+            rotulo: 'Passeios',
+            desenho: <IconePasseios />,
+            onPress: () => router.push('/passeios/meus'),
+          },
+          {
+            chave: 'documentos',
+            rotulo: 'Documentos',
+            desenho: <IconeDocumento />,
+            onPress: () => router.push('/viagem/documentos'),
+          },
+          {
+            chave: 'voo',
+            rotulo: 'Voo',
+            desenho: <IconeVoo />,
+            onPress: () => router.push('/viagem/voos'),
+          },
+          {
+            chave: 'hotel',
+            rotulo: 'Hotel',
+            desenho: <IconeHotel />,
+            onPress: () => router.push('/viagem/hotel'),
+          },
+          {
+            chave: 'galeria',
+            rotulo: 'Galeria',
+            desenho: <IconeGaleria />,
+            onPress: () => router.push('/galeria'),
+          },
+        ]}
+      />
+    </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  banner: {
-    borderRadius: radius.card,
-    borderWidth: 1,
-    borderColor: palette.goldBorder,
-    backgroundColor: palette.surface,
-    overflow: 'hidden',
-    marginBottom: space.xl,
-  },
-  bannerConteudo: {
-    padding: space.xl,
-    gap: space.xs,
-  },
-  bannerDestino: {
-    marginTop: space.xs,
-  },
-  bannerPeriodo: {
-    color: palette.gold,
-    letterSpacing: 1,
-  },
-  bannerFrase: {
-    marginTop: space.sm,
-  },
-  secao: {
-    marginBottom: space.xl,
-    gap: space.sm,
-  },
-  alerta: {
-    borderLeftWidth: 3,
-    paddingLeft: space.md,
-    paddingVertical: space.xs,
-    gap: 2,
-  },
-  proximoTitulo: {
-    marginBottom: space.xs,
-  },
-  proximoQuando: {
-    color: palette.gold,
-  },
-  verDetalhes: {
-    marginTop: space.md,
-    color: palette.textMuted,
-  },
-  linhaDoDia: {
-    flexDirection: 'row',
-    gap: space.md,
-    paddingVertical: space.sm,
-    minHeight: touchTarget.min,
-    alignItems: 'center',
-  },
-  linhaComTopo: {
-    borderTopWidth: 1,
-    borderTopColor: palette.strokeSubtle,
-  },
-  horaDoDia: {
-    width: 52,
-    color: palette.textMuted,
-  },
-  tituloDoDia: {
-    flex: 1,
-  },
-  grade: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: space.sm,
-  },
-  atalho: {
-    flexGrow: 1,
-    flexBasis: '47%',
-    minHeight: touchTarget.min,
-    justifyContent: 'center',
-    paddingHorizontal: space.lg,
-    borderRadius: radius.card,
-    borderWidth: 1,
-    borderColor: palette.stroke,
-    backgroundColor: palette.surface,
-  },
-  atalhoTexto: {
-    color: palette.text,
-  },
-  pressionado: {
-    opacity: 0.7,
-  },
+const e = StyleSheet.create({
+  tela: { flex: 1, backgroundColor: cor.fundo },
+  conteudo: { paddingBottom: casca.respiroInferior },
+  tituloAtalhos: { paddingHorizontal: casca.margemTexto, paddingTop: 26 },
 });

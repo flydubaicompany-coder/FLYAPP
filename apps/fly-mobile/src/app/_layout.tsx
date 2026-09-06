@@ -5,6 +5,7 @@ import { palette } from '@/theme';
 import { SessionProvider } from '@/auth/session';
 import { AnalyticsProvider } from '@/analytics/provider';
 import { usePush } from '@/push/usePush';
+import { CascaDaViagem } from '@/trip/CascaDaViagem';
 
 /**
  * Raiz. As cinco abas vivem em `(tabs)`; rotas empilhadas — carrinho, Fly
@@ -46,6 +47,12 @@ export default function RootLayout() {
             <Stack.Screen name="entrar" options={{ presentation: 'modal' }} />
             <Stack.Screen name="assist/[choice]" options={{ presentation: 'modal' }} />
           </Stack>
+
+          {/* A casca do Trip Mode fica FORA do Stack, sobre ele: no desenho a
+              barra aparece em todas as telas, e varias delas sao rotas
+              empilhadas. Dentro de `(tabs)` ela nao existiria ali. Fora do
+              modo viagem este componente devolve null. */}
+          <CascaDaViagem />
         </AnalyticsProvider>
       </SessionProvider>
     </SafeAreaProvider>

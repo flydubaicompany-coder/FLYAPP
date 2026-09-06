@@ -81,22 +81,27 @@ export default function TabsLayout() {
         <Tabs.Screen name="perfil" options={{ title: 'Perfil' }} />
       </Tabs>
 
-      <FloatingActionRail
-        cartCount={cartCount}
-        // O carrinho nao aparece no Trip Mode: nao ha checkout nesta viagem, e
-        // um carrinho vazio que nunca enche e um botao que ensina a ignorar.
-        showCart={!modoViagem && shouldShowCart(activeRoute)}
-        onOpenCart={() => router.push('/carrinho')}
-        onOpenAssist={() => setAssistOpen(true)}
-      />
+      {/* No Trip Mode a casca e desenhada na raiz (`CascaDaViagem`), porque a
+          barra do desenho aparece tambem nas rotas empilhadas. Aqui fica so a
+          do produto completo. */}
+      {modoViagem ? null : (
+        <>
+          <FloatingActionRail
+            cartCount={cartCount}
+            showCart={shouldShowCart(activeRoute)}
+            onOpenCart={() => router.push('/carrinho')}
+            onOpenAssist={() => setAssistOpen(true)}
+          />
 
-      <BottomNav
-        activeRoute={activeRoute}
-        tabs={abas}
-        onNavigate={(route) => router.replace(pathForRoute(route))}
-        tripHasAlert={tripHasAlert}
-        tripProgress={tripProgress}
-      />
+          <BottomNav
+            activeRoute={activeRoute}
+            tabs={abas}
+            onNavigate={(route) => router.replace(pathForRoute(route))}
+            tripHasAlert={tripHasAlert}
+            tripProgress={tripProgress}
+          />
+        </>
+      )}
 
       <AssistSheet
         visible={assistOpen}
