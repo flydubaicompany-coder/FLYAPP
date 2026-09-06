@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { Image, ImageBackground, Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { Text } from '@/ui';
 import { casca, cor, foto, marca, raio, sombra, tipo } from './design';
@@ -79,7 +79,16 @@ export function BannerDaViagem({
 }: BannerProps) {
   return (
     <View style={[e.banner, sombra.banner]}>
-      <ImageBackground source={foto.downtownCrepusculo} style={StyleSheet.absoluteFill} />
+      {/* `Image` com `cover`, e nao `ImageBackground`: no React Native Web o
+          ImageBackground desenha um <img> no tamanho natural — medido aqui,
+          780x1170 dentro de um banner de 343x326, com `object-fit: fill`. O
+          que aparecia era um pedaco esticado do ceu. */}
+      <Image
+        source={foto.downtownCrepusculo}
+        style={e.bannerFoto}
+        resizeMode="cover"
+        accessibilityIgnoresInvertColors
+      />
       <LinearGradient
         colors={['rgba(4,4,6,.5)', 'rgba(4,4,6,.05)', 'rgba(4,4,6,.58)', 'rgba(4,4,6,.96)']}
         locations={[0, 0.26, 0.62, 1]}
@@ -388,6 +397,13 @@ const e = StyleSheet.create({
     borderRadius: raio.banner,
     overflow: 'hidden',
     backgroundColor: cor.fundoCartao,
+  },
+  bannerFoto: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
   },
   selo: {
     position: 'absolute',

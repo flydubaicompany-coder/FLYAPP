@@ -202,13 +202,14 @@ export function TripChrome({ ativo, onIr, onAjuda, carteiraBloqueada = true }: T
         ]}
         testID="trip-ajuda"
       >
-        <LinearGradient
-          colors={[cor.zapTopo, cor.zapBase]}
-          style={StyleSheet.absoluteFill}
-          pointerEvents="none"
-        />
-        <GlifoWhatsapp />
-        <Text style={[tipo('legenda'), estilos.zapTexto]}>Preciso de ajuda</Text>
+        {/* O gradiente **envolve** o conteudo, em vez de ficar atras dele por
+            `absoluteFill`. No React Native Web um filho posicionado pinta
+            acima dos irmaos estaticos: o glifo existia, tinha 18x18 e o `fill`
+            certo, e ficava embaixo do proprio fundo do botao. */}
+        <LinearGradient colors={[cor.zapTopo, cor.zapBase]} style={estilos.zapConteudo}>
+          <GlifoWhatsapp />
+          <Text style={[tipo('legenda'), estilos.zapTexto]}>Preciso de ajuda</Text>
+        </LinearGradient>
       </Pressable>
 
       <View
@@ -280,13 +281,16 @@ const estilos = StyleSheet.create({
     position: 'absolute',
     right: casca.zapDireita,
     zIndex: 78,
+    height: casca.zapAltura,
+    borderRadius: casca.zapAltura / 2,
+    overflow: 'hidden',
+  },
+  zapConteudo: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 9,
-    height: casca.zapAltura,
+    height: '100%',
     paddingHorizontal: 18,
-    borderRadius: casca.zapAltura / 2,
-    overflow: 'hidden',
   },
   zapTexto: {
     color: cor.zapTexto,
