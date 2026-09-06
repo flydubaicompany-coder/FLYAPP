@@ -1,4 +1,4 @@
-export { BottomNav, LEFT_TABS, RIGHT_TABS, type BottomNavProps } from './BottomNav';
+export { BottomNav, type BottomNavProps } from './BottomNav';
 export {
   CENTRAL_ROUTE,
   ROUTES_WITH_CART,
@@ -9,6 +9,9 @@ export {
   shouldShowCart,
   type TabPath,
   type TabRoute,
+  tabsFor,
+  tabSides,
+  TRIP_TAB_ORDER,
 } from './routing';
 export { CentralTripButton, type CentralTripButtonProps } from './CentralTripButton';
 export { FloatingActionRail, type FloatingActionRailProps } from './FloatingActionRail';

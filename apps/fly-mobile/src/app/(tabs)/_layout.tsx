@@ -9,10 +9,12 @@ import {
   pathForRoute,
   routeFromPathname,
   shouldShowCart,
+  tabsFor,
 } from '@/navigation';
+import { ASSUNTOS, emModoViagem, useSuporteFly, type AssuntoDeSuporte } from '@/trip';
 
 /**
- * Casca das cinco abas (spec §4).
+ * Casca das abas (spec §4).
  *
  * A barra do react-navigation e substituida por `BottomNav` porque o botao
  * central precisa se projetar **acima** da barra — algo que a tabBar padrao
@@ -20,12 +22,24 @@ import {
  *
  * A coluna flutuante e a folha do Fly Assist vivem aqui, e nao em cada tela,
  * porque a §4.2 exige que o Fly Assist permaneca acessivel nas telas criticas.
+ *
+ * ## Trip Mode
+ *
+ * No release da viagem a barra tem quatro destinos em vez de cinco, e o botao
+ * flutuante de ajuda abre o WhatsApp da operacao com a mensagem pronta. As
+ * telas de Passeios e Carteira **continuam registradas** — some a aba, nao a
+ * tela: `href: null` tira da barra do Expo Router sem tirar a rota, e um deep
+ * link para `/passeios` continua abrindo.
  */
 
 export default function TabsLayout() {
   const router = useRouter();
   const pathname = usePathname();
   const activeRoute = routeFromPathname(pathname);
+
+  const modoViagem = emModoViagem();
+  const abas = tabsFor(modoViagem);
+  const suporte = useSuporteFly();
 
   const [assistOpen, setAssistOpen] = useState(false);
   const [sosConfirming, setSosConfirming] = useState(false);
@@ -51,21 +65,34 @@ export default function TabsLayout() {
         tabBar={() => null}
       >
         <Tabs.Screen name="index" options={{ title: 'Início' }} />
-        <Tabs.Screen name="passeios" options={{ title: 'Passeios' }} />
+        <Tabs.Screen
+          name="passeios"
+          options={{ title: 'Passeios', ...(modoViagem ? { href: null } : {}) }}
+        />
         <Tabs.Screen name="viagem" options={{ title: 'Minha Viagem' }} />
-        <Tabs.Screen name="carteira" options={{ title: 'Carteira' }} />
+        <Tabs.Screen
+          name="carteira"
+          options={{ title: 'Carteira', ...(modoViagem ? { href: null } : {}) }}
+        />
+        <Tabs.Screen
+          name="galeria"
+          options={{ title: 'Galeria', ...(modoViagem ? {} : { href: null }) }}
+        />
         <Tabs.Screen name="perfil" options={{ title: 'Perfil' }} />
       </Tabs>
 
       <FloatingActionRail
         cartCount={cartCount}
-        showCart={shouldShowCart(activeRoute)}
+        // O carrinho nao aparece no Trip Mode: nao ha checkout nesta viagem, e
+        // um carrinho vazio que nunca enche e um botao que ensina a ignorar.
+        showCart={!modoViagem && shouldShowCart(activeRoute)}
         onOpenCart={() => router.push('/carrinho')}
         onOpenAssist={() => setAssistOpen(true)}
       />
 
       <BottomNav
         activeRoute={activeRoute}
+        tabs={abas}
         onNavigate={(route) => router.replace(pathForRoute(route))}
         tripHasAlert={tripHasAlert}
         tripProgress={tripProgress}
@@ -80,6 +107,15 @@ export default function TabsLayout() {
           closeAssist();
           router.push(`/assist/${choice}`);
         }}
+        {...(modoViagem
+          ? {
+              assuntosDaViagem: ASSUNTOS.map((a) => ({ chave: a.chave, rotulo: a.rotulo })),
+              canalPronto: suporte.pronto,
+              onEscolherAssunto: (chave: string) => {
+                void suporte.abrirSuporte(chave as AssuntoDeSuporte);
+              },
+            }
+          : {})}
       />
     </View>
   );

@@ -18,3 +18,5 @@ export {
 } from './alertas';
 export { configDeViagem, emModoViagem, type ConfigDeViagem } from './modo';
 export { useSuporteFly } from './useSuporteFly';
+export { useRoteiroProximo, type RoteiroProximo } from './useRoteiroProximo';
+export { TripHome } from './TripHome';

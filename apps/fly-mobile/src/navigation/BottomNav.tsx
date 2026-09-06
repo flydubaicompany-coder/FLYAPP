@@ -5,7 +5,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { bottomBar, space, touchTarget } from '@/theme';
 import { Text } from '@/ui';
 import { CentralTripButton } from './CentralTripButton';
-import { HomeIcon, ProfileIcon, ToursIcon, WalletIcon, type TabIconProps } from './TabIcons';
+import {
+  GalleryIcon,
+  HomeIcon,
+  ProfileIcon,
+  ToursIcon,
+  WalletIcon,
+  type TabIconProps,
+} from './TabIcons';
 
 /**
  * A barra inferior definitiva (spec §4).
@@ -18,9 +25,9 @@ import { HomeIcon, ProfileIcon, ToursIcon, WalletIcon, type TabIconProps } from 
  * respiro no topo, blur 36 e saturacao 190%.
  */
 
-import { CENTRAL_ROUTE, TAB_LABELS, type TabRoute } from './routing';
+import { CENTRAL_ROUTE, TAB_LABELS, TAB_ORDER, tabSides, type TabRoute } from './routing';
 
-export { CENTRAL_ROUTE, TAB_ORDER, type TabRoute } from './routing';
+export { CENTRAL_ROUTE, TAB_ORDER, TRIP_TAB_ORDER, type TabRoute } from './routing';
 
 interface TabDef {
   route: TabRoute;
@@ -28,20 +35,27 @@ interface TabDef {
   Icon: (props: TabIconProps) => React.ReactElement;
 }
 
-/** Ordem fixa. O centro e resolvido separadamente, no meio do grid. */
-export const LEFT_TABS: readonly TabDef[] = [
-  { route: 'index', label: TAB_LABELS.index, Icon: HomeIcon },
-  { route: 'passeios', label: TAB_LABELS.passeios, Icon: ToursIcon },
-];
+const ICONE: Record<TabRoute, (props: TabIconProps) => React.ReactElement> = {
+  index: HomeIcon,
+  passeios: ToursIcon,
+  viagem: HomeIcon, // nunca usado: o centro tem componente proprio
+  carteira: WalletIcon,
+  perfil: ProfileIcon,
+  galeria: GalleryIcon,
+};
 
-export const RIGHT_TABS: readonly TabDef[] = [
-  { route: 'carteira', label: TAB_LABELS.carteira, Icon: WalletIcon },
-  { route: 'perfil', label: TAB_LABELS.perfil, Icon: ProfileIcon },
-];
+function defsFor(rotas: readonly TabRoute[]): readonly TabDef[] {
+  return rotas.map((route) => ({ route, label: TAB_LABELS[route], Icon: ICONE[route] }));
+}
 
 export interface BottomNavProps {
   activeRoute: TabRoute;
   onNavigate: (route: TabRoute) => void;
+  /**
+   * Os destinos desta build. Ausente = as cinco abas de sempre, para que
+   * nenhuma tela que ja usa `BottomNav` precise mudar.
+   */
+  tabs?: readonly TabRoute[];
   /** Alteracao importante na viagem que o cliente ainda nao viu. */
   tripHasAlert?: boolean;
   /** Progresso do dia, de 0 a 1. Ausente = sem viagem ativa. */
@@ -77,10 +91,15 @@ function TabItem({ def, active, onPress }: { def: TabDef; active: boolean; onPre
 export function BottomNav({
   activeRoute,
   onNavigate,
+  tabs = TAB_ORDER,
   tripHasAlert = false,
   tripProgress,
 }: BottomNavProps) {
   const insets = useSafeAreaInsets();
+  const { left, right } = tabSides(tabs);
+  // Os dois lados recebem o mesmo peso mesmo quando tem contagens diferentes:
+  // e o que mantem o botao central no eixo com quatro abas.
+  const peso = Math.max(left.length, right.length);
 
   return (
     <View
@@ -107,14 +126,16 @@ export function BottomNav({
       </View>
 
       <View style={[styles.row, { paddingBottom: insets.bottom }]}>
-        {LEFT_TABS.map((def) => (
-          <TabItem
-            key={def.route}
-            def={def}
-            active={activeRoute === def.route}
-            onPress={() => onNavigate(def.route)}
-          />
-        ))}
+        <View style={[styles.side, { flex: peso }]}>
+          {defsFor(left).map((def) => (
+            <TabItem
+              key={def.route}
+              def={def}
+              active={activeRoute === def.route}
+              onPress={() => onNavigate(def.route)}
+            />
+          ))}
+        </View>
 
         <View style={styles.centerSlot} pointerEvents="box-none">
           <CentralTripButton
@@ -125,14 +146,16 @@ export function BottomNav({
           />
         </View>
 
-        {RIGHT_TABS.map((def) => (
-          <TabItem
-            key={def.route}
-            def={def}
-            active={activeRoute === def.route}
-            onPress={() => onNavigate(def.route)}
-          />
-        ))}
+        <View style={[styles.side, { flex: peso }]}>
+          {defsFor(right).map((def) => (
+            <TabItem
+              key={def.route}
+              def={def}
+              active={activeRoute === def.route}
+              onPress={() => onNavigate(def.route)}
+            />
+          ))}
+        </View>
       </View>
 
       {/* Home indicator. Desenhado quando o aparelho nao reserva a faixa —
@@ -158,6 +181,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: bottomBar.shadow.blur,
     elevation: 8,
+  },
+  side: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
   },
   material: {
     position: 'absolute',

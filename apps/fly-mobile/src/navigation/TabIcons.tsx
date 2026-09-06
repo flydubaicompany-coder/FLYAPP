@@ -64,6 +64,24 @@ export function WalletIcon(props: TabIconProps) {
   );
 }
 
+/**
+ * Galeria — moldura com montanha e sol.
+ *
+ * Mesmo tracado das outras: contorno de 1.6, sem preenchimento. Um icone de
+ * biblioteca aqui destoaria na hora, porque a barra e o unico lugar do app
+ * onde cinco desenhos aparecem lado a lado.
+ */
+export function GalleryIcon(props: TabIconProps) {
+  return (
+    <Frame {...props}>
+      <Path d="M4 6.6A2.6 2.6 0 0 1 6.6 4h10.8A2.6 2.6 0 0 1 20 6.6v10.8a2.6 2.6 0 0 1-2.6 2.6H6.6A2.6 2.6 0 0 1 4 17.4z" />
+      <Path d="M4 15.5l4.2-4a1.8 1.8 0 0 1 2.5 0L15 15.8" />
+      <Path d="M14.2 14.9l1.4-1.3a1.8 1.8 0 0 1 2.5 0L20 15.2" />
+      <Path d="M14.6 8.9h.01" />
+    </Frame>
+  );
+}
+
 export function ProfileIcon(props: TabIconProps) {
   return (
     <Frame {...props}>

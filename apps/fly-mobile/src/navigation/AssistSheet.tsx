@@ -19,6 +19,23 @@ import { Kicker, Text } from '@/ui';
 
 export type AssistChoice = 'chat' | 'urgent' | 'sos';
 
+/**
+ * Trip Mode — o mesmo botao, outro destino.
+ *
+ * O botao flutuante fica onde estava: e ele que a §4.2 exige presente nas
+ * telas criticas, e um segundo botao de ajuda seria a pior forma de resolver
+ * isso. O que muda e **o que acontece ao tocar**. Em vez de abrir uma thread
+ * que nunca foi provada em producao, a folha lista os assuntos e abre o
+ * WhatsApp da operacao com nome, viagem e atividade ja escritos.
+ *
+ * Quando o atendimento proprio for provado, esta prop sai e a folha volta ao
+ * comportamento original — nada foi apagado para isto existir.
+ */
+export interface AssuntoDaViagem {
+  chave: string;
+  rotulo: string;
+}
+
 export interface AssistSheetProps {
   visible: boolean;
   onClose: () => void;
@@ -28,6 +45,11 @@ export interface AssistSheetProps {
   onRequestSosConfirm?: () => void;
   /** Contato oficial de emergencia. Vem do painel — nunca do codigo (§33). */
   emergencyPhoneLabel?: string;
+  /** Presente = Trip Mode. Ausente = a folha de sempre. */
+  assuntosDaViagem?: readonly AssuntoDaViagem[];
+  onEscolherAssunto?: (chave: string) => void;
+  /** Falso = nao ha numero configurado, e a folha diz isso em vez de agir. */
+  canalPronto?: boolean;
 }
 
 interface Option {
@@ -71,8 +93,12 @@ export function AssistSheet({
   sosConfirming = false,
   onRequestSosConfirm,
   emergencyPhoneLabel,
+  assuntosDaViagem,
+  onEscolherAssunto,
+  canalPronto = true,
 }: AssistSheetProps) {
   const insets = useSafeAreaInsets();
+  const modoViagem = assuntosDaViagem !== undefined && assuntosDaViagem.length > 0;
 
   return (
     <Modal
@@ -99,10 +125,57 @@ export function AssistSheet({
 
         <Kicker>Fly Assist</Kicker>
         <Text variant="section" style={styles.title}>
-          Como podemos ajudar?
+          {modoViagem ? 'Preciso de ajuda' : 'Como podemos ajudar?'}
         </Text>
 
-        {OPTIONS.map((option) => {
+        {modoViagem ? (
+          <>
+            {!canalPronto ? (
+              <Text variant="body" tone="muted" style={styles.fallback}>
+                O canal de atendimento ainda não foi configurado. Procure alguém da equipe Fly.
+              </Text>
+            ) : null}
+
+            {assuntosDaViagem.map((assunto) => (
+              <Pressable
+                key={assunto.chave}
+                accessibilityRole="button"
+                accessibilityLabel={assunto.rotulo}
+                accessibilityHint="Abre o WhatsApp da Fly com a mensagem pronta"
+                disabled={!canalPronto}
+                onPress={() => {
+                  onClose();
+                  onEscolherAssunto?.(assunto.chave);
+                }}
+                style={({ pressed }) => [
+                  styles.option,
+                  assunto.chave === 'urgente' && styles.optionSos,
+                  pressed && styles.optionPressed,
+                  !canalPronto && styles.optionDesligada,
+                ]}
+                testID={`trip-assunto-${assunto.chave}`}
+              >
+                <View
+                  style={[
+                    styles.dot,
+                    {
+                      backgroundColor:
+                        assunto.chave === 'urgente' ? TONE_COLOR.danger : TONE_COLOR.neutral,
+                    },
+                  ]}
+                />
+                <View style={styles.optionTexts}>
+                  <Text variant="body" style={styles.optionTitle}>
+                    {assunto.rotulo}
+                  </Text>
+                </View>
+              </Pressable>
+            ))}
+          </>
+        ) : null}
+
+        {!modoViagem &&
+          OPTIONS.map((option) => {
           const isSos = option.choice === 'sos';
           const confirming = isSos && sosConfirming;
 
@@ -140,7 +213,7 @@ export function AssistSheet({
               </View>
             </Pressable>
           );
-        })}
+          })}
 
         {emergencyPhoneLabel ? (
           <Text variant="body" tone="muted" style={styles.fallback}>
@@ -213,6 +286,9 @@ const styles = StyleSheet.create({
   optionConfirming: {
     borderColor: palette.danger,
     backgroundColor: 'rgba(240,84,84,.12)',
+  },
+  optionDesligada: {
+    opacity: 0.45,
   },
   optionPressed: {
     opacity: 0.75,

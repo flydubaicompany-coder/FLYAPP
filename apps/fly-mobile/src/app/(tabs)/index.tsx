@@ -33,6 +33,7 @@ import {
   type SectionKind,
 } from '@/home/composition';
 import { useAnalytics } from '@/analytics/provider';
+import { TripHome, emModoViagem } from '@/trip';
 
 /**
  * Início (§5).
@@ -177,7 +178,19 @@ function StatusPontos() {
   return <PackagePointsBand />;
 }
 
-export default function HomeScreen() {
+/**
+ * Trip Mode — release Dubai, set/2026.
+ *
+ * A Home completa fica **inteira** abaixo, e volta assim que a variavel de
+ * ambiente sair. Este `if` e a fronteira toda: nao ha condicional espalhada
+ * pelas secoes, e nao ha secao apagada.
+ */
+export default function Inicio() {
+  if (emModoViagem()) return <TripHome />;
+  return <HomeScreen />;
+}
+
+function HomeScreen() {
   const { state: sessao } = useSession();
   const { data, reload } = useHome();
   const naoLidas = useUnreadCount();
