@@ -1,3 +1,5 @@
+import { emModoViagem } from '@/trip';
+import TripMinhaViagem from '@/trip/TripMinhaViagem';
 import { Link } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { palette, radius, space, touchTarget } from '@/theme';
@@ -182,7 +184,16 @@ function tituloDoDia(iso: string): string {
   })}`;
 }
 
-export default function TripScreen() {
+/**
+ * O botao central abre a Minha Viagem do desenho no Trip Mode: hotel com o
+ * numero do quarto em 38px, voo e atalhos. A tela completa fica intacta.
+ */
+export default function MinhaViagem() {
+  if (emModoViagem()) return <TripMinhaViagem />;
+  return <TripScreen />;
+}
+
+function TripScreen() {
   const { data, reload } = useViagem();
   const tripId = data.kind === 'ready' ? data.viagem.id : null;
   const dias = useDias(tripId);
