@@ -38,6 +38,19 @@ function Meta({ desenho, texto }: { desenho: React.ReactNode; texto: string }) {
   );
 }
 
+/**
+ * "90 min", "2 horas", "1 hora".
+ *
+ * O plural sai das **horas arredondadas**, e não dos minutos: 100 minutos
+ * arredonda para 2 e tem de ser "2 horas". Pluralizar por `minutos >= 120`
+ * escrevia "2 hora", que foi o que apareceu na tela.
+ */
+function duracaoTexto(minutos: number): string {
+  if (minutos < 60) return `${minutos} min`;
+  const horas = Math.round(minutos / 60);
+  return `${horas} hora${horas === 1 ? '' : 's'}`;
+}
+
 function preco(centavos: number | null, moeda: string | null): string {
   if (centavos === null || !moeda) return 'Sob consulta';
   try {
@@ -154,11 +167,7 @@ export default function MaisExperiencias() {
                 <View style={e.metas}>
                   {p.duracaoMin ? (
                     <Meta
-                      texto={
-                        p.duracaoMin >= 60
-                          ? `${Math.round(p.duracaoMin / 60)} hora${p.duracaoMin >= 120 ? 's' : ''}`
-                          : `${p.duracaoMin} min`
-                      }
+                      texto={duracaoTexto(p.duracaoMin)}
                       desenho={
                         <Svg
                           width={13}

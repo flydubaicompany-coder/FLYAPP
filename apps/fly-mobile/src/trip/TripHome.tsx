@@ -301,7 +301,9 @@ export function TripHome() {
           titulo: p.titulo,
           categoria: p.categoria,
           apoio: p.duracaoMin
-            ? `${p.duracaoMin >= 60 ? `${Math.round(p.duracaoMin / 60)}h` : `${p.duracaoMin} min`}${p.cidade ? ` · ${p.cidade}` : ''}`
+            ? `${p.duracaoMin >= 60 ? `${Math.round(p.duracaoMin / 60)}h` : `${p.duracaoMin} min`}${
+                p.cidade ? ` · ${p.cidade}` : ''
+              }`
             : (p.cidade ?? 'Sob consulta'),
           foto: p.imagem ? urlDaImagem(p.imagem) : null,
         }))}
