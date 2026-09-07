@@ -7,6 +7,26 @@ reler a conversa anterior. **Mantenha-o ao fim de cada fase.**
 
 ---
 
+## Onde retomar — 07/09/2026
+
+### 🟡 Há uma branch de release aberta, e ela é a prioridade
+
+`release/trip-mode-dubai-2026-09` — o **Trip Mode**, versão da viagem Dubai
+set/2026 para os influenciadores. Mesmo código, quatro fases de produto
+escondidas por variável de ambiente, desenhado sobre
+`Fly Trip Mode.dc.html`.
+
+**Leia [docs/handoff/TRIP_MODE_CONTINUAR.md](handoff/TRIP_MODE_CONTINUAR.md)
+antes de tocar nessa branch.** Ele tem o que está pronto, o que falta, as
+armadilhas de React Native Web que já custaram tempo e o que não se inventa.
+
+Dez telas prontas; faltam Login, Galeria com lightbox, Passeios, Cadastro e
+duas animações da Home. `npm run verify` verde, 478 testes.
+
+`main` continua com o Fly App completo e não foi tocada.
+
+---
+
 ## Onde retomar — 06/09/2026, fim do dia
 
 **Fases 8, 9, 10 e 11 construídas.** As duas primeiras estão no banco; as duas
