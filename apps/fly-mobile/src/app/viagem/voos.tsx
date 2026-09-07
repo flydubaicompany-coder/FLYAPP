@@ -1,3 +1,5 @@
+import { emModoViagem } from '@/trip';
+import TripVoo from '@/trip/TripVoo';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { palette, radius, space } from '@/theme';
@@ -54,7 +56,16 @@ interface Voo {
   assento: string | null;
 }
 
-export default function VoosScreen() {
+/**
+ * No Trip Mode o voo e o cartao de rota do desenho. A tela completa —
+ * com todos os voos, transfers e instrucoes de base — fica intacta abaixo.
+ */
+export default function Voos() {
+  if (emModoViagem()) return <TripVoo />;
+  return <VoosScreen />;
+}
+
+function VoosScreen() {
   const { state: sessao } = useSession();
   const { data: viagemData } = useViagem();
   const [voos, setVoos] = useState<Voo[] | null>(null);

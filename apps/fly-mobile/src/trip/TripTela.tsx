@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '@/ui';
 import { casca, cor, tipo } from './design';
@@ -63,4 +65,81 @@ const e = StyleSheet.create({
   cabecalhoTextos: { flex: 1 },
   titulo: { marginTop: 8, color: cor.texto },
   apoio: { marginTop: 6, color: cor.m45 },
+
+  barraInterna: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingHorizontal: casca.margemTexto,
+    paddingTop: 14,
+  },
+  voltar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,.085)',
+    backgroundColor: cor.vidro05,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  voltarApertado: { transform: [{ scale: 0.9 }] },
+  tituloInterno: { fontSize: 15, fontWeight: '600', letterSpacing: -0.27, color: cor.texto },
 });
+
+/**
+ * A casca das telas internas: seta de voltar de 36px e título de 15px.
+ *
+ * É outro cabeçalho, e não uma variação do de cima. As telas de aba se
+ * apresentam com kicker e título grande; as internas — voo, voucher,
+ * documentos — chegam por um toque e precisam de duas coisas: o caminho de
+ * volta e o nome do lugar. Um título de 26px aqui roubaria a atenção do
+ * conteúdo, que é o motivo de a pessoa ter entrado.
+ */
+export function TripTelaInterna({
+  titulo,
+  children,
+  aoVoltar,
+}: {
+  titulo: string;
+  children: ReactNode;
+  aoVoltar?: () => void;
+}) {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <ScrollView
+      style={e.tela}
+      contentContainerStyle={{
+        paddingTop: Math.max(insets.top, 20) + 4,
+        paddingBottom: casca.respiroInferior + insets.bottom,
+      }}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={e.barraInterna}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Voltar"
+          onPress={() => (aoVoltar ? aoVoltar() : router.back())}
+          style={({ pressed }) => [e.voltar, pressed && e.voltarApertado]}
+          testID="trip-voltar"
+        >
+          <Svg
+            width={16}
+            height={16}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={cor.texto}
+            strokeWidth={2.2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <Path d="M15 5l-7 7 7 7" />
+          </Svg>
+        </Pressable>
+        <Text style={e.tituloInterno}>{titulo}</Text>
+      </View>
+      {children}
+    </ScrollView>
+  );
+}
