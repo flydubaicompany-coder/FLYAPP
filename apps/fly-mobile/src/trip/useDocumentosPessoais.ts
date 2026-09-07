@@ -62,11 +62,22 @@ export function useDocumentosPessoais(userId: string | null, tripId: string | nu
   const carregar = useCallback(async () => {
     if (!userId) return setData({ kind: 'loading' });
 
+    /**
+     * O filtro de tipo é feito **aqui**, e não no `in()` da consulta.
+     *
+     * `driver_license` só existe no enum depois da migration do Trip Mode. Um
+     * `in('kind', [...])` com um valor que o enum ainda não tem faz o Postgres
+     * recusar a consulta inteira — e a tela de documentos, que é P0, morre por
+     * causa de um tipo que talvez nem esteja em uso.
+     *
+     * Trazer os documentos do dono e separar em memória custa nada: são
+     * poucos por pessoa, e a tela passa a funcionar antes e depois da
+     * migration.
+     */
     const { data: linhas, error } = await supabase()
       .from('documents')
       .select('id, kind, title, created_at, reviewed_at')
       .eq('owner_id', userId)
-      .in('kind', ['passport', 'driver_license'])
       .order('created_at', { ascending: false });
 
     if (error) return setData({ kind: 'error', message: error.message });
@@ -74,7 +85,8 @@ export function useDocumentosPessoais(userId: string | null, tripId: string | nu
     // O primeiro de cada tipo é o mais recente — a lista já veio ordenada.
     const porTipo: Partial<Record<TipoDeDocumento, DocumentoPessoal>> = {};
     for (const d of linhas ?? []) {
-      const tipo = d.kind as TipoDeDocumento;
+      if (d.kind !== 'passport' && d.kind !== 'driver_license') continue;
+      const tipo = d.kind;
       if (porTipo[tipo]) continue;
       porTipo[tipo] = {
         id: d.id,

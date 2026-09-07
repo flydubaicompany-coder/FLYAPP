@@ -7,6 +7,7 @@ import { AppHeader, EmptyState, ErrorState, FlyQR, LoadingSkeleton, Screen, Text
 import { useSession } from '@/auth/session';
 import { CartaoDePontos } from '@/carteira/CarteiraBlocos';
 import { emModoViagem } from '@/trip';
+import TripPerfil from '@/trip/TripPerfil';
 import { ehPacote } from '@/carteira/pacote';
 import { progressoDoSaldo } from '@/carteira/nivel';
 import { useCarteira } from '@/carteira/useCarteira';
@@ -82,7 +83,16 @@ function nomeDoIdioma(codigo: string): string {
   return IDIOMAS[codigo] ?? codigo;
 }
 
-export default function ProfileScreen() {
+/**
+ * No Trip Mode o Perfil e o do desenho: curto, com a viagem atual em
+ * destaque. O Perfil completo fica intacto abaixo.
+ */
+export default function Perfil() {
+  if (emModoViagem()) return <TripPerfil />;
+  return <ProfileScreen />;
+}
+
+function ProfileScreen() {
   const { state, signOut } = useSession();
   const router = useRouter();
   const ir = (href: Href) => () => router.push(href);
