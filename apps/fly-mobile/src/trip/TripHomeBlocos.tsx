@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { Text } from '@/ui';
 import { casca, cor, foto, marca, raio, sombra, tipo } from './design';
@@ -534,7 +534,102 @@ const e = StyleSheet.create({
     borderColor: cor.vidro075,
     overflow: 'hidden',
   },
+  fita: { gap: 11, paddingHorizontal: casca.margemTela, paddingTop: 12 },
+  expCartao: {
+    width: 196,
+    height: 168,
+    borderRadius: raio.caixa,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: cor.vidro07,
+    justifyContent: 'flex-end',
+  },
+  expTextos: { padding: 14 },
+  expCategoria: { fontSize: 9, fontWeight: '700', letterSpacing: 1.26, color: cor.ouro },
+  expNome: {
+    marginTop: 4,
+    fontSize: 15,
+    lineHeight: 17.5,
+    fontWeight: '600',
+    letterSpacing: -0.24,
+    color: cor.textoBranco,
+  },
+  expApoio: { marginTop: 3, fontSize: 11.5, color: 'rgba(255,255,255,.55)' },
+
   apertado: { transform: [{ scale: 0.92 }] },
   apertadoLeve: { transform: [{ scale: 0.985 }] },
   apertadoAtalho: { transform: [{ scale: 0.96 }] },
 });
+
+// -----------------------------------------------------------------------------
+
+export interface ExperienciaCurta {
+  id: string;
+  titulo: string;
+  categoria: string | null;
+  apoio: string;
+  foto: string | null;
+}
+
+/**
+ * A fita de experiências da Home.
+ *
+ * Cartões estreitos, rolagem horizontal, e "Ver todas" ao lado do título —
+ * como o desenho. A Home vende **sugerindo**, não listando: quem quiser a
+ * lista inteira toca em "Ver todas" e vai para a tela própria, onde cada
+ * cartão tem descrição, duração, preço e o botão.
+ */
+export function FitaDeExperiencias({
+  itens,
+  onVerTodas,
+  onAbrir,
+}: {
+  itens: readonly ExperienciaCurta[];
+  onVerTodas: () => void;
+  onAbrir: () => void;
+}) {
+  if (itens.length === 0) return null;
+
+  return (
+    <>
+      <View style={e.tituloSecao}>
+        <Text style={[tipo('secao'), { color: cor.texto }]}>Mais experiências</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel="Ver todas" onPress={onVerTodas}>
+          <Text style={[tipo('legenda'), { color: cor.ouro }]}>Ver todas</Text>
+        </Pressable>
+      </View>
+
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={e.fita}>
+        {itens.map((x) => (
+          <Pressable
+            key={x.id}
+            accessibilityRole="button"
+            accessibilityLabel={x.titulo}
+            onPress={onAbrir}
+            style={({ pressed }) => [e.expCartao, pressed && e.apertadoLeve]}
+          >
+            {x.foto ? (
+              <Image source={{ uri: x.foto }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+            ) : (
+              <LinearGradient colors={['#1A1A20', '#0E0E11']} style={StyleSheet.absoluteFill} />
+            )}
+            <LinearGradient
+              colors={['transparent', 'rgba(4,4,6,.92)']}
+              locations={[0.35, 1]}
+              style={StyleSheet.absoluteFill}
+            />
+            <View style={e.expTextos}>
+              {x.categoria ? <Text style={e.expCategoria}>{x.categoria.toUpperCase()}</Text> : null}
+              <Text style={e.expNome} numberOfLines={2}>
+                {x.titulo}
+              </Text>
+              <Text style={e.expApoio} numberOfLines={1}>
+                {x.apoio}
+              </Text>
+            </View>
+          </Pressable>
+        ))}
+      </ScrollView>
+    </>
+  );
+}

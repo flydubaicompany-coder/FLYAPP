@@ -6,6 +6,8 @@ import { useSession } from '@/auth/session';
 import { useViagem } from '@/viagem/useViagem';
 import { faltaTexto } from './alertas';
 import { casca, cor, tipo } from './design';
+import { usePasseios } from '@/passeios/usePasseios';
+import { urlDaImagem } from '@/passeios/midia';
 import {
   AvisoImportante,
   BannerDaViagem,
@@ -14,6 +16,7 @@ import {
   ListaDoDia,
   TituloDeSecao,
   TopoDaHome,
+  FitaDeExperiencias,
   type LinhaDoDia,
 } from './TripHomeBlocos';
 import { useRoteiroProximo } from './useRoteiroProximo';
@@ -170,6 +173,8 @@ export function TripHome() {
   const { data: viagem } = useViagem();
   const tripId = viagem.kind === 'ready' ? viagem.viagem.id : null;
   const roteiro = useRoteiroProximo(tripId);
+  // As mesmas experiências da tela própria — mesma consulta, mesmo cadastro.
+  const { pagina: experiencias } = usePasseios({});
 
   const perfil = sessao.kind === 'signedIn' ? sessao.profile : null;
   const nome = perfil?.preferredName ?? perfil?.displayName ?? null;
@@ -289,6 +294,20 @@ export function TripHome() {
       <View style={e.tituloAtalhos}>
         <Text style={[tipo('secao'), { color: cor.texto }]}>Atalhos</Text>
       </View>
+
+      <FitaDeExperiencias
+        itens={experiencias.itens.slice(0, 6).map((p) => ({
+          id: p.id,
+          titulo: p.titulo,
+          categoria: p.categoria,
+          apoio: p.duracaoMin
+            ? `${p.duracaoMin >= 60 ? `${Math.round(p.duracaoMin / 60)}h` : `${p.duracaoMin} min`}${p.cidade ? ` · ${p.cidade}` : ''}`
+            : (p.cidade ?? 'Sob consulta'),
+          foto: p.imagem ? urlDaImagem(p.imagem) : null,
+        }))}
+        onVerTodas={() => router.push('/experiencias')}
+        onAbrir={() => router.push('/experiencias')}
+      />
 
       <GradeDeAtalhos
         atalhos={[
